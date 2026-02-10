@@ -1,2 +1,3 @@
-# moritz-care-home-app-replica
-Exported from Caffeine project: Recreate resident profile print layout to match uploaded reference (print.JPG)
+## 
+
+To run app build and run docker image: `docker build -t app . docker run -it --network host app`

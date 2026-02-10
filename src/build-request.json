@@ -1,0 +1,80 @@
+{
+  "kind": "build_request",
+  "title": "Recreate resident profile print layout to match uploaded reference (print.JPG)",
+  "priority": "normal",
+  "requirements": [
+    {
+      "id": "REQ-1",
+      "text": "Implement a dedicated print-only resident report layout that matches the uploaded reference image (print.JPG), including a multi-page document structure with consistent header, section titles, typography, spacing, and table styling.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-4"
+        ],
+        "quotes": [
+          "recreate print layout like the uploaded photo"
+        ]
+      },
+      "acceptanceCriteria": [
+        "When printing from a resident profile, the print preview shows a clean, document-style report (not the on-screen cards/tabs).",
+        "The print report is split into multiple pages with intentional page breaks to avoid awkward section splitting.",
+        "Each printed page includes a consistent top header area similar to the reference (left: date/time, center: application name, right: page indicator), and a clear report title block (facility name + 'Resident Profile Report').",
+        "Section headers and dividers visually resemble the reference (thin rules, subtle accent color, compact document typography).",
+        "Active medications render as a bordered table with column headers and rows styled for print readability (gridlines, compact padding, consistent fonts).",
+        "A 'Discontinued Medications' section is rendered and shows either a table/list of discontinued meds or a 'No discontinued medications' message when empty.",
+        "Assigned physicians, pharmacy information, and responsible contacts render as document sections (not cards) with label/value formatting similar to the reference.",
+        "All UI controls/navigation elements remain hidden in print (no-print behavior preserved)."
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "text": "Update the resident profile print flow so the existing Print action prints the new print-only report layout while keeping the current on-screen resident profile experience unchanged.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-4"
+        ],
+        "quotes": [
+          "recreate print layout like the uploaded photo"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Clicking 'Print' on ResidentProfilePage prints the new report layout.",
+        "On-screen view continues to show the existing cards and tabs; the document layout is only visible during print (e.g., via print-only CSS/classes).",
+        "Resident data used in the print report is sourced from existing queries (resident details + medications) and renders without missing/undefined fields (show 'N/A' where appropriate)."
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "text": "Extend print CSS to support document-style printing for the new report layout (A4 sizing/margins, print-safe colors, table borders, and page-break handling), without breaking existing print behavior elsewhere.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-4"
+        ],
+        "quotes": [
+          "recreate print layout like the uploaded photo"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Printed pages use consistent margins and a document-like scale suitable for A4/Letter printing.",
+        "Table borders and header background render correctly in print (including in browsers that require print color adjustment).",
+        "No-print elements remain hidden as they are today.",
+        "Sections marked to avoid splitting do not break across pages unless explicitly allowed."
+      ]
+    }
+  ],
+  "constraints": [
+    "Frontend immutable paths must not be modified: frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, frontend/src/components/ui.",
+    "Backend must remain single-actor; do not introduce additional backend services."
+  ],
+  "nonGoals": [
+    "Adding new resident data fields or changing the backend resident schema.",
+    "Implementing PDF generation or server-side rendering/export.",
+    "Changing the visual design of the on-screen resident profile dashboard/tabs beyond what is required to support the print-only layout."
+  ],
+  "imageRequirements": {
+    "required": [],
+    "edits": []
+  }
+}

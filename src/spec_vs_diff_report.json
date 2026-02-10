@@ -1,0 +1,58 @@
+{
+  "kind": "spec_vs_diff_report",
+  "version": "1.0",
+  "generatedAt": "2026-02-10T23:56:18.359Z",
+  "summary": "Diff adds a new print-only ResidentProfilePrintReport component, wires it into ResidentProfilePage’s existing Print action via window.print(), and extends global print CSS with page setup, print-only/screen-only visibility, and document-style header/section styling. Some REQ-1/REQ-3 acceptance criteria cannot be confirmed due to truncation (e.g., discontinued meds section, physician/pharmacy/contact sections, table styling details, and page-break avoidance rules).",
+  "missing_requirements": [
+    {
+      "id": "REQ-1",
+      "requirement": "Render a 'Discontinued Medications' section that shows a table/list of discontinued meds or a 'No discontinued medications' message when empty.",
+      "reason": "The print component computes discontinuedMedications, but the provided diff is truncated before showing whether the Discontinued Medications section is actually rendered and how empty-state is handled.",
+      "evidence": [
+        "frontend/src/components/residents/ResidentProfilePrintReport.tsx (truncated)"
+      ]
+    },
+    {
+      "id": "REQ-1",
+      "requirement": "Assigned physicians, pharmacy information, and responsible contacts render as document sections (not cards) with label/value formatting similar to the reference.",
+      "reason": "The diff shows helper logic for physicians (getPhysicianName) but the component content is truncated before confirming that assigned physicians, pharmacy, and responsible contacts are rendered as print document sections.",
+      "evidence": [
+        "frontend/src/components/residents/ResidentProfilePrintReport.tsx (truncated)"
+      ]
+    },
+    {
+      "id": "REQ-1",
+      "requirement": "Active medications render as a bordered table with column headers and rows styled for print readability (gridlines, compact padding, consistent fonts).",
+      "reason": "The component calculates activeMedications, and index.css mentions print styles, but the truncated excerpts do not show the actual medications table markup or the specific table/gridline styling being applied.",
+      "evidence": [
+        "frontend/src/components/residents/ResidentProfilePrintReport.tsx (truncated)",
+        "frontend/src/index.css (truncated)"
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "requirement": "Table borders and header background render correctly in print (including in browsers that require print color adjustment).",
+      "reason": "The shown print CSS includes general print rules and page structure, but the excerpt does not show explicit print color adjustment rules (e.g., print-color-adjust / -webkit-print-color-adjust) or confirm header background rendering behavior.",
+      "evidence": [
+        "frontend/src/index.css (truncated)"
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "requirement": "Sections marked to avoid splitting do not break across pages unless explicitly allowed.",
+      "reason": "The diff shows page-level page-break behavior (.print-page page-break-after), but the excerpt does not show any CSS/classes for avoiding section splitting (e.g., break-inside: avoid) on specific sections.",
+      "evidence": [
+        "frontend/src/index.css (truncated)"
+      ]
+    }
+  ],
+  "hallucinated_features": [],
+  "confidence": 0.62,
+  "changed_files": [
+    "frontend-file-summaries.txt",
+    "frontend/src/components/residents/ResidentProfilePrintReport.tsx",
+    "frontend/src/index.css",
+    "frontend/src/pages/ResidentProfilePage.tsx",
+    "project_state.json"
+  ]
+}

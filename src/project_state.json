@@ -1,0 +1,46 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectStateVersion": 3,
+  "summary": "Project to recreate a print layout to match an uploaded reference photo.",
+  "architectural_notes": [],
+  "known_issues": [],
+  "isFixRequest": false,
+  "existing_features": [
+    {
+      "id": "feature-implement-a-dedicated-print-only-resident-report-layout-that-matches-the-uploaded-reference-image-print-jpg-including-a-multi-page-document-structure-with-consistent-header-section-titles-typography-spacing-and-table-styling",
+      "title": "Implement a dedicated print-only resident report layout that matches the uploaded reference image (print.JPG), including a multi-page document structure with consistent header, section titles, typography, spacing, and table styling.",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-resident-profile-print-flow-so-the-existing-print-action-prints-the-new-print-only-report-layout-while-keeping-the-current-on-screen-resident-profile-experience-unchanged",
+      "title": "Update the resident profile print flow so the existing Print action prints the new print-only report layout while keeping the current on-screen resident profile experience unchanged.",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-extend-print-css-to-support-document-style-printing-for-the-new-report-layout-a4-sizing-margins-print-safe-colors-table-borders-and-page-break-handling-without-breaking-existing-print-behavior-elsewhere",
+      "title": "Extend print CSS to support document-style printing for the new report layout (A4 sizing/margins, print-safe colors, table borders, and page-break handling), without breaking existing print behavior elsewhere.",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "version": 1
+    }
+  ],
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Recreate the print layout to match the uploaded reference photo.",
+      "reqIds": [],
+      "status": "pending"
+    }
+  ],
+  "gameProjectType": "none",
+  "projectName": "Recreate resident profile print layout to match uploaded reference (print.JPG)",
+  "clarification_mode": "instant",
+  "clarification_rounds": 0
+}

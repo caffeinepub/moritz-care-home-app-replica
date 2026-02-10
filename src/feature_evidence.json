@@ -1,0 +1,65 @@
+{
+  "kind": "feature_evidence_report",
+  "features": [
+    {
+      "featureId": "feature-implement-a-dedicated-print-only-resident-report-layout-that-matches-the-uploaded-reference-image-print-jpg-including-a-multi-page-document-structure-with-consistent-header-section-titles-typography-spacing-and-table-styling",
+      "featureTitle": "Implement a dedicated print-only resident report layout that matches the uploaded reference image (print.JPG), including a multi-page document structure with consistent header, section titles, typography, spacing, and table styling.",
+      "files": [
+        "frontend/src/components/residents/ResidentProfilePrintReport.tsx",
+        "frontend/src/pages/ResidentProfilePage.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-1"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-update-the-resident-profile-print-flow-so-the-existing-print-action-prints-the-new-print-only-report-layout-while-keeping-the-current-on-screen-resident-profile-experience-unchanged",
+      "featureTitle": "Update the resident profile print flow so the existing Print action prints the new print-only report layout while keeping the current on-screen resident profile experience unchanged.",
+      "files": [
+        "frontend/src/components/residents/ResidentProfilePrintReport.tsx",
+        "frontend/src/pages/ResidentProfilePage.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-2"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-extend-print-css-to-support-document-style-printing-for-the-new-report-layout-a4-sizing-margins-print-safe-colors-table-borders-and-page-break-handling-without-breaking-existing-print-behavior-elsewhere",
+      "featureTitle": "Extend print CSS to support document-style printing for the new report layout (A4 sizing/margins, print-safe colors, table borders, and page-break handling), without breaking existing print behavior elsewhere.",
+      "files": [
+        "frontend/src/components/residents/ResidentProfilePrintReport.tsx",
+        "frontend/src/index.css"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-3"
+      ],
+      "confidence": "high"
+    }
+  ]
+}
