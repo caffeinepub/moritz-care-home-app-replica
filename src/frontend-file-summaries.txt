@@ -16,7 +16,7 @@
   "frontend/src/components/medications/modals/EditMedicationModal.tsx": "Modal for editing existing medications with pre-populated data and same field structure as add medication modal.",
   "frontend/src/components/mar/modals/AddMARRecordModal.tsx": "Modal for recording medication administration with active medication selection, datetime input, administered by field, and notes.",
   "frontend/src/components/adl/modals/AddADLRecordModal.tsx": "Modal for recording activities of daily living with date, activity dropdown, assistance level selection, and staff notes.",
-  "frontend/src/components/residents/ResidentProfilePrintReport.tsx": "Print-only component rendering a multi-page document-style Resident Profile Report with separate medication tables for active and discontinued medications, and physician signature fields appearing on the last page after all medication tables when the toggle is enabled.",
+  "frontend/src/components/residents/ResidentProfilePrintReport.tsx": "Print-only component rendering a multi-page document-style Resident Profile Report with separate medication tables for active and discontinued medications, and physician signature fields (Name, Signature, and Date) appearing on the last page after all medication tables when the toggle is enabled.",
   "frontend/src/components/residents/CodeStatusBadge.tsx": "Presentational component that renders a resident's Code Status as a bold badge with distinct visual styling (red for DNR, blue for Full Code).",
   "frontend/src/components/medications/MedicationSections.tsx": "Reusable component displaying medications in two sections (Current and Discontinued) with edit/discontinue actions for active medications and a re-activate button for discontinued medications when canEdit is true."
 }

@@ -1,60 +1,22 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Medication re-activation UI + print report physician signature relocation",
+  "title": "Add Date writable underline to printed physician signature section",
   "requirements": [
     {
-      "id": "REQ-2",
-      "summary": "Create a React Query mutation hook to re-activate discontinued medications and invalidate resident medication queries on success.",
+      "id": "REQ-5",
+      "summary": "When the physician signature toggle is enabled, render three labeled handwritten underline fields (Physician Name, Physician Signature, Date) in the printed report’s physician signature section.",
       "acceptanceCriteria": [
-        "A new hook (parallel to `useDiscontinueMedication`) calls the new backend re-activation method.",
-        "On success, the resident medications UI updates without a full page reload by invalidating the same query keys used for medication changes (at minimum: `['medications', residentId]` and `['resident', residentId]`).",
-        "User-facing success and error toast messages are in English and match existing toast patterns."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/hooks/useQueries.ts",
-          "operation": "modify",
-          "description": "Add a new React Query mutation hook (e.g., `useReactivateMedication`) that calls `actor.reactivateMedication(residentId, medicationId)`, shows success/error toasts using the existing `sonner` patterns, and invalidates the same medication-related query keys used by `useDiscontinueMedication` (including `['medications', residentId.toString()]` and `['resident', residentId.toString()]`)."
-        }
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "summary": "Add a per-medication \"Re-activate\" action for discontinued medications (edit-only), wired to the re-activation mutation with confirmation.",
-      "acceptanceCriteria": [
-        "In the discontinued medications list (e.g., `frontend/src/components/medications/MedicationSections.tsx`), each discontinued medication shows a \"Re-activate\" button when `canEdit` is true.",
-        "Clicking \"Re-activate\" asks for confirmation in English (similar tone to the existing discontinue confirmation).",
-        "After confirming, the medication moves from the discontinued section to the active/current medications section (reflecting `isActive = true`).",
-        "The existing discontinue and edit flows for active medications continue to work as before."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/components/medications/MedicationSections.tsx",
-          "operation": "modify",
-          "description": "Extend the discontinued medications rendering to include a \"Re-activate\" button per item when `canEdit` is true. Add a new optional callback prop (e.g., `onReactivateMedication?: (medicationId: bigint) => void`) and invoke it from the new button. Use existing Button components and styling patterns; do not modify files under `frontend/src/components/ui`."
-        },
-        {
-          "path": "frontend/src/pages/ResidentProfilePage.tsx",
-          "operation": "modify",
-          "description": "Wire the new discontinued medication action into the page by importing and using the new `useReactivateMedication` hook, adding a confirmation prompt in English, and passing an `onReactivateMedication` handler into `MedicationSections`. Keep the existing discontinue/edit flows unchanged. Use the existing authorization gating approach (from the selected \"authorization\" component via existing helpers like `canWriteClinicalData`) so the action is only available when `canEdit` is true. Verify the component's usage instructions before implementing."
-        }
-      ]
-    },
-    {
-      "id": "REQ-4",
-      "summary": "Move physician signature fields to the end of the printed report after medication tables, with a print page break only when enabled.",
-      "acceptanceCriteria": [
-        "In `frontend/src/components/residents/ResidentProfilePrintReport.tsx`, the signature fields (labels \"Physician Name:\" and \"Physician Signature:\" with signature lines) are not rendered inside the Physicians section.",
-        "When `showPhysicianSignature` is true, a signature block is rendered after the medication tables (after both Current Medications and Discontinued Medications sections, if discontinued meds exist).",
-        "The signature block appears on the last printed page by forcing an appropriate print page break before the signature block (only when `showPhysicianSignature` is true), so it does not appear mid-medication list.",
-        "When `showPhysicianSignature` is false, no physician signature fields appear anywhere in the printed report."
+        "With the toggle OFF, the printed report does not show the physician signature section.",
+        "With the toggle ON, the printed report shows three fields labeled exactly: \"Physician Name:\", \"Physician Signature:\", and \"Date:\".",
+        "Each of the three fields renders an underline line (matching the existing print signature line style) that provides space for handwriting when the page is printed.",
+        "No backend changes are required; the change is purely presentational in the print report component."
       ],
       "file_operations": [
         {
           "path": "frontend/src/components/residents/ResidentProfilePrintReport.tsx",
           "operation": "modify",
-          "description": "Remove the signature fields currently rendered within the Physicians section. Add a single signature block after the medication tables (after the discontinued medications table when present). When `showPhysicianSignature` is true, insert a print-only page break immediately before the signature block (use existing print utility class such as `print-page-break-before`) and render the two labeled fields using the existing print CSS classes (e.g., `print-physician-signature-section`, `print-signature-fields`, `print-signature-field`, `print-signature-line`). Ensure nothing renders when `showPhysicianSignature` is false."
+          "description": "Update the conditional (showPhysicianSignature) printed physician signature section to include a third field labeled exactly \"Date:\" and render it using the existing underline style class (print-signature-line) so it matches the current Physician Name/Signature handwritten lines."
         }
       ]
     }

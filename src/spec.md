@@ -1,12 +1,11 @@
 # Specification
 
 ## Summary
-**Goal:** Allow staff to re-activate discontinued medications and move physician signature fields to the end of the printed resident report when enabled.
+**Goal:** When the “Show Physician Signature Fields” toggle is ON, add writable underline lines for Physician Name, Physician Signature, and Date in the printed report’s final-page physician signature section.
 
 **Planned changes:**
-- Add a backend method to re-activate a resident medication by setting `isActive` back to `true`, using the same authorization and resident-access checks as the existing discontinue flow.
-- Add a frontend React Query mutation hook to call the re-activation method and invalidate resident/medication queries so the UI updates immediately.
-- Add a “Re-activate” action on each discontinued medication (visible only to users who can edit) with an English confirmation prompt, moving the medication back into the active/current list after success.
-- Update the print report so that when the physician signature toggle is ON, “Physician Name” and “Physician Signature” render after the medication sections with an appropriate print page break; when OFF, no physician signature fields render anywhere.
+- Update the print report final-page physician signature section to render three labeled fields exactly: “Physician Name:”, “Physician Signature:”, and “Date:”.
+- Add an underline line after each label, matching the existing print signature line style, sized for handwriting on a printed page.
+- Ensure the physician signature section remains hidden when the toggle is OFF (no change to toggle behavior beyond adding the Date field).
 
-**User-visible outcome:** Authorized users can re-activate discontinued medications from the discontinued list, and printed reports place physician name/signature at the end of the report only when the toggle is enabled.
+**User-visible outcome:** With the toggle ON, the printed report includes three labeled handwriting lines for Physician Name, Physician Signature, and Date; with the toggle OFF, the physician signature section is not shown.

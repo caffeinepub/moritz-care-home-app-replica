@@ -1,53 +1,24 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-11T01:40:54.443Z",
-  "summary": "Diff shows partial frontend wiring for a re-activation flow (new `onReactivateMedication` prop in `MedicationSections` and `ResidentProfilePage` confirmation + mutation call). However, the diff summary does not provide evidence that the backend re-activation method exists, that the React Query hook fully meets the invalidation/toast requirements, or that the print report signature block was moved to the end with page-break behavior.",
+  "generatedAt": "2026-02-11T01:48:44.313Z",
+  "summary": "The diff does not provide evidence that the printed report’s final-page physician signature section was updated to include three labeled handwriting underline fields (Physician Name, Physician Signature, Date) gated by the existing toggle.",
   "missing_requirements": [
     {
-      "id": "REQ-1",
-      "requirement": "Add a backend method to re-activate a discontinued medication for a resident by setting `isActive` back to `true`, with the same authorization and resident-access checks used by `discontinueMedication`.",
-      "reason": "`backend/main.mo` is truncated and the diff summary does not show any new shared function for re-activation, nor any authorization/resident-access guard logic or the resident-not-found trap behavior.",
+      "id": "REQ-5",
+      "requirement": "When the \"Show Physician Signature Fields\" toggle is ON, update the printed report’s final-page physician signature section to include three writable underline lines for manual writing: (1) Physician Name, (2) Physician Signature, and (3) Date, with labels exactly \"Physician Name:\", \"Physician Signature:\", and \"Date:\".",
+      "reason": "In the shown/truncated changes to the print report component, there is no visible physician signature section or the required three labeled underline fields, and no other modified file shows the addition of these fields. With truncation, this feature might exist later in the file, but it is not evidenced in the provided diff summary.",
       "evidence": [
-        "backend/main.mo (truncated)"
-      ]
-    },
-    {
-      "id": "REQ-2",
-      "requirement": "Add a frontend React Query mutation hook for re-activating discontinued medications and invalidate relevant queries on success with English success/error toasts matching existing patterns.",
-      "reason": "Although `ResidentProfilePage.tsx` imports/uses `useReactivateMedication`, the provided `useQueries.ts` excerpt does not include the `useReactivateMedication` implementation, so query invalidation (e.g. `['medications', residentId]`, `['resident', residentId]`) and toast messaging cannot be verified from the diff summary.",
-      "evidence": [
-        "frontend/src/hooks/useQueries.ts (truncated)",
-        "frontend/src/pages/ResidentProfilePage.tsx (truncated)"
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "requirement": "Add a 'Re-activate' button/action on each discontinued medication entry (only when `canEdit`), wired to the re-activation mutation with an English confirmation prompt.",
-      "reason": "`ResidentProfilePage.tsx` includes an English confirmation prompt and calls the re-activation mutation, but the provided `MedicationSections.tsx` excerpt only shows the active medications UI and does not show the discontinued section rendering a 'Re-activate' button (only props/types and filtering are visible).",
-      "evidence": [
-        "frontend/src/components/medications/MedicationSections.tsx (truncated)",
-        "frontend/src/pages/ResidentProfilePage.tsx (truncated)"
-      ]
-    },
-    {
-      "id": "REQ-4",
-      "requirement": "Move Physician Name/Signature fields to the end of the printed report (after medication tables) when `showPhysicianSignature` is true, not inside the Physicians section, and force a print page break before the signature block; when false, render no signature fields anywhere.",
-      "reason": "The provided `ResidentProfilePrintReport.tsx` excerpt shows the Physicians section but does not show any medication tables nor any signature block rendering/page-break logic. There is no evidence in the excerpt that signature fields were removed from the Physicians section and re-rendered after medications with a conditional page break.",
-      "evidence": [
-        "frontend/src/components/residents/ResidentProfilePrintReport.tsx (truncated)"
+        "frontend/src/components/residents/ResidentProfilePrintReport.tsx (truncated)",
+        "<file-diff> Added: 0, Modified: 3 (only ResidentProfilePrintReport.tsx, frontend-file-summaries.txt, project_state.json)"
       ]
     }
   ],
   "hallucinated_features": [],
   "confidence": 0.55,
   "changed_files": [
-    "backend/main.mo",
     "frontend-file-summaries.txt",
-    "frontend/src/components/medications/MedicationSections.tsx",
     "frontend/src/components/residents/ResidentProfilePrintReport.tsx",
-    "frontend/src/hooks/useQueries.ts",
-    "frontend/src/pages/ResidentProfilePage.tsx",
     "project_state.json"
   ]
 }

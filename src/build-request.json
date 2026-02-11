@@ -1,93 +1,35 @@
 {
   "kind": "build_request",
-  "title": "Re-activate discontinued medications and move physician signature fields to end of printed report",
+  "title": "Add writable underlines for Physician Name, Signature, and Date when physician signature toggle is on",
   "priority": "normal",
   "requirements": [
     {
-      "id": "REQ-1",
-      "text": "Add a backend method to re-activate a discontinued medication for a resident by setting the medication’s `isActive` field back to `true`, with the same authorization and resident-access checks used by `discontinueMedication`.",
-      "target": "backend",
-      "source": {
-        "messageIds": [
-          "msg-6"
-        ],
-        "quotes": [
-          "add button for discontinued medications to be re-activated."
-        ]
-      },
-      "acceptanceCriteria": [
-        "A new shared backend function exists that accepts `(residentId, medicationId)` and sets the matching medication’s `isActive = true`.",
-        "Only staff/admin callers can perform the action, and the caller must be allowed to access the resident (same behavior/guards as `discontinueMedication`).",
-        "Calling re-activation for a non-existent resident traps with the same style of error used elsewhere (e.g., \"Resident not found\").",
-        "After successful re-activation, `getMedications(residentId)` returns the medication with `isActive == true`."
-      ]
-    },
-    {
-      "id": "REQ-2",
-      "text": "Add a frontend React Query mutation hook for re-activating discontinued medications and ensure relevant queries are invalidated after success.",
+      "id": "REQ-5",
+      "text": "When the \"Show Physician Signature Fields\" toggle is ON, update the printed report’s final-page physician signature section to include three writable underline lines for manual writing: (1) Physician Name, (2) Physician Signature, and (3) Date. Each field must show its label followed by an underline line suitable for handwriting.",
       "target": "frontend",
       "source": {
         "messageIds": [
           "msg-6"
         ],
         "quotes": [
-          "add button for discontinued medications to be re-activated."
+          "include underline after Physician's Name, Signature and Date where they can write manually when toggle is on"
         ]
       },
       "acceptanceCriteria": [
-        "A new hook (parallel to `useDiscontinueMedication`) calls the new backend re-activation method.",
-        "On success, the resident medications UI updates without a full page reload by invalidating the same query keys used for medication changes (at minimum: `['medications', residentId]` and `['resident', residentId]`).",
-        "User-facing success and error toast messages are in English and match existing toast patterns."
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "text": "Add a UI action/button on each discontinued medication entry to re-activate it (visible only for users who can edit), and wire it to the re-activation mutation with a confirmation prompt.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-6"
-        ],
-        "quotes": [
-          "add button for discontinued medications to be re-activated."
-        ]
-      },
-      "acceptanceCriteria": [
-        "In the discontinued medications list (e.g., `frontend/src/components/medications/MedicationSections.tsx`), each discontinued medication shows a \"Re-activate\" button when `canEdit` is true.",
-        "Clicking \"Re-activate\" asks for confirmation in English (similar tone to the existing discontinue confirmation).",
-        "After confirming, the medication moves from the discontinued section to the active/current medications section (reflecting `isActive = true`).",
-        "The existing discontinue and edit flows for active medications continue to work as before."
-      ]
-    },
-    {
-      "id": "REQ-4",
-      "text": "When the physician signature toggle is ON, render the Physician Name and Physician Signature fields at the end of the printed report after the medication list, instead of within the Physicians section.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-6"
-        ],
-        "quotes": [
-          "Physician's Name and signature should be at the last page after the medications list when toggle is on"
-        ]
-      },
-      "acceptanceCriteria": [
-        "In `frontend/src/components/residents/ResidentProfilePrintReport.tsx`, the signature fields (labels \"Physician Name:\" and \"Physician Signature:\" with signature lines) are not rendered inside the Physicians section.",
-        "When `showPhysicianSignature` is true, a signature block is rendered after the medication tables (after both Current Medications and Discontinued Medications sections, if discontinued meds exist).",
-        "The signature block appears on the last printed page by forcing an appropriate print page break before the signature block (only when `showPhysicianSignature` is true), so it does not appear mid-medication list.",
-        "When `showPhysicianSignature` is false, no physician signature fields appear anywhere in the printed report."
+        "With the toggle OFF, the printed report does not show the physician signature section.",
+        "With the toggle ON, the printed report shows three fields labeled exactly: \"Physician Name:\", \"Physician Signature:\", and \"Date:\".",
+        "Each of the three fields renders an underline line (matching the existing print signature line style) that provides space for handwriting when the page is printed.",
+        "No backend changes are required; the change is purely presentational in the print report component."
       ]
     }
   ],
   "constraints": [
-    "Backend must remain a single Motoko actor in `backend/main.mo`.",
-    "Do not edit frontend files under `frontend/src/components/ui` or the immutable hook paths listed in SYSTEM_CONTEXT."
+    "Do not edit files under frontend/src/components/ui (read-only UI components).",
+    "Keep all backend logic in a single Motoko actor (no backend changes expected for this request)."
   ],
   "nonGoals": [
-    "Adding new authentication providers (only Internet Identity is supported).",
-    "Adding real-time updates (e.g., WebSockets).",
-    "Changing medication data fields beyond toggling `isActive` for re-activation.",
-    "Redesigning unrelated sections of the resident profile or print report beyond the physician signature placement change."
+    "Do not change the toggle behavior, placement, or label text beyond what is necessary to add the Date underline field.",
+    "Do not add digital signature capture or store signature/date values in the backend."
   ],
   "imageRequirements": {
     "required": [],

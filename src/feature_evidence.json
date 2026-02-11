@@ -2,47 +2,8 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-add-a-frontend-react-query-mutation-hook-for-re-activating-discontinued-medications-and-ensure-relevant-queries-are-invalidated-after-success",
-      "featureTitle": "Add a frontend React Query mutation hook for re-activating discontinued medications and ensure relevant queries are invalidated after success.",
-      "files": [
-        "frontend/src/hooks/useQueries.ts"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-2"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-add-a-ui-action-button-on-each-discontinued-medication-entry-to-re-activate-it-visible-only-for-users-who-can-edit-and-wire-it-to-the-re-activation-mutation-with-a-confirmation-prompt",
-      "featureTitle": "Add a UI action/button on each discontinued medication entry to re-activate it (visible only for users who can edit), and wire it to the re-activation mutation with a confirmation prompt.",
-      "files": [
-        "frontend/src/components/medications/MedicationSections.tsx",
-        "frontend/src/pages/ResidentProfilePage.tsx"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-3"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-when-the-physician-signature-toggle-is-on-render-the-physician-name-and-physician-signature-fields-at-the-end-of-the-printed-report-after-the-medication-list-instead-of-within-the-physicians-section",
-      "featureTitle": "When the physician signature toggle is ON, render the Physician Name and Physician Signature fields at the end of the printed report after the medication list, instead of within the Physicians section.",
+      "featureId": "feature-when-the-show-physician-signature-fields-toggle-is-on-update-the-printed-report-s-final-page-physician-signature-section-to-include-three-writable-underline-lines-for-manual-writing-1-physician-name-2-physician-signature-and-3-date-each-field-must-show-its-label-followed-by-an-underline-line-suitable-for-handwriting",
+      "featureTitle": "When the \"Show Physician Signature Fields\" toggle is ON, update the printed report’s final-page physician signature section to include three writable underline lines for manual writing: (1) Physician Name, (2) Physician Signature, and (3) Date. Each field must show its label followed by an underline line suitable for handwriting.",
       "files": [
         "frontend/src/components/residents/ResidentProfilePrintReport.tsx"
       ],
@@ -55,7 +16,7 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-4"
+        "REQ-5"
       ],
       "confidence": "high"
     }

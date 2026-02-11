@@ -211,6 +211,10 @@ export default function ResidentProfilePrintReport({ resident, showPhysicianSign
                 <p className="text-sm text-gray-600 mb-1">Physician Signature:</p>
                 <div className="print-signature-line"></div>
               </div>
+              <div className="print-signature-field">
+                <p className="text-sm text-gray-600 mb-1">Date:</p>
+                <div className="print-signature-line"></div>
+              </div>
             </div>
           </div>
         )}

@@ -1,32 +1,16 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Medication list/report: support toggling discontinued meds, allow re-activating discontinued meds, and when the toggle is on place Physician's Name and signature on the last page after the medications list.",
+  "summary": "New project",
   "architectural_notes": [],
   "known_issues": [],
   "isFixRequest": false,
   "existing_features": [
     {
-      "id": "feature-add-a-frontend-react-query-mutation-hook-for-re-activating-discontinued-medications-and-ensure-relevant-queries-are-invalidated-after-success",
-      "title": "Add a frontend React Query mutation hook for re-activating discontinued medications and ensure relevant queries are invalidated after success.",
+      "id": "feature-when-the-show-physician-signature-fields-toggle-is-on-update-the-printed-report-s-final-page-physician-signature-section-to-include-three-writable-underline-lines-for-manual-writing-1-physician-name-2-physician-signature-and-3-date-each-field-must-show-its-label-followed-by-an-underline-line-suitable-for-handwriting",
+      "title": "When the \"Show Physician Signature Fields\" toggle is ON, update the printed report’s final-page physician signature section to include three writable underline lines for manual writing: (1) Physician Name, (2) Physician Signature, and (3) Date. Each field must show its label followed by an underline line suitable for handwriting.",
       "reqIds": [
-        "REQ-2"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-add-a-ui-action-button-on-each-discontinued-medication-entry-to-re-activate-it-visible-only-for-users-who-can-edit-and-wire-it-to-the-re-activation-mutation-with-a-confirmation-prompt",
-      "title": "Add a UI action/button on each discontinued medication entry to re-activate it (visible only for users who can edit), and wire it to the re-activation mutation with a confirmation prompt.",
-      "reqIds": [
-        "REQ-3"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-when-the-physician-signature-toggle-is-on-render-the-physician-name-and-physician-signature-fields-at-the-end-of-the-printed-report-after-the-medication-list-instead-of-within-the-physicians-section",
-      "title": "When the physician signature toggle is ON, render the Physician Name and Physician Signature fields at the end of the printed report after the medication list, instead of within the Physicians section.",
-      "reqIds": [
-        "REQ-4"
+        "REQ-5"
       ],
       "version": 1
     }
@@ -34,26 +18,12 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Add a UI button/action to re-activate discontinued medications.",
+      "summary": "When the toggle is on, add writable underlines after Physician's Name, Signature, and Date fields on the final-page physician section.",
       "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-2",
-      "summary": "When the discontinued-meds toggle is ON, move Physician's Name and signature to the last page after the medications list.",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-3",
-      "summary": "Add a backend method to re-activate a discontinued medication for a resident by setting the medication’s `isActive` field back to `true`, with the same authorization and resident-access checks used by `discontinueMedication`.",
-      "reqIds": [
-        "REQ-1"
-      ],
       "status": "pending"
     }
   ],
-  "projectName": "Re-activate discontinued medications and move physician signature fields to end of printed report",
+  "projectName": "Add writable underlines for Physician Name, Signature, and Date when physician signature toggle is on",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }
