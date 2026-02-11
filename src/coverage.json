@@ -1,62 +1,40 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-11T00:02:11.527Z",
+  "generatedAt": "2026-02-11T00:29:27.417Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 3,
-    "implemented": 3,
+    "total": 2,
+    "implemented": 0,
     "items": [
       {
-        "id": "REQ-4",
-        "summary": "Add a visible toggle switch on the Resident Profile page that lets the user choose whether the printed Resident Profile Report includes additional blank fields for \"Physician's Name\" and \"Physician's Signature\".",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/pages/ResidentProfilePage.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/pages/ResidentProfilePage.tsx"
-        ]
+        "id": "REQ-1",
+        "summary": "Update the backend implementation of the `_initializeAccessControlWithSecret` call path so that when the provided secret token is missing/empty (e.g., production URL has no `caffeineAdminToken`), the call returns promptly and does not hang or block actor initialization.",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
       },
       {
-        "id": "REQ-5",
-        "summary": "Update the print-only Resident Profile Report so that, when the toggle is enabled, the printed document includes a dedicated area with blank lines for \"Physician's Name\" and \"Physician's Signature\" suitable for handwriting.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/components/residents/ResidentProfilePrintReport.tsx",
-          "frontend/src/pages/ResidentProfilePage.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/components/residents/ResidentProfilePrintReport.tsx",
-          "frontend/src/pages/ResidentProfilePage.tsx"
-        ]
-      },
-      {
-        "id": "REQ-6",
-        "summary": "Add any necessary print CSS to style the new physician name/signature blank lines so they print reliably (e.g., consistent line thickness, spacing) without impacting existing print report styling.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/index.css",
-          "frontend/src/components/residents/ResidentProfilePrintReport.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/index.css",
-          "frontend/src/components/residents/ResidentProfilePrintReport.tsx"
-        ]
+        "id": "REQ-2",
+        "summary": "Ensure that the backend initialization behavior for `_initializeAccessControlWithSecret` remains safe: invalid/empty secrets must not grant admin privileges and must not weaken existing authorization checks for normal operations.",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
       }
     ]
   },
   "changedFiles": [
+    "backend/main.mo",
     "build-request.json",
     "feature_evidence.json",
-    "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/components/residents/ResidentProfilePrintReport.tsx",
-    "frontend/src/index.css",
-    "frontend/src/pages/ResidentProfilePage.tsx",
+    "frontend/src/backend.d.ts",
+    "frontend/src/backend.ts",
+    "frontend/src/declarations/backend.did.d.ts",
+    "frontend/src/declarations/backend.did.js",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

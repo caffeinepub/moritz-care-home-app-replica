@@ -1,67 +1,6 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Resident Profile print toggle for physician name/signature blank fields",
-  "requirements": [
-    {
-      "id": "REQ-4",
-      "summary": "Add a screen-only toggle on ResidentProfilePage near Print to control whether the next print includes physician name/signature blank fields.",
-      "acceptanceCriteria": [
-        "ResidentProfilePage shows a clearly labeled toggle control in the header area near the existing Print action (screen-only; not shown in print).",
-        "The toggle label is in English and clearly indicates that the printout will include space for Physician's Name and Signature.",
-        "Toggling the switch immediately affects what will appear in the next print (no page reload required).",
-        "Existing Print button behavior (calling window.print()) remains unchanged."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/pages/ResidentProfilePage.tsx",
-          "operation": "modify",
-          "description": "Add local UI state for the print option and render a clearly labeled screen-only toggle beside the existing Print button. Use existing shadcn-ui components (e.g., Switch + Label) to implement the toggle without modifying any files under frontend/src/components/ui; verify the component's usage instructions before implementing. Pass the toggle value down to ResidentProfilePrintReport while keeping the Print button behavior as window.print()."
-        }
-      ]
-    },
-    {
-      "id": "REQ-5",
-      "summary": "Conditionally render a physician name/signature handwriting area in the print-only ResidentProfilePrintReport based on the toggle state from ResidentProfilePage.",
-      "acceptanceCriteria": [
-        "ResidentProfilePrintReport accepts a boolean input (passed from ResidentProfilePage) that controls whether the physician name/signature blank area renders.",
-        "When enabled, the print report includes both labels \"Physician's Name\" and \"Physician's Signature\" with visible blank line space to write on.",
-        "When disabled, the physician name/signature blank area is not present anywhere in the printed output.",
-        "Print layout remains readable and does not overlap existing content; page breaks remain valid (the report still prints cleanly)."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/components/residents/ResidentProfilePrintReport.tsx",
-          "operation": "modify",
-          "description": "Update the component props to accept a boolean (e.g., includePhysicianNameSignatureFields) and conditionally render a dedicated print-only section containing the labels \"Physician's Name\" and \"Physician's Signature\" with blank line areas suitable for handwriting. Place the section in a location that preserves readability and page breaks (e.g., near the end of the report on page 3 with break-avoid where appropriate)."
-        },
-        {
-          "path": "frontend/src/pages/ResidentProfilePage.tsx",
-          "operation": "modify",
-          "description": "Wire the new boolean prop into the existing ResidentProfilePrintReport render so the print-only output reflects the current toggle state immediately (no reload)."
-        }
-      ]
-    },
-    {
-      "id": "REQ-6",
-      "summary": "Add print-specific CSS for consistent physician name/signature blank line rendering without affecting existing print report styling.",
-      "acceptanceCriteria": [
-        "New print-specific CSS classes (if needed) are added to frontend/src/index.css under the existing @media print section.",
-        "The blank lines are visible on printed output and in print preview across common browsers.",
-        "No regressions to existing print-only report styling (headers, section styling, tables, page breaks) are introduced."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/index.css",
-          "operation": "modify",
-          "description": "Within the existing @media print block, add narrowly-scoped CSS classes used by the new physician name/signature section (e.g., spacing, line thickness, and ensuring borders/backgrounds print reliably) so handwriting lines are consistently visible across print preview and printed output without changing existing print styles."
-        },
-        {
-          "path": "frontend/src/components/residents/ResidentProfilePrintReport.tsx",
-          "operation": "modify",
-          "description": "Apply the new print-only CSS classes to the physician name/signature blank line elements so styling is controlled solely by the print CSS additions and does not impact other report sections."
-        }
-      ]
-    }
-  ]
+  "title": "Frontend plan: no changes required (backend-only fix for _initializeAccessControlWithSecret hang)",
+  "requirements": []
 }

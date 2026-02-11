@@ -2,44 +2,33 @@
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
   "summary": "New project",
-  "architectural_notes": [],
-  "known_issues": [],
-  "isFixRequest": false,
-  "existing_features": [
-    {
-      "id": "feature-add-a-visible-toggle-switch-on-the-resident-profile-page-that-lets-the-user-choose-whether-the-printed-resident-profile-report-includes-additional-blank-fields-for-physician-s-name-and-physician-s-signature",
-      "title": "Add a visible toggle switch on the Resident Profile page that lets the user choose whether the printed Resident Profile Report includes additional blank fields for \"Physician's Name\" and \"Physician's Signature\".",
-      "reqIds": [
-        "REQ-4"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-update-the-print-only-resident-profile-report-so-that-when-the-toggle-is-enabled-the-printed-document-includes-a-dedicated-area-with-blank-lines-for-physician-s-name-and-physician-s-signature-suitable-for-handwriting",
-      "title": "Update the print-only Resident Profile Report so that, when the toggle is enabled, the printed document includes a dedicated area with blank lines for \"Physician's Name\" and \"Physician's Signature\" suitable for handwriting.",
-      "reqIds": [
-        "REQ-5"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-add-any-necessary-print-css-to-style-the-new-physician-name-signature-blank-lines-so-they-print-reliably-e-g-consistent-line-thickness-spacing-without-impacting-existing-print-report-styling",
-      "title": "Add any necessary print CSS to style the new physician name/signature blank lines so they print reliably (e.g., consistent line thickness, spacing) without impacting existing print report styling.",
-      "reqIds": [
-        "REQ-6"
-      ],
-      "version": 1
-    }
+  "architectural_notes": [
+    "Actor initialization should only call _initializeAccessControlWithSecret(adminToken) when an admin token is present (e.g., caffeineAdminToken in URL); otherwise skip to avoid blocking app startup in production."
   ],
+  "known_issues": [
+    "Live/production app stuck on loading screen because actor initialization awaits _initializeAccessControlWithSecret(adminToken) but production lacks caffeineAdminToken, causing initialization/profile fetch to never complete."
+  ],
+  "isFixRequest": true,
+  "existing_features": [],
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Add a visible toggle on the resident profile to print the resident profile with space for Physician's Name and Signature",
-      "reqIds": [],
+      "summary": "Update the backend implementation of the `_initializeAccessControlWithSecret` call path so that when the provided secret token is missing/empty (e.g., production URL has no `caffeineAdminToken`), the call returns promptly and does not hang or block actor initialization.",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Ensure that the backend initialization behavior for `_initializeAccessControlWithSecret` remains safe: invalid/empty secrets must not grant admin privileges and must not weaken existing authorization checks for normal operations.",
+      "reqIds": [
+        "REQ-2"
+      ],
       "status": "pending"
     }
   ],
-  "projectName": "Add resident profile print toggle for physician name/signature fields",
+  "projectName": "Prevent production app from hanging on loading when caffeineAdminToken is missing",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

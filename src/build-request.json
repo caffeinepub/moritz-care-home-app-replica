@@ -1,75 +1,66 @@
 {
   "kind": "build_request",
-  "title": "Add resident profile print toggle for physician name/signature fields",
-  "priority": "normal",
+  "title": "Prevent production app from hanging on loading when caffeineAdminToken is missing",
+  "priority": "high",
   "requirements": [
     {
-      "id": "REQ-4",
-      "text": "Add a visible toggle switch on the Resident Profile page that lets the user choose whether the printed Resident Profile Report includes additional blank fields for \"Physician's Name\" and \"Physician's Signature\".",
-      "target": "frontend",
+      "id": "REQ-1",
+      "text": "Update the backend implementation of the `_initializeAccessControlWithSecret` call path so that when the provided secret token is missing/empty (e.g., production URL has no `caffeineAdminToken`), the call returns promptly and does not hang or block actor initialization.",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "msg-5"
+          "recent-messages"
         ],
         "quotes": [
-          "add a visible toggle switch on the resident's profile for an option to print resident's profile with space for Physician's Name and Signature."
+          "apply the fix so production stops getting stuck on loading",
+          "the draft is working fine but the live app is stuck in the loading screen"
         ]
       },
       "acceptanceCriteria": [
-        "ResidentProfilePage shows a clearly labeled toggle control in the header area near the existing Print action (screen-only; not shown in print).",
-        "The toggle label is in English and clearly indicates that the printout will include space for Physician's Name and Signature.",
-        "Toggling the switch immediately affects what will appear in the next print (no page reload required).",
-        "Existing Print button behavior (calling window.print()) remains unchanged."
+        "When the frontend calls `await actor._initializeAccessControlWithSecret(adminToken)` with an empty string token, the call completes quickly (no indefinite await).",
+        "Production build loads past the global loading spinner even when `caffeineAdminToken` is not present in the URL.",
+        "Draft behavior continues to work when a valid `caffeineAdminToken` is present."
       ]
     },
     {
-      "id": "REQ-5",
-      "text": "Update the print-only Resident Profile Report so that, when the toggle is enabled, the printed document includes a dedicated area with blank lines for \"Physician's Name\" and \"Physician's Signature\" suitable for handwriting.",
-      "target": "frontend",
+      "id": "REQ-2",
+      "text": "Ensure that the backend initialization behavior for `_initializeAccessControlWithSecret` remains safe: invalid/empty secrets must not grant admin privileges and must not weaken existing authorization checks for normal operations.",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "msg-5"
+          "recent-messages"
         ],
         "quotes": [
-          "add a visible toggle switch on the resident's profile for an option to print resident's profile with space for Physician's Name and Signature."
+          "The fix is simple: you must make `_initializeAccessControlWithSecret` optional and only call it when the secret token is present."
         ]
       },
       "acceptanceCriteria": [
-        "ResidentProfilePrintReport accepts a boolean input (passed from ResidentProfilePage) that controls whether the physician name/signature blank area renders.",
-        "When enabled, the print report includes both labels \"Physician's Name\" and \"Physician's Signature\" with visible blank line space to write on.",
-        "When disabled, the physician name/signature blank area is not present anywhere in the printed output.",
-        "Print layout remains readable and does not overlap existing content; page breaks remain valid (the report still prints cleanly)."
-      ]
-    },
-    {
-      "id": "REQ-6",
-      "text": "Add any necessary print CSS to style the new physician name/signature blank lines so they print reliably (e.g., consistent line thickness, spacing) without impacting existing print report styling.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-5"
-        ],
-        "quotes": [
-          "add a visible toggle switch on the resident's profile for an option to print resident's profile with space for Physician's Name and Signature."
-        ]
-      },
-      "acceptanceCriteria": [
-        "New print-specific CSS classes (if needed) are added to frontend/src/index.css under the existing @media print section.",
-        "The blank lines are visible on printed output and in print preview across common browsers.",
-        "No regressions to existing print-only report styling (headers, section styling, tables, page breaks) are introduced."
+        "With an empty or invalid token, the caller does not become an admin and admin-only methods remain inaccessible.",
+        "With a valid token (as used in draft), expected admin initialization still occurs."
       ]
     }
   ],
   "constraints": [
-    "Do not modify any files under frontend/src/components/ui (they are read-only); compose existing UI components instead.",
-    "Keep the backend unchanged (no new fields or persistence requirements for this toggle unless explicitly requested later)."
+    "Frontend immutable file paths must not be edited, including `frontend/src/hooks/useActor.ts`.",
+    "Keep the backend as a single Motoko actor in `backend/main.mo`; only add `backend/migration.mo` if a stable-state upgrade is required (it should not be required for this fix)."
   ],
   "nonGoals": [
-    "Persisting the toggle choice across sessions or users (unless explicitly requested later).",
-    "Adding new backend APIs or storing physician signatures digitally."
+    "Redesigning the loading screen UI/UX.",
+    "Changing Internet Identity authentication flow or introducing a new authentication provider.",
+    "Adding new product features unrelated to the production loading hang."
   ],
   "imageRequirements": {
     "required": [],
     "edits": []
+  },
+  "userProfileUpdate": {
+    "goalsToAdd": [],
+    "goalsToRemove": [],
+    "preferencesToAdd": [],
+    "preferencesToRemove": [],
+    "miscToAdd": [],
+    "miscToRemove": [],
+    "fieldsToSet": {},
+    "fieldsToDelete": []
   }
 }
