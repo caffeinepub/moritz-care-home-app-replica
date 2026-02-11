@@ -555,6 +555,35 @@ actor {
     };
   };
 
+  // New Method: Reactivate Discontinued Medication
+  public shared ({ caller }) func reactivateMedication(residentId : ResidentId, medicationId : Nat) : async () {
+    if (not isStaffOrAdmin(caller)) {
+      Runtime.trap("Unauthorized: Only admins and staff can reactivate medications");
+    };
+
+    if (not canAccessResident(caller, residentId)) {
+      Runtime.trap("Unauthorized: Cannot access this resident");
+    };
+
+    switch (residents.get(residentId)) {
+      case (null) { Runtime.trap("Resident not found") };
+      case (?resident) {
+        let updatedMedications = resident.medications.map(
+          func(med) {
+            if (med.id == medicationId) {
+              { med with isActive = true };
+            } else {
+              med;
+            };
+          }
+        );
+
+        let updatedResident = { resident with medications = updatedMedications };
+        residents.add(residentId, updatedResident);
+      };
+    };
+  };
+
   public query ({ caller }) func getMedications(residentId : ResidentId) : async [Medication] {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Authentication required");

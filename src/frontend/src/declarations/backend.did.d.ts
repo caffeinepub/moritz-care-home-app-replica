@@ -199,6 +199,7 @@ export interface _SERVICE {
   >,
   'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
+  'reactivateMedication' : ActorMethod<[ResidentId, bigint], undefined>,
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
   'updateCodeStatus' : ActorMethod<[ResidentId, CodeStatus, string], undefined>,
   'updateInsuranceInfo' : ActorMethod<[ResidentId, InsuranceInfo], undefined>,

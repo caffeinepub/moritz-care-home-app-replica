@@ -288,6 +288,26 @@ export function useDiscontinueMedication() {
   });
 }
 
+export function useReactivateMedication() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ residentId, medicationId }: { residentId: ResidentId; medicationId: bigint }) => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.reactivateMedication(residentId, medicationId);
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['medications', variables.residentId.toString()] });
+      queryClient.invalidateQueries({ queryKey: ['resident', variables.residentId.toString()] });
+      toast.success('Medication reactivated successfully');
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || 'Failed to reactivate medication');
+    },
+  });
+}
+
 export function useGetMARRecords(residentId: ResidentId | undefined) {
   const { actor, isFetching } = useActor();
 

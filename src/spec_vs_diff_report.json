@@ -1,40 +1,52 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-11T01:28:56.947Z",
-  "summary": "Implemented a new shared MedicationSections component and integrated it into ResidentProfilePage to separate active vs discontinued medications. However, the diff does not show updates to the dedicated resident medications list view outside the profile page. Also includes unrelated print/report enhancements not requested.",
+  "generatedAt": "2026-02-11T01:40:54.443Z",
+  "summary": "Diff shows partial frontend wiring for a re-activation flow (new `onReactivateMedication` prop in `MedicationSections` and `ResidentProfilePage` confirmation + mutation call). However, the diff summary does not provide evidence that the backend re-activation method exists, that the React Query hook fully meets the invalidation/toast requirements, or that the print report signature block was moved to the end with page-break behavior.",
   "missing_requirements": [
     {
       "id": "REQ-1",
-      "requirement": "Update the resident medications UI (resident medications view) to display active and discontinued medications in separate labeled tables/sections, with discontinued medications view-only and an appropriate empty state when none exist.",
-      "reason": "The diff shows a new MedicationSections component and updates to ResidentProfilePage, but does not show changes to any separate 'resident medications' page/view outside ResidentProfilePage. Additionally, the added component is truncated before showing the discontinued section, so the discontinued empty-state and view-only rendering for discontinued medications cannot be confirmed from the provided snippet alone.",
+      "requirement": "Add a backend method to re-activate a discontinued medication for a resident by setting `isActive` back to `true`, with the same authorization and resident-access checks used by `discontinueMedication`.",
+      "reason": "`backend/main.mo` is truncated and the diff summary does not show any new shared function for re-activation, nor any authorization/resident-access guard logic or the resident-not-found trap behavior.",
+      "evidence": [
+        "backend/main.mo (truncated)"
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "requirement": "Add a frontend React Query mutation hook for re-activating discontinued medications and invalidate relevant queries on success with English success/error toasts matching existing patterns.",
+      "reason": "Although `ResidentProfilePage.tsx` imports/uses `useReactivateMedication`, the provided `useQueries.ts` excerpt does not include the `useReactivateMedication` implementation, so query invalidation (e.g. `['medications', residentId]`, `['resident', residentId]`) and toast messaging cannot be verified from the diff summary.",
+      "evidence": [
+        "frontend/src/hooks/useQueries.ts (truncated)",
+        "frontend/src/pages/ResidentProfilePage.tsx (truncated)"
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "requirement": "Add a 'Re-activate' button/action on each discontinued medication entry (only when `canEdit`), wired to the re-activation mutation with an English confirmation prompt.",
+      "reason": "`ResidentProfilePage.tsx` includes an English confirmation prompt and calls the re-activation mutation, but the provided `MedicationSections.tsx` excerpt only shows the active medications UI and does not show the discontinued section rendering a 'Re-activate' button (only props/types and filtering are visible).",
       "evidence": [
         "frontend/src/components/medications/MedicationSections.tsx (truncated)",
         "frontend/src/pages/ResidentProfilePage.tsx (truncated)"
       ]
-    }
-  ],
-  "hallucinated_features": [
+    },
     {
-      "description": "Resident profile print/report formatting and medication grouping changes (active vs discontinued) in the print-only report.",
-      "reason": "The BuildRequest only asks for UI changes in the resident medications view and the ResidentProfilePage Medications tab. It does not request changes to printed reports.",
+      "id": "REQ-4",
+      "requirement": "Move Physician Name/Signature fields to the end of the printed report (after medication tables) when `showPhysicianSignature` is true, not inside the Physicians section, and force a print page break before the signature block; when false, render no signature fields anywhere.",
+      "reason": "The provided `ResidentProfilePrintReport.tsx` excerpt shows the Physicians section but does not show any medication tables nor any signature block rendering/page-break logic. There is no evidence in the excerpt that signature fields were removed from the Physicians section and re-rendered after medications with a conditional page break.",
       "evidence": [
         "frontend/src/components/residents/ResidentProfilePrintReport.tsx (truncated)"
       ]
-    },
-    {
-      "description": "Physician signature print toggle / print-related enhancements on ResidentProfilePage.",
-      "reason": "Not part of REQ-1 or REQ-2; the request is limited to separating active vs discontinued medications in on-screen medication lists.",
-      "evidence": [
-        "frontend/src/pages/ResidentProfilePage.tsx (truncated)"
-      ]
     }
   ],
-  "confidence": 0.62,
+  "hallucinated_features": [],
+  "confidence": 0.55,
   "changed_files": [
+    "backend/main.mo",
     "frontend-file-summaries.txt",
     "frontend/src/components/medications/MedicationSections.tsx",
     "frontend/src/components/residents/ResidentProfilePrintReport.tsx",
+    "frontend/src/hooks/useQueries.ts",
     "frontend/src/pages/ResidentProfilePage.tsx",
     "project_state.json"
   ]

@@ -163,6 +163,7 @@ export interface backendInterface {
     getResponsibleContacts(residentId: ResidentId): Promise<Array<ResponsibleContact>>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
     isCallerAdmin(): Promise<boolean>;
+    reactivateMedication(residentId: ResidentId, medicationId: bigint): Promise<void>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
     updateCodeStatus(residentId: ResidentId, newCodeStatus: CodeStatus, notes: string): Promise<void>;
     updateInsuranceInfo(residentId: ResidentId, insuranceInfo: InsuranceInfo): Promise<void>;

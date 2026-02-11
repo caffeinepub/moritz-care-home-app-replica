@@ -1,53 +1,93 @@
 {
   "kind": "build_request",
-  "title": "Show discontinued medications in a separate table on the resident medication list",
+  "title": "Re-activate discontinued medications and move physician signature fields to end of printed report",
   "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Update the resident medications UI to display active medications and discontinued medications in separate, clearly labeled tables/sections (do not use strikethrough/crossed-out styling for discontinued medications).",
-      "target": "frontend",
+      "text": "Add a backend method to re-activate a discontinued medication for a resident by setting the medication’s `isActive` field back to `true`, with the same authorization and resident-access checks used by `discontinueMedication`.",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "recent-messages"
+          "msg-6"
         ],
         "quotes": [
-          "allow showing discontinued medications in resident's list of medications in separate table instead of crossing them out"
+          "add button for discontinued medications to be re-activated."
         ]
       },
       "acceptanceCriteria": [
-        "In the resident medications view, medications with isActive=true are shown under a 'Current Medications' (or 'Active Medications') section/table.",
-        "Medications with isActive=false are shown under a separate 'Discontinued Medications' section/table on the same screen.",
-        "Discontinued medications are not rendered with crossed-out/strikethrough styles; they are visually separated by the discontinued section/table instead.",
-        "If there are no discontinued medications, the discontinued section/table is either hidden or shows an appropriate empty-state message (e.g., 'No discontinued medications').",
-        "Existing actions remain sensible: discontinue/edit actions are only available for active medications (as they are today), and discontinued medications are view-only."
+        "A new shared backend function exists that accepts `(residentId, medicationId)` and sets the matching medication’s `isActive = true`.",
+        "Only staff/admin callers can perform the action, and the caller must be allowed to access the resident (same behavior/guards as `discontinueMedication`).",
+        "Calling re-activation for a non-existent resident traps with the same style of error used elsewhere (e.g., \"Resident not found\").",
+        "After successful re-activation, `getMedications(residentId)` returns the medication with `isActive == true`."
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Ensure the resident profile page Medications tab also shows discontinued medications in a separate section/table (currently it only lists active medications).",
+      "text": "Add a frontend React Query mutation hook for re-activating discontinued medications and ensure relevant queries are invalidated after success.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "recent-messages"
+          "msg-6"
         ],
         "quotes": [
-          "allow showing discontinued medications in resident's list of medications in separate table instead of crossing them out"
+          "add button for discontinued medications to be re-activated."
         ]
       },
       "acceptanceCriteria": [
-        "On ResidentProfilePage, the Medications tab lists active medications in the current section and additionally lists discontinued medications in a separate section/table below (or otherwise clearly separated).",
-        "When a medication is discontinued, it no longer appears in the active section and appears in the discontinued section after data refresh (React Query invalidation already in place)."
+        "A new hook (parallel to `useDiscontinueMedication`) calls the new backend re-activation method.",
+        "On success, the resident medications UI updates without a full page reload by invalidating the same query keys used for medication changes (at minimum: `['medications', residentId]` and `['resident', residentId]`).",
+        "User-facing success and error toast messages are in English and match existing toast patterns."
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "text": "Add a UI action/button on each discontinued medication entry to re-activate it (visible only for users who can edit), and wire it to the re-activation mutation with a confirmation prompt.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-6"
+        ],
+        "quotes": [
+          "add button for discontinued medications to be re-activated."
+        ]
+      },
+      "acceptanceCriteria": [
+        "In the discontinued medications list (e.g., `frontend/src/components/medications/MedicationSections.tsx`), each discontinued medication shows a \"Re-activate\" button when `canEdit` is true.",
+        "Clicking \"Re-activate\" asks for confirmation in English (similar tone to the existing discontinue confirmation).",
+        "After confirming, the medication moves from the discontinued section to the active/current medications section (reflecting `isActive = true`).",
+        "The existing discontinue and edit flows for active medications continue to work as before."
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "text": "When the physician signature toggle is ON, render the Physician Name and Physician Signature fields at the end of the printed report after the medication list, instead of within the Physicians section.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-6"
+        ],
+        "quotes": [
+          "Physician's Name and signature should be at the last page after the medications list when toggle is on"
+        ]
+      },
+      "acceptanceCriteria": [
+        "In `frontend/src/components/residents/ResidentProfilePrintReport.tsx`, the signature fields (labels \"Physician Name:\" and \"Physician Signature:\" with signature lines) are not rendered inside the Physicians section.",
+        "When `showPhysicianSignature` is true, a signature block is rendered after the medication tables (after both Current Medications and Discontinued Medications sections, if discontinued meds exist).",
+        "The signature block appears on the last printed page by forcing an appropriate print page break before the signature block (only when `showPhysicianSignature` is true), so it does not appear mid-medication list.",
+        "When `showPhysicianSignature` is false, no physician signature fields appear anywhere in the printed report."
       ]
     }
   ],
   "constraints": [
-    "Do not modify immutable frontend paths: frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, frontend/src/components/ui.",
-    "Backend must remain a single Motoko actor in backend/main.mo; only add migration code if state shape changes (not expected for this request)."
+    "Backend must remain a single Motoko actor in `backend/main.mo`.",
+    "Do not edit frontend files under `frontend/src/components/ui` or the immutable hook paths listed in SYSTEM_CONTEXT."
   ],
   "nonGoals": [
-    "Adding new medication lifecycle states beyond the existing Medication.isActive boolean.",
-    "Implementing medication history metadata (e.g., discontinue reason/date) beyond what is currently stored."
+    "Adding new authentication providers (only Internet Identity is supported).",
+    "Adding real-time updates (e.g., WebSockets).",
+    "Changing medication data fields beyond toggling `isActive` for re-activation.",
+    "Redesigning unrelated sections of the resident profile or print report beyond the physician signature placement change."
   ],
   "imageRequirements": {
     "required": [],

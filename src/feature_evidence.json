@@ -2,10 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-update-the-resident-medications-ui-to-display-active-medications-and-discontinued-medications-in-separate-clearly-labeled-tables-sections-do-not-use-strikethrough-crossed-out-styling-for-discontinued-medications",
-      "featureTitle": "Update the resident medications UI to display active medications and discontinued medications in separate, clearly labeled tables/sections (do not use strikethrough/crossed-out styling for discontinued medications).",
+      "featureId": "feature-add-a-frontend-react-query-mutation-hook-for-re-activating-discontinued-medications-and-ensure-relevant-queries-are-invalidated-after-success",
+      "featureTitle": "Add a frontend React Query mutation hook for re-activating discontinued medications and ensure relevant queries are invalidated after success.",
       "files": [
-        "frontend/src/components/medications/MedicationSections.tsx"
+        "frontend/src/hooks/useQueries.ts"
       ],
       "components": [
         "authorization@4.0.0",
@@ -16,13 +16,13 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-1"
+        "REQ-2"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-ensure-the-resident-profile-page-medications-tab-also-shows-discontinued-medications-in-a-separate-section-table-currently-it-only-lists-active-medications",
-      "featureTitle": "Ensure the resident profile page Medications tab also shows discontinued medications in a separate section/table (currently it only lists active medications).",
+      "featureId": "feature-add-a-ui-action-button-on-each-discontinued-medication-entry-to-re-activate-it-visible-only-for-users-who-can-edit-and-wire-it-to-the-re-activation-mutation-with-a-confirmation-prompt",
+      "featureTitle": "Add a UI action/button on each discontinued medication entry to re-activate it (visible only for users who can edit), and wire it to the re-activation mutation with a confirmation prompt.",
       "files": [
         "frontend/src/components/medications/MedicationSections.tsx",
         "frontend/src/pages/ResidentProfilePage.tsx"
@@ -36,7 +36,26 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-2"
+        "REQ-3"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-when-the-physician-signature-toggle-is-on-render-the-physician-name-and-physician-signature-fields-at-the-end-of-the-printed-report-after-the-medication-list-instead-of-within-the-physicians-section",
+      "featureTitle": "When the physician signature toggle is ON, render the Physician Name and Physician Signature fields at the end of the printed report after the medication list, instead of within the Physicians section.",
+      "files": [
+        "frontend/src/components/residents/ResidentProfilePrintReport.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-4"
       ],
       "confidence": "high"
     }

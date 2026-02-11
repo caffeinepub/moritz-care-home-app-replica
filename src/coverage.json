@@ -1,49 +1,72 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-11T01:28:56.949Z",
+  "generatedAt": "2026-02-11T01:40:54.446Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 2,
-    "implemented": 2,
+    "total": 4,
+    "implemented": 3,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Update the resident medications UI to display active medications and discontinued medications in separate, clearly labeled tables/sections (do not use strikethrough/crossed-out styling for discontinued medications).",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/components/medications/MedicationSections.tsx",
-          "frontend/src/components/medications/MedicationsTab.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/components/medications/MedicationSections.tsx"
-        ]
+        "summary": "Add a backend method to re-activate a discontinued medication for a resident by setting the medication’s `isActive` field back to `true`, with the same authorization and resident-access checks used by `discontinueMedication`.",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
       },
       {
         "id": "REQ-2",
-        "summary": "Ensure the resident profile page Medications tab also shows discontinued medications in a separate section/table (currently it only lists active medications).",
+        "summary": "Add a frontend React Query mutation hook for re-activating discontinued medications and ensure relevant queries are invalidated after success.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/pages/ResidentProfilePage.tsx",
-          "frontend/src/components/medications/MedicationSections.tsx"
+          "frontend/src/hooks/useQueries.ts"
         ],
         "matchedFiles": [
-          "frontend/src/pages/ResidentProfilePage.tsx",
-          "frontend/src/components/medications/MedicationSections.tsx"
+          "frontend/src/hooks/useQueries.ts"
+        ]
+      },
+      {
+        "id": "REQ-3",
+        "summary": "Add a UI action/button on each discontinued medication entry to re-activate it (visible only for users who can edit), and wire it to the re-activation mutation with a confirmation prompt.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/components/medications/MedicationSections.tsx",
+          "frontend/src/pages/ResidentProfilePage.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/medications/MedicationSections.tsx",
+          "frontend/src/pages/ResidentProfilePage.tsx"
+        ]
+      },
+      {
+        "id": "REQ-4",
+        "summary": "When the physician signature toggle is ON, render the Physician Name and Physician Signature fields at the end of the printed report after the medication list, instead of within the Physicians section.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/components/residents/ResidentProfilePrintReport.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/residents/ResidentProfilePrintReport.tsx"
         ]
       }
     ]
   },
   "changedFiles": [
+    "backend/main.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
+    "frontend/src/backend.d.ts",
+    "frontend/src/backend.ts",
     "frontend/src/components/medications/MedicationSections.tsx",
     "frontend/src/components/residents/ResidentProfilePrintReport.tsx",
+    "frontend/src/declarations/backend.did.d.ts",
+    "frontend/src/declarations/backend.did.js",
+    "frontend/src/hooks/useQueries.ts",
     "frontend/src/pages/ResidentProfilePage.tsx",
     "project_state.json",
     "scratch/component-selection.json",

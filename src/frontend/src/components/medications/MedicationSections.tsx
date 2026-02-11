@@ -1,7 +1,7 @@
 import { Medication } from '../../backend';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Plus } from 'lucide-react';
+import { Plus, RotateCcw } from 'lucide-react';
 
 interface MedicationSectionsProps {
   medications: Medication[];
@@ -9,6 +9,7 @@ interface MedicationSectionsProps {
   onAddMedication?: () => void;
   onEditMedication?: (medication: Medication) => void;
   onDiscontinueMedication?: (medicationId: bigint) => void;
+  onReactivateMedication?: (medicationId: bigint) => void;
   physicians?: Array<{ id: bigint; name: string }>;
 }
 
@@ -18,6 +19,7 @@ export default function MedicationSections({
   onAddMedication,
   onEditMedication,
   onDiscontinueMedication,
+  onReactivateMedication,
   physicians = [],
 }: MedicationSectionsProps) {
   const activeMedications = medications.filter(m => m.isActive);
@@ -116,11 +118,23 @@ export default function MedicationSections({
             <div className="space-y-4">
               {discontinuedMedications.map((medication) => (
                 <div key={medication.id.toString()} className="border rounded-lg p-4 bg-muted/30">
-                  <div className="mb-2">
-                    <p className="font-medium text-lg text-muted-foreground">{medication.name}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {medication.dosage} - {medication.dosageQuantity}
-                    </p>
+                  <div className="flex items-start justify-between mb-2">
+                    <div>
+                      <p className="font-medium text-lg text-muted-foreground">{medication.name}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {medication.dosage} - {medication.dosageQuantity}
+                      </p>
+                    </div>
+                    {canEdit && onReactivateMedication && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => onReactivateMedication(medication.id)}
+                      >
+                        <RotateCcw className="w-4 h-4 mr-2" />
+                        Re-activate
+                      </Button>
+                    )}
                   </div>
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>

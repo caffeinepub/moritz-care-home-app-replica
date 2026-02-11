@@ -1,48 +1,60 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Separate active vs discontinued medications in resident medication views",
+  "title": "Medication re-activation UI + print report physician signature relocation",
   "requirements": [
     {
-      "id": "REQ-1",
-      "summary": "Split the resident medications UI into separate sections for active and discontinued medications, keeping discontinued meds view-only and without strikethrough styling.",
+      "id": "REQ-2",
+      "summary": "Create a React Query mutation hook to re-activate discontinued medications and invalidate resident medication queries on success.",
       "acceptanceCriteria": [
-        "In the resident medications view, medications with isActive=true are shown under a 'Current Medications' (or 'Active Medications') section/table.",
-        "Medications with isActive=false are shown under a separate 'Discontinued Medications' section/table on the same screen.",
-        "Discontinued medications are not rendered with crossed-out/strikethrough styles; they are visually separated by the discontinued section/table instead.",
-        "If there are no discontinued medications, the discontinued section/table is either hidden or shows an appropriate empty-state message (e.g., 'No discontinued medications').",
-        "Existing actions remain sensible: discontinue/edit actions are only available for active medications (as they are today), and discontinued medications are view-only."
+        "A new hook (parallel to `useDiscontinueMedication`) calls the new backend re-activation method.",
+        "On success, the resident medications UI updates without a full page reload by invalidating the same query keys used for medication changes (at minimum: `['medications', residentId]` and `['resident', residentId]`).",
+        "User-facing success and error toast messages are in English and match existing toast patterns."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/medications/MedicationSections.tsx",
-          "operation": "create",
-          "description": "Create a reusable medications renderer that accepts a list of Medication items and renders two clearly labeled sections: 'Current/Active Medications' and 'Discontinued Medications'. Ensure the discontinued section is view-only (no edit/discontinue controls) and uses no crossed-out/strikethrough styling. Use existing shadcn-ui building blocks (e.g., Card, Badge, Button) to keep visuals consistent; verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/components/medications/MedicationsTab.tsx",
+          "path": "frontend/src/hooks/useQueries.ts",
           "operation": "modify",
-          "description": "Update the medications tab to use the new MedicationSections component: partition the fetched medications into active vs discontinued and render them in separate labeled sections/tables. Keep add/edit/discontinue actions available only within the active section when canWrite is true, and show an empty-state for the discontinued section (or hide it) when there are none. Use existing shadcn-ui components already used in this file; verify the component's usage instructions before implementing."
+          "description": "Add a new React Query mutation hook (e.g., `useReactivateMedication`) that calls `actor.reactivateMedication(residentId, medicationId)`, shows success/error toasts using the existing `sonner` patterns, and invalidates the same medication-related query keys used by `useDiscontinueMedication` (including `['medications', residentId.toString()]` and `['resident', residentId.toString()]`)."
         }
       ]
     },
     {
-      "id": "REQ-2",
-      "summary": "Update ResidentProfilePage Medications tab to show discontinued medications in a separate section/table alongside active medications.",
+      "id": "REQ-3",
+      "summary": "Add a per-medication \"Re-activate\" action for discontinued medications (edit-only), wired to the re-activation mutation with confirmation.",
       "acceptanceCriteria": [
-        "On ResidentProfilePage, the Medications tab lists active medications in the current section and additionally lists discontinued medications in a separate section/table below (or otherwise clearly separated).",
-        "When a medication is discontinued, it no longer appears in the active section and appears in the discontinued section after data refresh (React Query invalidation already in place)."
+        "In the discontinued medications list (e.g., `frontend/src/components/medications/MedicationSections.tsx`), each discontinued medication shows a \"Re-activate\" button when `canEdit` is true.",
+        "Clicking \"Re-activate\" asks for confirmation in English (similar tone to the existing discontinue confirmation).",
+        "After confirming, the medication moves from the discontinued section to the active/current medications section (reflecting `isActive = true`).",
+        "The existing discontinue and edit flows for active medications continue to work as before."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/ResidentProfilePage.tsx",
-          "operation": "modify",
-          "description": "Replace the current Medications tab rendering (which filters to active only) with a two-section layout that shows active medications and a separate discontinued medications section/table on the same screen. Reuse MedicationSections for consistent behavior and to ensure discontinued medications are view-only. Keep existing modal wiring (add/edit/discontinue) operating only on active medications. Use existing shadcn-ui components already used in this page; verify the component's usage instructions before implementing."
-        },
-        {
           "path": "frontend/src/components/medications/MedicationSections.tsx",
           "operation": "modify",
-          "description": "Ensure MedicationSections supports the ResidentProfilePage use-case: allow callers to optionally provide handlers for edit/discontinue that are applied only to active medications, and provide an empty-state behavior for when there are no discontinued medications. Use existing shadcn-ui components; verify the component's usage instructions before implementing."
+          "description": "Extend the discontinued medications rendering to include a \"Re-activate\" button per item when `canEdit` is true. Add a new optional callback prop (e.g., `onReactivateMedication?: (medicationId: bigint) => void`) and invoke it from the new button. Use existing Button components and styling patterns; do not modify files under `frontend/src/components/ui`."
+        },
+        {
+          "path": "frontend/src/pages/ResidentProfilePage.tsx",
+          "operation": "modify",
+          "description": "Wire the new discontinued medication action into the page by importing and using the new `useReactivateMedication` hook, adding a confirmation prompt in English, and passing an `onReactivateMedication` handler into `MedicationSections`. Keep the existing discontinue/edit flows unchanged. Use the existing authorization gating approach (from the selected \"authorization\" component via existing helpers like `canWriteClinicalData`) so the action is only available when `canEdit` is true. Verify the component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "summary": "Move physician signature fields to the end of the printed report after medication tables, with a print page break only when enabled.",
+      "acceptanceCriteria": [
+        "In `frontend/src/components/residents/ResidentProfilePrintReport.tsx`, the signature fields (labels \"Physician Name:\" and \"Physician Signature:\" with signature lines) are not rendered inside the Physicians section.",
+        "When `showPhysicianSignature` is true, a signature block is rendered after the medication tables (after both Current Medications and Discontinued Medications sections, if discontinued meds exist).",
+        "The signature block appears on the last printed page by forcing an appropriate print page break before the signature block (only when `showPhysicianSignature` is true), so it does not appear mid-medication list.",
+        "When `showPhysicianSignature` is false, no physician signature fields appear anywhere in the printed report."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/residents/ResidentProfilePrintReport.tsx",
+          "operation": "modify",
+          "description": "Remove the signature fields currently rendered within the Physicians section. Add a single signature block after the medication tables (after the discontinued medications table when present). When `showPhysicianSignature` is true, insert a print-only page break immediately before the signature block (use existing print utility class such as `print-page-break-before`) and render the two labeled fields using the existing print CSS classes (e.g., `print-physician-signature-section`, `print-signature-fields`, `print-signature-field`, `print-signature-line`). Ensure nothing renders when `showPhysicianSignature` is false."
         }
       ]
     }

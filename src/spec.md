@@ -1,11 +1,12 @@
 # Specification
 
 ## Summary
-**Goal:** Show discontinued medications on resident medication lists in a separate, clearly labeled section/table instead of using crossed-out styling.
+**Goal:** Allow staff to re-activate discontinued medications and move physician signature fields to the end of the printed resident report when enabled.
 
 **Planned changes:**
-- Update the resident medications view to split medications into two labeled sections/tables: active (isActive=true) and discontinued (isActive=false), with discontinued items view-only.
-- Update the Resident Profile page’s Medications tab to also display discontinued medications in a separate section/table alongside the active list.
-- Add an appropriate hidden/empty-state behavior for the discontinued section when there are no discontinued medications.
+- Add a backend method to re-activate a resident medication by setting `isActive` back to `true`, using the same authorization and resident-access checks as the existing discontinue flow.
+- Add a frontend React Query mutation hook to call the re-activation method and invalidate resident/medication queries so the UI updates immediately.
+- Add a “Re-activate” action on each discontinued medication (visible only to users who can edit) with an English confirmation prompt, moving the medication back into the active/current list after success.
+- Update the print report so that when the physician signature toggle is ON, “Physician Name” and “Physician Signature” render after the medication sections with an appropriate print page break; when OFF, no physician signature fields render anywhere.
 
-**User-visible outcome:** Residents’ medication lists clearly separate current/active medications from discontinued medications on the same screen, without strikethrough styling; discontinued medications can be viewed but not edited/discontinued.
+**User-visible outcome:** Authorized users can re-activate discontinued medications from the discontinued list, and printed reports place physician name/signature at the end of the report only when the toggle is enabled.

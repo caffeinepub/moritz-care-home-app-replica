@@ -77,14 +77,6 @@ export default function ResidentProfilePrintReport({ resident, showPhysicianSign
                   <p className="font-medium">{physician.name}</p>
                   <p className="text-sm text-gray-600">{physician.specialty}</p>
                   <p className="text-sm text-gray-600">Contact: {physician.contactInfo}</p>
-                  {showPhysicianSignature && (
-                    <div className="mt-3">
-                      <p className="text-sm text-gray-600 mb-1">Physician Name:</p>
-                      <div className="physician-signature-line"></div>
-                      <p className="text-sm text-gray-600 mt-3 mb-1">Physician Signature:</p>
-                      <div className="physician-signature-line"></div>
-                    </div>
-                  )}
                 </div>
               ))}
             </div>
@@ -205,6 +197,21 @@ export default function ResidentProfilePrintReport({ resident, showPhysicianSign
                 ))}
               </tbody>
             </table>
+          </div>
+        )}
+
+        {showPhysicianSignature && (
+          <div className="print-physician-signature-section">
+            <div className="print-signature-fields">
+              <div className="print-signature-field">
+                <p className="text-sm text-gray-600 mb-1">Physician Name:</p>
+                <div className="print-signature-line"></div>
+              </div>
+              <div className="print-signature-field">
+                <p className="text-sm text-gray-600 mb-1">Physician Signature:</p>
+                <div className="print-signature-line"></div>
+              </div>
+            </div>
           </div>
         )}
 

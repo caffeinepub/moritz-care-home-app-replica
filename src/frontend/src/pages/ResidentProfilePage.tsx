@@ -16,7 +16,7 @@ import RecordDailyVitalsModal from '../components/vitals/modals/RecordDailyVital
 import ResidentProfilePrintReport from '../components/residents/ResidentProfilePrintReport';
 import MedicationSections from '../components/medications/MedicationSections';
 import { ResidentStatus, Medication } from '../backend';
-import { useDiscontinueMedication } from '../hooks/useQueries';
+import { useDiscontinueMedication, useReactivateMedication } from '../hooks/useQueries';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import CodeStatusBadge from '../components/residents/CodeStatusBadge';
@@ -28,6 +28,7 @@ export default function ResidentProfilePage() {
   const { data: userProfile } = useGetCallerUserProfile();
   const { data: isAdmin = false } = useIsCallerAdmin();
   const discontinueMedication = useDiscontinueMedication();
+  const reactivateMedication = useReactivateMedication();
 
   const [showEditModal, setShowEditModal] = useState(false);
   const [showAddMedicationModal, setShowAddMedicationModal] = useState(false);
@@ -60,6 +61,12 @@ export default function ResidentProfilePage() {
   const handleDiscontinueMedication = async (medicationId: bigint) => {
     if (confirm('Are you sure you want to discontinue this medication?')) {
       await discontinueMedication.mutateAsync({ residentId: resident.id, medicationId });
+    }
+  };
+
+  const handleReactivateMedication = async (medicationId: bigint) => {
+    if (confirm('Are you sure you want to re-activate this medication?')) {
+      await reactivateMedication.mutateAsync({ residentId: resident.id, medicationId });
     }
   };
 
@@ -302,6 +309,7 @@ export default function ResidentProfilePage() {
                   onAddMedication={() => setShowAddMedicationModal(true)}
                   onEditMedication={handleEditMedication}
                   onDiscontinueMedication={handleDiscontinueMedication}
+                  onReactivateMedication={handleReactivateMedication}
                   physicians={resident.physicians}
                 />
               </TabsContent>
@@ -446,9 +454,7 @@ export default function ResidentProfilePage() {
                                 </div>
                                 <div>
                                   <p className="text-muted-foreground">Blood Pressure</p>
-                                  <p className="font-medium">
-                                    {Number(vitals.bloodPressureSystolic)}/{Number(vitals.bloodPressureDiastolic)}
-                                  </p>
+                                  <p className="font-medium">{Number(vitals.bloodPressureSystolic)}/{Number(vitals.bloodPressureDiastolic)}</p>
                                 </div>
                                 <div>
                                   <p className="text-muted-foreground">Pulse Rate</p>
