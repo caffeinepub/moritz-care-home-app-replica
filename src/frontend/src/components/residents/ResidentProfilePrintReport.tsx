@@ -2,9 +2,10 @@ import { Resident } from '../../backend';
 
 interface ResidentProfilePrintReportProps {
   resident: Resident;
+  includePhysicianSignature?: boolean;
 }
 
-export default function ResidentProfilePrintReport({ resident }: ResidentProfilePrintReportProps) {
+export default function ResidentProfilePrintReport({ resident, includePhysicianSignature = false }: ResidentProfilePrintReportProps) {
   const currentDate = new Date();
   const formattedDate = currentDate.toLocaleDateString('en-US', { 
     month: '2-digit', 
@@ -330,6 +331,26 @@ export default function ResidentProfilePrintReport({ resident }: ResidentProfile
             <p className="print-no-data">No responsible contacts listed</p>
           )}
         </div>
+
+        {/* Physician Name and Signature Section - Conditional */}
+        {includePhysicianSignature && (
+          <div className="print-section print-avoid-break print-physician-signature-section">
+            <h3 className="print-section-header">Physician Certification</h3>
+            <div className="print-section-divider"></div>
+            
+            <div className="print-signature-fields">
+              <div className="print-signature-field">
+                <span className="print-label">PHYSICIAN'S NAME:</span>
+                <div className="print-signature-line"></div>
+              </div>
+              
+              <div className="print-signature-field">
+                <span className="print-label">PHYSICIAN'S SIGNATURE:</span>
+                <div className="print-signature-line"></div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Page Footer */}
         <div className="print-page-footer">

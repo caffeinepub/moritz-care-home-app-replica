@@ -1,7 +1,7 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-10T23:56:18.362Z",
+  "generatedAt": "2026-02-11T00:02:11.527Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
@@ -11,8 +11,19 @@
     "implemented": 3,
     "items": [
       {
-        "id": "REQ-1",
-        "summary": "Implement a dedicated print-only resident report layout that matches the uploaded reference image (print.JPG), including a multi-page document structure with consistent header, section titles, typography, spacing, and table styling.",
+        "id": "REQ-4",
+        "summary": "Add a visible toggle switch on the Resident Profile page that lets the user choose whether the printed Resident Profile Report includes additional blank fields for \"Physician's Name\" and \"Physician's Signature\".",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/pages/ResidentProfilePage.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/ResidentProfilePage.tsx"
+        ]
+      },
+      {
+        "id": "REQ-5",
+        "summary": "Update the print-only Resident Profile Report so that, when the toggle is enabled, the printed document includes a dedicated area with blank lines for \"Physician's Name\" and \"Physician's Signature\" suitable for handwriting.",
         "status": "implemented",
         "plannedFiles": [
           "frontend/src/components/residents/ResidentProfilePrintReport.tsx",
@@ -24,21 +35,8 @@
         ]
       },
       {
-        "id": "REQ-2",
-        "summary": "Update the resident profile print flow so the existing Print action prints the new print-only report layout while keeping the current on-screen resident profile experience unchanged.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/pages/ResidentProfilePage.tsx",
-          "frontend/src/components/residents/ResidentProfilePrintReport.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/pages/ResidentProfilePage.tsx",
-          "frontend/src/components/residents/ResidentProfilePrintReport.tsx"
-        ]
-      },
-      {
-        "id": "REQ-3",
-        "summary": "Extend print CSS to support document-style printing for the new report layout (A4 sizing/margins, print-safe colors, table borders, and page-break handling), without breaking existing print behavior elsewhere.",
+        "id": "REQ-6",
+        "summary": "Add any necessary print CSS to style the new physician name/signature blank lines so they print reliably (e.g., consistent line thickness, spacing) without impacting existing print report styling.",
         "status": "implemented",
         "plannedFiles": [
           "frontend/src/index.css",

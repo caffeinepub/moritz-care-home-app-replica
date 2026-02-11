@@ -1,74 +1,65 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Resident profile print-only report layout (match print.JPG)",
+  "title": "Resident Profile print toggle for physician name/signature blank fields",
   "requirements": [
     {
-      "id": "REQ-1",
-      "summary": "Add a dedicated print-only Resident Profile Report layout matching the reference, with multi-page structure, consistent header/title blocks, section styling, and medication tables.",
+      "id": "REQ-4",
+      "summary": "Add a screen-only toggle on ResidentProfilePage near Print to control whether the next print includes physician name/signature blank fields.",
       "acceptanceCriteria": [
-        "When printing from a resident profile, the print preview shows a clean, document-style report (not the on-screen cards/tabs).",
-        "The print report is split into multiple pages with intentional page breaks to avoid awkward section splitting.",
-        "Each printed page includes a consistent top header area similar to the reference (left: date/time, center: application name, right: page indicator), and a clear report title block (facility name + 'Resident Profile Report').",
-        "Section headers and dividers visually resemble the reference (thin rules, subtle accent color, compact document typography).",
-        "Active medications render as a bordered table with column headers and rows styled for print readability (gridlines, compact padding, consistent fonts).",
-        "A 'Discontinued Medications' section is rendered and shows either a table/list of discontinued meds or a 'No discontinued medications' message when empty.",
-        "Assigned physicians, pharmacy information, and responsible contacts render as document sections (not cards) with label/value formatting similar to the reference.",
-        "All UI controls/navigation elements remain hidden in print (no-print behavior preserved)."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/components/residents/ResidentProfilePrintReport.tsx",
-          "operation": "create",
-          "description": "Create a print-only React component that renders a document-style Resident Profile Report using existing resident data (demographics, insurance, physicians, pharmacy, responsible contacts, and medications), including: (1) consistent per-page header (date/time left, app name center, page indicator right), (2) report title block (facility name + 'Resident Profile Report'), (3) document-like sections with label/value layout, and (4) Active/Discontinued medications as print-friendly tables with gridlines and compact typography; ensure missing fields render as 'N/A' rather than blank/undefined."
-        },
-        {
-          "path": "frontend/src/pages/ResidentProfilePage.tsx",
-          "operation": "modify",
-          "description": "Render the new ResidentProfilePrintReport component within the page as a print-only section (hidden on screen), passing the already-fetched resident data so print output uses the same source of truth as the on-screen profile."
-        }
-      ]
-    },
-    {
-      "id": "REQ-2",
-      "summary": "Update the existing Resident Profile Print action to print the new print-only report while keeping the current on-screen profile unchanged.",
-      "acceptanceCriteria": [
-        "Clicking 'Print' on ResidentProfilePage prints the new report layout.",
-        "On-screen view continues to show the existing cards and tabs; the document layout is only visible during print (e.g., via print-only CSS/classes).",
-        "Resident data used in the print report is sourced from existing queries (resident details + medications) and renders without missing/undefined fields (show 'N/A' where appropriate)."
+        "ResidentProfilePage shows a clearly labeled toggle control in the header area near the existing Print action (screen-only; not shown in print).",
+        "The toggle label is in English and clearly indicates that the printout will include space for Physician's Name and Signature.",
+        "Toggling the switch immediately affects what will appear in the next print (no page reload required).",
+        "Existing Print button behavior (calling window.print()) remains unchanged."
       ],
       "file_operations": [
         {
           "path": "frontend/src/pages/ResidentProfilePage.tsx",
           "operation": "modify",
-          "description": "Keep the existing Print button behavior (window.print) but ensure the printed content is the new print-only report by: (1) ensuring the report is present in the DOM, (2) applying print-only/no-print classes so the on-screen cards/tabs do not appear in print, and (3) confirming resident medications shown in print are sourced from the resident data already fetched by the page (no new data flow that could introduce missing fields)."
-        },
-        {
-          "path": "frontend/src/components/residents/ResidentProfilePrintReport.tsx",
-          "operation": "modify",
-          "description": "Ensure the print report strictly renders document layout only (no interactive UI controls), uses safe fallbacks ('N/A') for optional fields, and splits active vs discontinued medications based on isActive to align with the print requirements."
+          "description": "Add local UI state for the print option and render a clearly labeled screen-only toggle beside the existing Print button. Use existing shadcn-ui components (e.g., Switch + Label) to implement the toggle without modifying any files under frontend/src/components/ui; verify the component's usage instructions before implementing. Pass the toggle value down to ResidentProfilePrintReport while keeping the Print button behavior as window.print()."
         }
       ]
     },
     {
-      "id": "REQ-3",
-      "summary": "Extend global print CSS for A4/Letter document printing, print-safe colors, table borders, and page-break control without impacting other print behavior.",
+      "id": "REQ-5",
+      "summary": "Conditionally render a physician name/signature handwriting area in the print-only ResidentProfilePrintReport based on the toggle state from ResidentProfilePage.",
       "acceptanceCriteria": [
-        "Printed pages use consistent margins and a document-like scale suitable for A4/Letter printing.",
-        "Table borders and header background render correctly in print (including in browsers that require print color adjustment).",
-        "No-print elements remain hidden as they are today.",
-        "Sections marked to avoid splitting do not break across pages unless explicitly allowed."
+        "ResidentProfilePrintReport accepts a boolean input (passed from ResidentProfilePage) that controls whether the physician name/signature blank area renders.",
+        "When enabled, the print report includes both labels \"Physician's Name\" and \"Physician's Signature\" with visible blank line space to write on.",
+        "When disabled, the physician name/signature blank area is not present anywhere in the printed output.",
+        "Print layout remains readable and does not overlap existing content; page breaks remain valid (the report still prints cleanly)."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/residents/ResidentProfilePrintReport.tsx",
+          "operation": "modify",
+          "description": "Update the component props to accept a boolean (e.g., includePhysicianNameSignatureFields) and conditionally render a dedicated print-only section containing the labels \"Physician's Name\" and \"Physician's Signature\" with blank line areas suitable for handwriting. Place the section in a location that preserves readability and page breaks (e.g., near the end of the report on page 3 with break-avoid where appropriate)."
+        },
+        {
+          "path": "frontend/src/pages/ResidentProfilePage.tsx",
+          "operation": "modify",
+          "description": "Wire the new boolean prop into the existing ResidentProfilePrintReport render so the print-only output reflects the current toggle state immediately (no reload)."
+        }
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "summary": "Add print-specific CSS for consistent physician name/signature blank line rendering without affecting existing print report styling.",
+      "acceptanceCriteria": [
+        "New print-specific CSS classes (if needed) are added to frontend/src/index.css under the existing @media print section.",
+        "The blank lines are visible on printed output and in print preview across common browsers.",
+        "No regressions to existing print-only report styling (headers, section styling, tables, page breaks) are introduced."
       ],
       "file_operations": [
         {
           "path": "frontend/src/index.css",
           "operation": "modify",
-          "description": "Extend the existing @media print rules to support the new document report without breaking current no-print behavior: add print-only visibility helpers (e.g., show .print-only, hide .screen-only if needed), define page sizing/margins via @page for A4/Letter-friendly output, enable print color adjustment for table header backgrounds/borders, and add reusable page-break utilities (e.g., .print-page-break-before, .print-avoid-break) used by the new report layout."
+          "description": "Within the existing @media print block, add narrowly-scoped CSS classes used by the new physician name/signature section (e.g., spacing, line thickness, and ensuring borders/backgrounds print reliably) so handwriting lines are consistently visible across print preview and printed output without changing existing print styles."
         },
         {
           "path": "frontend/src/components/residents/ResidentProfilePrintReport.tsx",
           "operation": "modify",
-          "description": "Apply the new print utility classes (page breaks and avoid-splitting) to the report sections to ensure intentional multi-page layout (e.g., break before medication tables and subsequent sections) and prevent awkward section splitting across pages."
+          "description": "Apply the new print-only CSS classes to the physician name/signature blank line elements so styling is controlled solely by the print CSS additions and does not impact other report sections."
         }
       ]
     }

@@ -1,32 +1,32 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Project to recreate a print layout to match an uploaded reference photo.",
+  "summary": "New project",
   "architectural_notes": [],
   "known_issues": [],
   "isFixRequest": false,
   "existing_features": [
     {
-      "id": "feature-implement-a-dedicated-print-only-resident-report-layout-that-matches-the-uploaded-reference-image-print-jpg-including-a-multi-page-document-structure-with-consistent-header-section-titles-typography-spacing-and-table-styling",
-      "title": "Implement a dedicated print-only resident report layout that matches the uploaded reference image (print.JPG), including a multi-page document structure with consistent header, section titles, typography, spacing, and table styling.",
+      "id": "feature-add-a-visible-toggle-switch-on-the-resident-profile-page-that-lets-the-user-choose-whether-the-printed-resident-profile-report-includes-additional-blank-fields-for-physician-s-name-and-physician-s-signature",
+      "title": "Add a visible toggle switch on the Resident Profile page that lets the user choose whether the printed Resident Profile Report includes additional blank fields for \"Physician's Name\" and \"Physician's Signature\".",
       "reqIds": [
-        "REQ-1"
+        "REQ-4"
       ],
       "version": 1
     },
     {
-      "id": "feature-update-the-resident-profile-print-flow-so-the-existing-print-action-prints-the-new-print-only-report-layout-while-keeping-the-current-on-screen-resident-profile-experience-unchanged",
-      "title": "Update the resident profile print flow so the existing Print action prints the new print-only report layout while keeping the current on-screen resident profile experience unchanged.",
+      "id": "feature-update-the-print-only-resident-profile-report-so-that-when-the-toggle-is-enabled-the-printed-document-includes-a-dedicated-area-with-blank-lines-for-physician-s-name-and-physician-s-signature-suitable-for-handwriting",
+      "title": "Update the print-only Resident Profile Report so that, when the toggle is enabled, the printed document includes a dedicated area with blank lines for \"Physician's Name\" and \"Physician's Signature\" suitable for handwriting.",
       "reqIds": [
-        "REQ-2"
+        "REQ-5"
       ],
       "version": 1
     },
     {
-      "id": "feature-extend-print-css-to-support-document-style-printing-for-the-new-report-layout-a4-sizing-margins-print-safe-colors-table-borders-and-page-break-handling-without-breaking-existing-print-behavior-elsewhere",
-      "title": "Extend print CSS to support document-style printing for the new report layout (A4 sizing/margins, print-safe colors, table borders, and page-break handling), without breaking existing print behavior elsewhere.",
+      "id": "feature-add-any-necessary-print-css-to-style-the-new-physician-name-signature-blank-lines-so-they-print-reliably-e-g-consistent-line-thickness-spacing-without-impacting-existing-print-report-styling",
+      "title": "Add any necessary print CSS to style the new physician name/signature blank lines so they print reliably (e.g., consistent line thickness, spacing) without impacting existing print report styling.",
       "reqIds": [
-        "REQ-3"
+        "REQ-6"
       ],
       "version": 1
     }
@@ -34,13 +34,12 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Recreate the print layout to match the uploaded reference photo.",
+      "summary": "Add a visible toggle on the resident profile to print the resident profile with space for Physician's Name and Signature",
       "reqIds": [],
       "status": "pending"
     }
   ],
-  "gameProjectType": "none",
-  "projectName": "Recreate resident profile print layout to match uploaded reference (print.JPG)",
+  "projectName": "Add resident profile print toggle for physician name/signature fields",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

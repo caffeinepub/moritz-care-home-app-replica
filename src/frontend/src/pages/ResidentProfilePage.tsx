@@ -4,6 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 import { ArrowLeft, Printer, Edit, Stethoscope, Pill, Phone, FileText } from 'lucide-react';
 import { useState } from 'react';
 import EditResidentInformationModal from '../components/residents/modals/EditResidentInformationModal';
@@ -23,6 +25,7 @@ export default function ResidentProfilePage() {
   const { data: userProfile } = useGetCallerUserProfile();
   const { data: isAdmin = false } = useIsCallerAdmin();
   const [showEditModal, setShowEditModal] = useState(false);
+  const [includePhysicianSignature, setIncludePhysicianSignature] = useState(false);
 
   const canWrite = isStaffOrAdmin(userProfile, isAdmin);
   const hasAccess = canAccessResident(userProfile, isAdmin, BigInt(residentId));
@@ -67,7 +70,17 @@ export default function ResidentProfilePage() {
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back to Dashboard
         </Button>
-        <div className="flex gap-2">
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 rounded-lg shadow-sm">
+            <Switch
+              id="physician-signature"
+              checked={includePhysicianSignature}
+              onCheckedChange={setIncludePhysicianSignature}
+            />
+            <Label htmlFor="physician-signature" className="text-sm font-medium cursor-pointer">
+              Include Physician Name & Signature fields in print
+            </Label>
+          </div>
           <Button variant="outline" onClick={handlePrint}>
             <Printer className="w-4 h-4 mr-2" />
             Print
@@ -82,7 +95,10 @@ export default function ResidentProfilePage() {
       </div>
 
       {/* Print-only report */}
-      <ResidentProfilePrintReport resident={resident} />
+      <ResidentProfilePrintReport 
+        resident={resident} 
+        includePhysicianSignature={includePhysicianSignature}
+      />
 
       {/* Screen-only content */}
       <div className="screen-only">
