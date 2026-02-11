@@ -1,34 +1,78 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-11T01:48:44.316Z",
+  "generatedAt": "2026-02-11T02:15:11.608Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 1,
-    "implemented": 1,
+    "total": 4,
+    "implemented": 3,
     "items": [
       {
-        "id": "REQ-5",
-        "summary": "When the \"Show Physician Signature Fields\" toggle is ON, update the printed report’s final-page physician signature section to include three writable underline lines for manual writing: (1) Physician Name, (2) Physician Signature, and (3) Date. Each field must show its label followed by an underline line suitable for handwriting.",
+        "id": "REQ-1",
+        "summary": "Identify and fix the root cause of the recurring BootErrorScreen after login so authenticated users can successfully complete the boot sequence (actor initialization + initial user profile fetch) without requiring a URL admin token.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/components/residents/ResidentProfilePrintReport.tsx"
+          "frontend/src/hooks/useActor.ts",
+          "frontend/src/App.tsx",
+          "frontend/src/hooks/useQueries.ts"
         ],
         "matchedFiles": [
-          "frontend/src/components/residents/ResidentProfilePrintReport.tsx"
+          "frontend/src/App.tsx",
+          "frontend/src/hooks/useQueries.ts"
+        ]
+      },
+      {
+        "id": "REQ-2",
+        "summary": "Backend: Ensure that authenticated callers can fetch and save their user profile during initial setup without failing due to missing access-control initialization. Specifically, remove or relax any access-control precondition that prevents `getCallerUserProfile` (and other boot-critical calls) from working for a newly authenticated principal, or add a backend-side mechanism that automatically grants the minimum required permission to authenticated callers during boot.",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-3",
+        "summary": "Frontend: Improve boot error diagnostics and recovery so the error screen provides actionable information for debugging. Update BootErrorScreen (and the boot logic in App.tsx) to (a) distinguish between actor initialization errors and profile fetch errors, (b) display a concise English error detail (e.g., error message string) in a collapsible/secondary section, and (c) provide a 'Retry' action that re-attempts boot without forcing logout (while keeping the existing 'Log Out and Try Again' action).",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/components/auth/BootErrorScreen.tsx",
+          "frontend/src/App.tsx",
+          "frontend/src/hooks/useResilientActor.ts"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/auth/BootErrorScreen.tsx",
+          "frontend/src/App.tsx",
+          "frontend/src/hooks/useResilientActor.ts"
+        ]
+      },
+      {
+        "id": "REQ-4",
+        "summary": "Frontend: Prevent the app from entering a persistent BootErrorScreen state caused by stale React Query error caching across retries/reloads. Ensure the actor query and `currentUserProfile` query can be cleanly invalidated/reset on retry and after identity changes, so users do not remain stuck on the error screen once the underlying issue is resolved.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/App.tsx",
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/hooks/useResilientActor.ts"
+        ],
+        "matchedFiles": [
+          "frontend/src/App.tsx",
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/hooks/useResilientActor.ts"
         ]
       }
     ]
   },
   "changedFiles": [
+    "backend/main.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/components/residents/ResidentProfilePrintReport.tsx",
+    "frontend/src/App.tsx",
+    "frontend/src/components/auth/BootErrorScreen.tsx",
+    "frontend/src/hooks/useQueries.ts",
+    "frontend/src/hooks/useResilientActor.ts",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

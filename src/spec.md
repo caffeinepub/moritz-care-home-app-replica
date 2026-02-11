@@ -1,11 +1,13 @@
 # Specification
 
 ## Summary
-**Goal:** When the “Show Physician Signature Fields” toggle is ON, add writable underline lines for Physician Name, Physician Signature, and Date in the printed report’s final-page physician signature section.
+**Goal:** Fix the recurring “Unable to Initialize” boot failure after login so authenticated users can reliably complete actor initialization and initial profile fetch without needing a URL admin token.
 
 **Planned changes:**
-- Update the print report final-page physician signature section to render three labeled fields exactly: “Physician Name:”, “Physician Signature:”, and “Date:”.
-- Add an underline line after each label, matching the existing print signature line style, sized for handwriting on a printed page.
-- Ensure the physician signature section remains hidden when the toggle is OFF (no change to toggle behavior beyond adding the Date field).
+- Backend: Adjust authorization/access-control flow so newly authenticated principals can call `getCallerUserProfile` (returning `null` for new users) and `saveCallerUserProfile` during initial setup without requiring a `caffeineAdminToken`.
+- Backend: Ensure boot-critical calls do not fail due to missing access-control initialization; add a minimal backend-side mechanism to allow authenticated boot/profile setup.
+- Frontend: Update boot logic (App.tsx) and BootErrorScreen to distinguish actor initialization failures vs profile fetch failures and show a concise English error detail (collapsible/secondary section).
+- Frontend: Add a “Retry” action on the boot error screen that re-attempts boot without logging out, while preserving the existing “Log Out and Try Again” behavior.
+- Frontend: Prevent persistent boot failure due to stale React Query error caching by properly resetting/invalidating actor and `currentUserProfile` queries on retry and identity changes.
 
-**User-visible outcome:** With the toggle ON, the printed report includes three labeled handwriting lines for Physician Name, Physician Signature, and Date; with the toggle OFF, the physician signature section is not shown.
+**User-visible outcome:** After logging in with Internet Identity, users proceed to the dashboard or profile setup instead of repeatedly seeing “Unable to Initialize,” and if boot fails, they can retry without logging out and see clearer error details.

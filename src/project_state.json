@@ -3,27 +3,47 @@
   "projectStateVersion": 3,
   "summary": "New project",
   "architectural_notes": [],
-  "known_issues": [],
-  "isFixRequest": false,
+  "known_issues": [
+    "App repeatedly shows 'Unable to Initialize' during session setup (boot logic hitting BootErrorScreen); likely identity/actor initialization or user profile query failure, possibly due to cached identity state after redeploy."
+  ],
+  "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-when-the-show-physician-signature-fields-toggle-is-on-update-the-printed-report-s-final-page-physician-signature-section-to-include-three-writable-underline-lines-for-manual-writing-1-physician-name-2-physician-signature-and-3-date-each-field-must-show-its-label-followed-by-an-underline-line-suitable-for-handwriting",
-      "title": "When the \"Show Physician Signature Fields\" toggle is ON, update the printed report’s final-page physician signature section to include three writable underline lines for manual writing: (1) Physician Name, (2) Physician Signature, and (3) Date. Each field must show its label followed by an underline line suitable for handwriting.",
+      "id": "feature-identify-and-fix-the-root-cause-of-the-recurring-booterrorscreen-after-login-so-authenticated-users-can-successfully-complete-the-boot-sequence-actor-initialization-initial-user-profile-fetch-without-requiring-a-url-admin-token",
+      "title": "Identify and fix the root cause of the recurring BootErrorScreen after login so authenticated users can successfully complete the boot sequence (actor initialization + initial user profile fetch) without requiring a URL admin token.",
       "reqIds": [
-        "REQ-5"
+        "REQ-1"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-frontend-improve-boot-error-diagnostics-and-recovery-so-the-error-screen-provides-actionable-information-for-debugging-update-booterrorscreen-and-the-boot-logic-in-app-tsx-to-a-distinguish-between-actor-initialization-errors-and-profile-fetch-errors-b-display-a-concise-english-error-detail-e-g-error-message-string-in-a-collapsible-secondary-section-and-c-provide-a-retry-action-that-re-attempts-boot-without-forcing-logout-while-keeping-the-existing-log-out-and-try-again-action",
+      "title": "Frontend: Improve boot error diagnostics and recovery so the error screen provides actionable information for debugging. Update BootErrorScreen (and the boot logic in App.tsx) to (a) distinguish between actor initialization errors and profile fetch errors, (b) display a concise English error detail (e.g., error message string) in a collapsible/secondary section, and (c) provide a 'Retry' action that re-attempts boot without forcing logout (while keeping the existing 'Log Out and Try Again' action).",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-frontend-prevent-the-app-from-entering-a-persistent-booterrorscreen-state-caused-by-stale-react-query-error-caching-across-retries-reloads-ensure-the-actor-query-and-currentuserprofile-query-can-be-cleanly-invalidated-reset-on-retry-and-after-identity-changes-so-users-do-not-remain-stuck-on-the-error-screen-once-the-underlying-issue-is-resolved",
+      "title": "Frontend: Prevent the app from entering a persistent BootErrorScreen state caused by stale React Query error caching across retries/reloads. Ensure the actor query and `currentUserProfile` query can be cleanly invalidated/reset on retry and after identity changes, so users do not remain stuck on the error screen once the underlying issue is resolved.",
+      "reqIds": [
+        "REQ-4"
       ],
       "version": 1
     }
   ],
   "new_feature_requests": [
     {
-      "id": "AR-1",
-      "summary": "When the toggle is on, add writable underlines after Physician's Name, Signature, and Date fields on the final-page physician section.",
-      "reqIds": [],
+      "id": "AR-2",
+      "summary": "Backend: Ensure that authenticated callers can fetch and save their user profile during initial setup without failing due to missing access-control initialization. Specifically, remove or relax any access-control precondition that prevents `getCallerUserProfile` (and other boot-critical calls) from working for a newly authenticated principal, or add a backend-side mechanism that automatically grants the minimum required permission to authenticated callers during boot.",
+      "reqIds": [
+        "REQ-2"
+      ],
       "status": "pending"
     }
   ],
-  "projectName": "Add writable underlines for Physician Name, Signature, and Date when physician signature toggle is on",
+  "projectName": "Fix persistent 'Unable to Initialize' boot error after login",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

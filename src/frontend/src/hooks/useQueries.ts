@@ -1,20 +1,34 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useActor } from './useActor';
+import { useResilientActor } from './useResilientActor';
+import { useInternetIdentity } from './useInternetIdentity';
 import type { UserProfile, Resident, ResidentId, Medication, MARRecord, ADLRecord, DailyVitals, PharmacyInfo, InsuranceInfo, ResidentStatus } from '../backend';
 import { toast } from 'sonner';
 import { canListAllResidents } from '../lib/auth/helpers';
 
 export function useGetCallerUserProfile() {
-  const { actor, isFetching: actorFetching } = useActor();
+  const { actor, isFetching: actorFetching } = useResilientActor();
+  const { identity } = useInternetIdentity();
 
   const query = useQuery<UserProfile | null>({
-    queryKey: ['currentUserProfile'],
+    queryKey: ['currentUserProfile', identity?.getPrincipal().toString()],
     queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
-      return actor.getCallerUserProfile();
+      if (!actor) {
+        console.error('[Profile Query] Actor not available');
+        throw new Error('Actor not available');
+      }
+      console.log('[Profile Query] Fetching caller user profile');
+      try {
+        const profile = await actor.getCallerUserProfile();
+        console.log('[Profile Query] Profile fetched:', profile ? 'exists' : 'null (new user)');
+        return profile;
+      } catch (error: any) {
+        console.error('[Profile Query] Failed to fetch profile:', error.message);
+        throw error;
+      }
     },
-    enabled: !!actor && !actorFetching,
-    retry: false,
+    enabled: !!actor && !actorFetching && !!identity,
+    retry: 1,
+    retryDelay: 1000,
   });
 
   return {
@@ -25,7 +39,7 @@ export function useGetCallerUserProfile() {
 }
 
 export function useIsCallerAdmin() {
-  const { actor, isFetching } = useActor();
+  const { actor, isFetching } = useResilientActor();
 
   return useQuery<boolean>({
     queryKey: ['isCallerAdmin'],
@@ -38,7 +52,7 @@ export function useIsCallerAdmin() {
 }
 
 export function useSaveCallerUserProfile() {
-  const { actor } = useActor();
+  const { actor } = useResilientActor();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -57,7 +71,7 @@ export function useSaveCallerUserProfile() {
 }
 
 export function useGetResidentStats() {
-  const { actor, isFetching } = useActor();
+  const { actor, isFetching } = useResilientActor();
 
   return useQuery({
     queryKey: ['residentStats'],
@@ -70,7 +84,7 @@ export function useGetResidentStats() {
 }
 
 export function useGetAllResidents() {
-  const { actor, isFetching } = useActor();
+  const { actor, isFetching } = useResilientActor();
 
   return useQuery<Resident[]>({
     queryKey: ['residents'],
@@ -83,7 +97,7 @@ export function useGetAllResidents() {
 }
 
 export function useGetAccessibleResidents() {
-  const { actor, isFetching } = useActor();
+  const { actor, isFetching } = useResilientActor();
   const { data: userProfile } = useGetCallerUserProfile();
   const { data: isAdmin = false } = useIsCallerAdmin();
 
@@ -119,7 +133,7 @@ export function useGetAccessibleResidents() {
 }
 
 export function useGetResident(residentId: ResidentId | undefined) {
-  const { actor, isFetching } = useActor();
+  const { actor, isFetching } = useResilientActor();
 
   return useQuery<Resident | null>({
     queryKey: ['resident', residentId?.toString()],
@@ -132,7 +146,7 @@ export function useGetResident(residentId: ResidentId | undefined) {
 }
 
 export function useAddResident() {
-  const { actor } = useActor();
+  const { actor } = useResilientActor();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -153,7 +167,7 @@ export function useAddResident() {
 }
 
 export function useUpdateResident() {
-  const { actor } = useActor();
+  const { actor } = useResilientActor();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -174,7 +188,7 @@ export function useUpdateResident() {
 }
 
 export function useDischargeResident() {
-  const { actor } = useActor();
+  const { actor } = useResilientActor();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -195,7 +209,7 @@ export function useDischargeResident() {
 }
 
 export function useDeleteResident() {
-  const { actor } = useActor();
+  const { actor } = useResilientActor();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -216,7 +230,7 @@ export function useDeleteResident() {
 }
 
 export function useGetMedications(residentId: ResidentId | undefined) {
-  const { actor, isFetching } = useActor();
+  const { actor, isFetching } = useResilientActor();
 
   return useQuery<Medication[]>({
     queryKey: ['medications', residentId?.toString()],
@@ -229,7 +243,7 @@ export function useGetMedications(residentId: ResidentId | undefined) {
 }
 
 export function useAddMedication() {
-  const { actor } = useActor();
+  const { actor } = useResilientActor();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -249,7 +263,7 @@ export function useAddMedication() {
 }
 
 export function useUpdateMedication() {
-  const { actor } = useActor();
+  const { actor } = useResilientActor();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -269,7 +283,7 @@ export function useUpdateMedication() {
 }
 
 export function useDiscontinueMedication() {
-  const { actor } = useActor();
+  const { actor } = useResilientActor();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -289,7 +303,7 @@ export function useDiscontinueMedication() {
 }
 
 export function useReactivateMedication() {
-  const { actor } = useActor();
+  const { actor } = useResilientActor();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -309,7 +323,7 @@ export function useReactivateMedication() {
 }
 
 export function useGetMARRecords(residentId: ResidentId | undefined) {
-  const { actor, isFetching } = useActor();
+  const { actor, isFetching } = useResilientActor();
 
   return useQuery<MARRecord[]>({
     queryKey: ['marRecords', residentId?.toString()],
@@ -322,7 +336,7 @@ export function useGetMARRecords(residentId: ResidentId | undefined) {
 }
 
 export function useAddMARRecord() {
-  const { actor } = useActor();
+  const { actor } = useResilientActor();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -332,6 +346,7 @@ export function useAddMARRecord() {
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['marRecords', variables.residentId.toString()] });
+      queryClient.invalidateQueries({ queryKey: ['resident', variables.residentId.toString()] });
       toast.success('MAR record added successfully');
     },
     onError: (error: Error) => {
@@ -341,7 +356,7 @@ export function useAddMARRecord() {
 }
 
 export function useGetADLRecords(residentId: ResidentId | undefined) {
-  const { actor, isFetching } = useActor();
+  const { actor, isFetching } = useResilientActor();
 
   return useQuery<ADLRecord[]>({
     queryKey: ['adlRecords', residentId?.toString()],
@@ -354,7 +369,7 @@ export function useGetADLRecords(residentId: ResidentId | undefined) {
 }
 
 export function useAddADLRecord() {
-  const { actor } = useActor();
+  const { actor } = useResilientActor();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -364,6 +379,7 @@ export function useAddADLRecord() {
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['adlRecords', variables.residentId.toString()] });
+      queryClient.invalidateQueries({ queryKey: ['resident', variables.residentId.toString()] });
       toast.success('ADL record added successfully');
     },
     onError: (error: Error) => {
@@ -373,7 +389,7 @@ export function useAddADLRecord() {
 }
 
 export function useGetDailyVitals(residentId: ResidentId | undefined) {
-  const { actor, isFetching } = useActor();
+  const { actor, isFetching } = useResilientActor();
 
   return useQuery<DailyVitals[]>({
     queryKey: ['dailyVitals', residentId?.toString()],
@@ -386,55 +402,17 @@ export function useGetDailyVitals(residentId: ResidentId | undefined) {
 }
 
 export function useAddDailyVitals() {
-  const { actor } = useActor();
+  const { actor } = useResilientActor();
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({
-      residentId,
-      temperature,
-      temperatureUnit,
-      bloodPressureSystolic,
-      bloodPressureDiastolic,
-      pulseRate,
-      respiratoryRate,
-      oxygenSaturation,
-      bloodGlucose,
-      measurementDate,
-      measurementTime,
-      notes,
-    }: {
-      residentId: ResidentId;
-      temperature: number;
-      temperatureUnit: string;
-      bloodPressureSystolic: bigint;
-      bloodPressureDiastolic: bigint;
-      pulseRate: bigint;
-      respiratoryRate: bigint;
-      oxygenSaturation: bigint;
-      bloodGlucose: bigint | null;
-      measurementDate: string;
-      measurementTime: string;
-      notes: string;
-    }) => {
+    mutationFn: async ({ residentId, temperature, temperatureUnit, bloodPressureSystolic, bloodPressureDiastolic, pulseRate, respiratoryRate, oxygenSaturation, bloodGlucose, measurementDate, measurementTime, notes }: { residentId: ResidentId; temperature: number; temperatureUnit: string; bloodPressureSystolic: bigint; bloodPressureDiastolic: bigint; pulseRate: bigint; respiratoryRate: bigint; oxygenSaturation: bigint; bloodGlucose: bigint | null; measurementDate: string; measurementTime: string; notes: string }) => {
       if (!actor) throw new Error('Actor not available');
-      return actor.addDailyVitals(
-        residentId,
-        temperature,
-        temperatureUnit,
-        bloodPressureSystolic,
-        bloodPressureDiastolic,
-        pulseRate,
-        respiratoryRate,
-        oxygenSaturation,
-        bloodGlucose,
-        measurementDate,
-        measurementTime,
-        notes
-      );
+      return actor.addDailyVitals(residentId, temperature, temperatureUnit, bloodPressureSystolic, bloodPressureDiastolic, pulseRate, respiratoryRate, oxygenSaturation, bloodGlucose, measurementDate, measurementTime, notes);
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['dailyVitals', variables.residentId.toString()] });
+      queryClient.invalidateQueries({ queryKey: ['resident', variables.residentId.toString()] });
       toast.success('Daily vitals recorded successfully');
     },
     onError: (error: Error) => {

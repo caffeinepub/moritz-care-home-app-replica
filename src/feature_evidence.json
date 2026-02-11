@@ -2,10 +2,11 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-when-the-show-physician-signature-fields-toggle-is-on-update-the-printed-report-s-final-page-physician-signature-section-to-include-three-writable-underline-lines-for-manual-writing-1-physician-name-2-physician-signature-and-3-date-each-field-must-show-its-label-followed-by-an-underline-line-suitable-for-handwriting",
-      "featureTitle": "When the \"Show Physician Signature Fields\" toggle is ON, update the printed report’s final-page physician signature section to include three writable underline lines for manual writing: (1) Physician Name, (2) Physician Signature, and (3) Date. Each field must show its label followed by an underline line suitable for handwriting.",
+      "featureId": "feature-identify-and-fix-the-root-cause-of-the-recurring-booterrorscreen-after-login-so-authenticated-users-can-successfully-complete-the-boot-sequence-actor-initialization-initial-user-profile-fetch-without-requiring-a-url-admin-token",
+      "featureTitle": "Identify and fix the root cause of the recurring BootErrorScreen after login so authenticated users can successfully complete the boot sequence (actor initialization + initial user profile fetch) without requiring a URL admin token.",
       "files": [
-        "frontend/src/components/residents/ResidentProfilePrintReport.tsx"
+        "frontend/src/App.tsx",
+        "frontend/src/hooks/useQueries.ts"
       ],
       "components": [
         "authorization@4.0.0",
@@ -16,7 +17,49 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-5"
+        "REQ-1"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-frontend-improve-boot-error-diagnostics-and-recovery-so-the-error-screen-provides-actionable-information-for-debugging-update-booterrorscreen-and-the-boot-logic-in-app-tsx-to-a-distinguish-between-actor-initialization-errors-and-profile-fetch-errors-b-display-a-concise-english-error-detail-e-g-error-message-string-in-a-collapsible-secondary-section-and-c-provide-a-retry-action-that-re-attempts-boot-without-forcing-logout-while-keeping-the-existing-log-out-and-try-again-action",
+      "featureTitle": "Frontend: Improve boot error diagnostics and recovery so the error screen provides actionable information for debugging. Update BootErrorScreen (and the boot logic in App.tsx) to (a) distinguish between actor initialization errors and profile fetch errors, (b) display a concise English error detail (e.g., error message string) in a collapsible/secondary section, and (c) provide a 'Retry' action that re-attempts boot without forcing logout (while keeping the existing 'Log Out and Try Again' action).",
+      "files": [
+        "frontend/src/App.tsx",
+        "frontend/src/components/auth/BootErrorScreen.tsx",
+        "frontend/src/hooks/useResilientActor.ts"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-3"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-frontend-prevent-the-app-from-entering-a-persistent-booterrorscreen-state-caused-by-stale-react-query-error-caching-across-retries-reloads-ensure-the-actor-query-and-currentuserprofile-query-can-be-cleanly-invalidated-reset-on-retry-and-after-identity-changes-so-users-do-not-remain-stuck-on-the-error-screen-once-the-underlying-issue-is-resolved",
+      "featureTitle": "Frontend: Prevent the app from entering a persistent BootErrorScreen state caused by stale React Query error caching across retries/reloads. Ensure the actor query and `currentUserProfile` query can be cleanly invalidated/reset on retry and after identity changes, so users do not remain stuck on the error screen once the underlying issue is resolved.",
+      "files": [
+        "frontend/src/App.tsx",
+        "frontend/src/hooks/useQueries.ts",
+        "frontend/src/hooks/useResilientActor.ts"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-4"
       ],
       "confidence": "high"
     }

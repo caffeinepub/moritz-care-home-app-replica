@@ -1,35 +1,93 @@
 {
   "kind": "build_request",
-  "title": "Add writable underlines for Physician Name, Signature, and Date when physician signature toggle is on",
-  "priority": "normal",
+  "title": "Fix persistent 'Unable to Initialize' boot error after login",
+  "priority": "high",
   "requirements": [
     {
-      "id": "REQ-5",
-      "text": "When the \"Show Physician Signature Fields\" toggle is ON, update the printed report’s final-page physician signature section to include three writable underline lines for manual writing: (1) Physician Name, (2) Physician Signature, and (3) Date. Each field must show its label followed by an underline line suitable for handwriting.",
-      "target": "frontend",
+      "id": "REQ-1",
+      "text": "Identify and fix the root cause of the recurring BootErrorScreen after login so authenticated users can successfully complete the boot sequence (actor initialization + initial user profile fetch) without requiring a URL admin token.",
+      "target": "both",
       "source": {
         "messageIds": [
-          "msg-6"
+          "recent-messages:user-1",
+          "recent-messages:user-2"
         ],
         "quotes": [
-          "include underline after Physician's Name, Signature and Date where they can write manually when toggle is on"
+          "error now keep showing \n\nUnable to Initialize\nWe encountered an error while setting up your session. This may be due to a temporary connection issue or configuration problem."
         ]
       },
       "acceptanceCriteria": [
-        "With the toggle OFF, the printed report does not show the physician signature section.",
-        "With the toggle ON, the printed report shows three fields labeled exactly: \"Physician Name:\", \"Physician Signature:\", and \"Date:\".",
-        "Each of the three fields renders an underline line (matching the existing print signature line style) that provides space for handwriting when the page is printed.",
-        "No backend changes are required; the change is purely presentational in the print report component."
+        "After logging in with Internet Identity, the app proceeds to the dashboard or profile setup modal instead of repeatedly showing 'Unable to Initialize'.",
+        "This works when no `caffeineAdminToken` URL parameter is present.",
+        "Boot succeeds after a fresh login even on a brand-new principal that has never used the app before."
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "text": "Backend: Ensure that authenticated callers can fetch and save their user profile during initial setup without failing due to missing access-control initialization. Specifically, remove or relax any access-control precondition that prevents `getCallerUserProfile` (and other boot-critical calls) from working for a newly authenticated principal, or add a backend-side mechanism that automatically grants the minimum required permission to authenticated callers during boot.",
+      "target": "backend",
+      "source": {
+        "messageIds": [
+          "recent-messages:user-1",
+          "recent-messages:user-2"
+        ],
+        "quotes": [
+          "Unable to Initialize\nWe encountered an error while setting up your session. This may be due to a temporary connection issue or configuration problem."
+        ]
+      },
+      "acceptanceCriteria": [
+        "A newly authenticated principal can successfully call `getCallerUserProfile` and receive `null` (new user) or an existing profile, without trapping due to authorization checks.",
+        "A newly authenticated principal can successfully call `saveCallerUserProfile` right after login/profile setup without requiring any special URL token.",
+        "No changes introduce an infinite retry loop; failures surface as explicit errors."
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "text": "Frontend: Improve boot error diagnostics and recovery so the error screen provides actionable information for debugging. Update BootErrorScreen (and the boot logic in App.tsx) to (a) distinguish between actor initialization errors and profile fetch errors, (b) display a concise English error detail (e.g., error message string) in a collapsible/secondary section, and (c) provide a 'Retry' action that re-attempts boot without forcing logout (while keeping the existing 'Log Out and Try Again' action).",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "recent-messages:user-1",
+          "recent-messages:user-2"
+        ],
+        "quotes": [
+          "Unable to Initialize\nWe encountered an error while setting up your session. This may be due to a temporary connection issue or configuration problem."
+        ]
+      },
+      "acceptanceCriteria": [
+        "When boot fails, the error screen shows whether the failure was 'Actor initialization failed' or 'Profile fetch failed' and shows an English error message (from the thrown error) in the UI.",
+        "Clicking 'Retry' re-runs the actor/profile boot queries (without clearing identity) and can recover if the failure was transient.",
+        "Clicking 'Log Out and Try Again' still clears identity and clears React Query cache as it does today.",
+        "No user-facing text is added in a language other than English."
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "text": "Frontend: Prevent the app from entering a persistent BootErrorScreen state caused by stale React Query error caching across retries/reloads. Ensure the actor query and `currentUserProfile` query can be cleanly invalidated/reset on retry and after identity changes, so users do not remain stuck on the error screen once the underlying issue is resolved.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "recent-messages:user-2"
+        ],
+        "quotes": [
+          "error now keep showing"
+        ]
+      },
+      "acceptanceCriteria": [
+        "After fixing the underlying issue (e.g., backend auth change), a user who previously saw the boot error can reload and successfully boot without needing to manually clear browser storage.",
+        "Retrying after a failure does not require a full logout unless the identity truly needs to be reset.",
+        "React Query does not permanently cache a boot error such that boot cannot proceed when the backend begins returning success."
       ]
     }
   ],
   "constraints": [
-    "Do not edit files under frontend/src/components/ui (read-only UI components).",
-    "Keep all backend logic in a single Motoko actor (no backend changes expected for this request)."
+    "Do not edit files in `frontend/src/hooks/useInternetIdentity.ts` or any other frontend immutable paths listed in SYSTEM_CONTEXT.",
+    "Keep all backend logic in the single Motoko actor (`backend/main.mo`); add `backend/migration.mo` only if state migration is required."
   ],
   "nonGoals": [
-    "Do not change the toggle behavior, placement, or label text beyond what is necessary to add the Date underline field.",
-    "Do not add digital signature capture or store signature/date values in the backend."
+    "Adding third-party authentication providers (only Internet Identity is in scope).",
+    "Adding external databases or external logging/monitoring services.",
+    "Implementing new product features unrelated to fixing the boot initialization failure."
   ],
   "imageRequirements": {
     "required": [],
