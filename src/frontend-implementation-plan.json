@@ -1,84 +1,42 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Fix boot initialization loop and improve boot error recovery/diagnostics",
+  "title": "Resident Dashboard: timezone-safe age display from DOB",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Eliminate frontend reliance on URL admin token during boot and ensure authenticated users can proceed past actor/profile boot after login.",
+      "summary": "Show each resident’s computed age on Resident Dashboard cards alongside the existing DOB field, with safe fallbacks.",
       "acceptanceCriteria": [
-        "After logging in with Internet Identity, the app proceeds to the dashboard or profile setup modal instead of repeatedly showing 'Unable to Initialize'.",
-        "This works when no `caffeineAdminToken` URL parameter is present.",
-        "Boot succeeds after a fresh login even on a brand-new principal that has never used the app before."
+        "On the Residents Dashboard (frontend/src/pages/ResidentDashboardPage.tsx), each resident card shows an Age value derived from resident.dob.",
+        "The age display is a whole number of years (e.g., \"Age: 78\").",
+        "If resident.dob is missing/empty or not parseable, the UI does not crash and shows a sensible fallback (e.g., \"Age: —\")."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/hooks/useActor.ts",
+          "path": "frontend/src/pages/ResidentDashboardPage.tsx",
           "operation": "modify",
-          "description": "Align actor initialization with the token-optional boot behavior: do not block actor creation on access-control secret initialization when no `caffeineAdminToken` is present (and avoid calling secret initialization with an empty token). This prevents authenticated boot from failing purely due to missing URL token. Use the authorization component’s frontend guidance on login/boot expectations; verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/App.tsx",
-          "operation": "modify",
-          "description": "Update the boot gating logic so authenticated users can proceed when actor initialization succeeds and profile fetch returns null (new user) or a valid profile, without requiring any URL token. Also ensure boot failure states are driven by current actor/profile query states (not stale cached failures). Use the authorization component’s boot/profile setup guidance; verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/hooks/useQueries.ts",
-          "operation": "modify",
-          "description": "Make the current user profile query identity-scoped (include the current principal in the React Query key) so a prior user’s boot/profile failure cannot poison a new session. Keep new-user behavior (null profile triggers ProfileSetupModal). Use the authorization component’s profile setup patterns; verify the component's usage instructions before implementing."
+          "description": "Add an \"Age\" row to each resident card near the existing DOB row; compute the value from resident.dob using the shared timezone-safe date-only utility and render a fallback (e.g., em dash) when missing/unparseable."
         }
       ]
     },
     {
-      "id": "REQ-3",
-      "summary": "Improve boot error diagnostics and add a non-logout Retry flow that re-attempts actor + profile boot while preserving identity.",
+      "id": "REQ-2",
+      "summary": "Implement timezone-safe, date-only age calculation based on DOB YYYY-MM-DD components (no timezone/DST day shifting).",
       "acceptanceCriteria": [
-        "When boot fails, the error screen shows whether the failure was 'Actor initialization failed' or 'Profile fetch failed' and shows an English error message (from the thrown error) in the UI.",
-        "Clicking 'Retry' re-runs the actor/profile boot queries (without clearing identity) and can recover if the failure was transient.",
-        "Clicking 'Log Out and Try Again' still clears identity and clears React Query cache as it does today.",
-        "No user-facing text is added in a language other than English."
+        "The age calculation uses the DOB string (expected format from <input type=\"date\">, e.g., YYYY-MM-DD) and compares against today’s date using date-only logic (year/month/day), not a time-based conversion that can change the DOB day.",
+        "For a DOB close to a day boundary (e.g., \"2000-01-01\"), the computed age is the same regardless of the user’s local timezone.",
+        "Age increments on the resident’s birthday (based on month/day comparison), not at an arbitrary time of day."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/auth/BootErrorScreen.tsx",
-          "operation": "modify",
-          "description": "Extend BootErrorScreen to accept inputs for failure type (actor init vs profile fetch) and an error detail string; render a concise primary message plus a collapsible/secondary 'Details' section containing the English error message; add a 'Retry' button that triggers a boot re-attempt without logging out while keeping the existing 'Log Out and Try Again' action. Prefer shadcn-ui primitives (e.g., Collapsible/Accordion) for the details UI; verify the component's usage instructions before implementing."
+          "path": "frontend/src/utils/dateOnly.ts",
+          "operation": "create",
+          "description": "Create a small date-only utility that parses a DOB in YYYY-MM-DD without constructing a timezone-sensitive Date from the DOB; expose a helper like calculateAgeYears(dob: string, today?: {year:number;month:number;day:number}) returning a whole-number age or null when invalid."
         },
         {
-          "path": "frontend/src/App.tsx",
+          "path": "frontend/src/pages/ResidentDashboardPage.tsx",
           "operation": "modify",
-          "description": "Plumb actor/profile errors into BootErrorScreen: distinguish actor initialization failure vs profile fetch failure and pass the thrown error message. Implement an onRetry handler that re-attempts boot without clearing identity (by resetting/removing the boot-related React Query entries and refetching). Use the authorization component’s error-handling guidance for traps/authorization failures; verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/hooks/useResilientActor.ts",
-          "operation": "modify",
-          "description": "Expose enough query state to support App-driven diagnostics and retry (e.g., include the actor query error object/message and a refetch/reset mechanism, or ensure App can reliably reset the actor query via query keys). Keep retry limits to avoid infinite loops. Use the authorization component’s guidance about not blocking boot on admin initialization; verify the component's usage instructions before implementing."
-        }
-      ]
-    },
-    {
-      "id": "REQ-4",
-      "summary": "Prevent persistent BootErrorScreen due to stale React Query error caching by enabling clean invalidation/reset on retry and identity changes.",
-      "acceptanceCriteria": [
-        "After fixing the underlying issue (e.g., backend auth change), a user who previously saw the boot error can reload and successfully boot without needing to manually clear browser storage.",
-        "Retrying after a failure does not require a full logout unless the identity truly needs to be reset.",
-        "React Query does not permanently cache a boot error such that boot cannot proceed when the backend begins returning success."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/App.tsx",
-          "operation": "modify",
-          "description": "Implement a boot-reset routine used by the new Retry action that clears stale error state for the actor + currentUserProfile queries (and any dependent boot-critical queries) using React Query reset/remove APIs, then triggers refetch. Ensure this does not clear identity (logout remains separate). Use the authorization component’s frontend guidance to clear cached application data on logout only; verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/hooks/useQueries.ts",
-          "operation": "modify",
-          "description": "Adjust boot-critical query configuration to avoid sticky error states: ensure queries are identity-scoped in their keys and are resettable (no reliance on infinite stale errors). Keep user-facing behavior consistent (profile setup modal only when profile is confirmed null). Use the authorization component’s 'Preventing Profile Setup Modal Flash' guidance as applicable; verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/hooks/useResilientActor.ts",
-          "operation": "modify",
-          "description": "On identity change or actor recreation, ensure boot-critical queries can be cleanly invalidated/removed (not just invalidated) so a prior error doesn’t keep the app stuck on BootErrorScreen. Keep retry behavior bounded to avoid loops. Use the authorization component’s boot/cache guidance; verify the component's usage instructions before implementing."
+          "description": "Use the new date-only age helper for Age rendering, ensuring month/day birthday comparison logic drives age increment and that invalid DOB strings do not throw."
         }
       ]
     }

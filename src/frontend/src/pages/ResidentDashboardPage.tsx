@@ -10,6 +10,7 @@ import { useGetAccessibleResidents, useGetResidentStats } from '../hooks/useQuer
 import { ResidentStatus } from '../backend';
 import AddNewResidentModal from '../components/residents/modals/AddNewResidentModal';
 import CodeStatusBadge from '../components/residents/CodeStatusBadge';
+import { calculateAgeYears, formatAge } from '../utils/dateOnly';
 
 export default function ResidentDashboardPage() {
   const navigate = useNavigate();
@@ -129,57 +130,65 @@ export default function ResidentDashboardPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredResidents.map((resident) => (
-              <Card
-                key={resident.id.toString()}
-                className="hover:shadow-lg transition-shadow cursor-pointer"
-                onClick={() => navigate({ to: '/resident/$residentId', params: { residentId: resident.id.toString() } })}
-              >
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <CardTitle className="text-xl">
-                        {resident.firstName} {resident.lastName}
-                      </CardTitle>
-                      <p className="text-sm text-muted-foreground mt-1">Room {resident.roomNumber} - {resident.bed}</p>
+            {filteredResidents.map((resident) => {
+              const age = calculateAgeYears(resident.dob);
+              
+              return (
+                <Card
+                  key={resident.id.toString()}
+                  className="hover:shadow-lg transition-shadow cursor-pointer"
+                  onClick={() => navigate({ to: '/resident/$residentId', params: { residentId: resident.id.toString() } })}
+                >
+                  <CardHeader>
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <CardTitle className="text-xl">
+                          {resident.firstName} {resident.lastName}
+                        </CardTitle>
+                        <p className="text-sm text-muted-foreground mt-1">Room {resident.roomNumber} - {resident.bed}</p>
+                      </div>
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          resident.status === ResidentStatus.active
+                            ? 'bg-green-100 text-green-800'
+                            : 'bg-gray-100 text-gray-800'
+                        }`}
+                      >
+                        {resident.status === ResidentStatus.active ? 'Active' : 'Discharged'}
+                      </span>
                     </div>
-                    <span
-                      className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        resident.status === ResidentStatus.active
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-gray-100 text-gray-800'
-                      }`}
-                    >
-                      {resident.status === ResidentStatus.active ? 'Active' : 'Discharged'}
-                    </span>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">DOB:</span>
-                      <span className="font-medium">{resident.dob}</span>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">DOB:</span>
+                        <span className="font-medium">{resident.dob}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Age:</span>
+                        <span className="font-medium">{formatAge(age)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Admission:</span>
+                        <span className="font-medium">{resident.admissionDate}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-muted-foreground">Code Status:</span>
+                        <CodeStatusBadge codeStatus={resident.codeStatus} />
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Physicians:</span>
+                        <span className="font-medium">{resident.physicians.length}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Medications:</span>
+                        <span className="font-medium">{resident.medications.filter(m => m.isActive).length} active</span>
+                      </div>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Admission:</span>
-                      <span className="font-medium">{resident.admissionDate}</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-muted-foreground">Code Status:</span>
-                      <CodeStatusBadge codeStatus={resident.codeStatus} />
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Physicians:</span>
-                      <span className="font-medium">{resident.physicians.length}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Medications:</span>
-                      <span className="font-medium">{resident.medications.filter(m => m.isActive).length} active</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         )}
       </div>

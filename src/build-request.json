@@ -1,93 +1,53 @@
 {
   "kind": "build_request",
-  "title": "Fix persistent 'Unable to Initialize' boot error after login",
-  "priority": "high",
+  "title": "Show resident age on Resident Dashboard (timezone-safe DOB computation)",
+  "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Identify and fix the root cause of the recurring BootErrorScreen after login so authenticated users can successfully complete the boot sequence (actor initialization + initial user profile fetch) without requiring a URL admin token.",
-      "target": "both",
+      "text": "Display each resident’s age on the Resident Dashboard cards, computed from the resident’s date of birth (resident.dob) and shown alongside the existing DOB field.",
+      "target": "frontend",
       "source": {
         "messageIds": [
-          "recent-messages:user-1",
-          "recent-messages:user-2"
+          "recent-messages/user-1"
         ],
         "quotes": [
-          "error now keep showing \n\nUnable to Initialize\nWe encountered an error while setting up your session. This may be due to a temporary connection issue or configuration problem."
+          "show resident's age in the residents dashboard (computed based on date of birth and no day/time shifting)"
         ]
       },
       "acceptanceCriteria": [
-        "After logging in with Internet Identity, the app proceeds to the dashboard or profile setup modal instead of repeatedly showing 'Unable to Initialize'.",
-        "This works when no `caffeineAdminToken` URL parameter is present.",
-        "Boot succeeds after a fresh login even on a brand-new principal that has never used the app before."
+        "On the Residents Dashboard (frontend/src/pages/ResidentDashboardPage.tsx), each resident card shows an Age value derived from resident.dob.",
+        "The age display is a whole number of years (e.g., \"Age: 78\").",
+        "If resident.dob is missing/empty or not parseable, the UI does not crash and shows a sensible fallback (e.g., \"Age: —\")."
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Backend: Ensure that authenticated callers can fetch and save their user profile during initial setup without failing due to missing access-control initialization. Specifically, remove or relax any access-control precondition that prevents `getCallerUserProfile` (and other boot-critical calls) from working for a newly authenticated principal, or add a backend-side mechanism that automatically grants the minimum required permission to authenticated callers during boot.",
-      "target": "backend",
-      "source": {
-        "messageIds": [
-          "recent-messages:user-1",
-          "recent-messages:user-2"
-        ],
-        "quotes": [
-          "Unable to Initialize\nWe encountered an error while setting up your session. This may be due to a temporary connection issue or configuration problem."
-        ]
-      },
-      "acceptanceCriteria": [
-        "A newly authenticated principal can successfully call `getCallerUserProfile` and receive `null` (new user) or an existing profile, without trapping due to authorization checks.",
-        "A newly authenticated principal can successfully call `saveCallerUserProfile` right after login/profile setup without requiring any special URL token.",
-        "No changes introduce an infinite retry loop; failures surface as explicit errors."
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "text": "Frontend: Improve boot error diagnostics and recovery so the error screen provides actionable information for debugging. Update BootErrorScreen (and the boot logic in App.tsx) to (a) distinguish between actor initialization errors and profile fetch errors, (b) display a concise English error detail (e.g., error message string) in a collapsible/secondary section, and (c) provide a 'Retry' action that re-attempts boot without forcing logout (while keeping the existing 'Log Out and Try Again' action).",
+      "text": "Implement a timezone-safe age calculation that does not shift the DOB by day due to local timezone/DST; compute using the DOB string’s year-month-day components rather than constructing a Date from an ISO datetime that can shift days.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "recent-messages:user-1",
-          "recent-messages:user-2"
+          "recent-messages/user-1"
         ],
         "quotes": [
-          "Unable to Initialize\nWe encountered an error while setting up your session. This may be due to a temporary connection issue or configuration problem."
+          "computed based on date of birth and no day/time shifting"
         ]
       },
       "acceptanceCriteria": [
-        "When boot fails, the error screen shows whether the failure was 'Actor initialization failed' or 'Profile fetch failed' and shows an English error message (from the thrown error) in the UI.",
-        "Clicking 'Retry' re-runs the actor/profile boot queries (without clearing identity) and can recover if the failure was transient.",
-        "Clicking 'Log Out and Try Again' still clears identity and clears React Query cache as it does today.",
-        "No user-facing text is added in a language other than English."
-      ]
-    },
-    {
-      "id": "REQ-4",
-      "text": "Frontend: Prevent the app from entering a persistent BootErrorScreen state caused by stale React Query error caching across retries/reloads. Ensure the actor query and `currentUserProfile` query can be cleanly invalidated/reset on retry and after identity changes, so users do not remain stuck on the error screen once the underlying issue is resolved.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "recent-messages:user-2"
-        ],
-        "quotes": [
-          "error now keep showing"
-        ]
-      },
-      "acceptanceCriteria": [
-        "After fixing the underlying issue (e.g., backend auth change), a user who previously saw the boot error can reload and successfully boot without needing to manually clear browser storage.",
-        "Retrying after a failure does not require a full logout unless the identity truly needs to be reset.",
-        "React Query does not permanently cache a boot error such that boot cannot proceed when the backend begins returning success."
+        "The age calculation uses the DOB string (expected format from <input type=\"date\">, e.g., YYYY-MM-DD) and compares against today’s date using date-only logic (year/month/day), not a time-based conversion that can change the DOB day.",
+        "For a DOB close to a day boundary (e.g., \"2000-01-01\"), the computed age is the same regardless of the user’s local timezone.",
+        "Age increments on the resident’s birthday (based on month/day comparison), not at an arbitrary time of day."
       ]
     }
   ],
   "constraints": [
-    "Do not edit files in `frontend/src/hooks/useInternetIdentity.ts` or any other frontend immutable paths listed in SYSTEM_CONTEXT.",
-    "Keep all backend logic in the single Motoko actor (`backend/main.mo`); add `backend/migration.mo` only if state migration is required."
+    "Do not edit files under frontend/src/components/ui or any paths listed in frontend.immutablePaths.",
+    "Keep backend as a single-actor Motoko canister; do not introduce additional services."
   ],
   "nonGoals": [
-    "Adding third-party authentication providers (only Internet Identity is in scope).",
-    "Adding external databases or external logging/monitoring services.",
-    "Implementing new product features unrelated to fixing the boot initialization failure."
+    "Do not change how DOB is stored or validated in the backend Resident model (currently a Text field).",
+    "Do not add age to other pages (e.g., Resident Profile, print reports) unless explicitly requested.",
+    "Do not add new filtering/sorting by age."
   ],
   "imageRequirements": {
     "required": [],
