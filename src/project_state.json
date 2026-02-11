@@ -7,26 +7,18 @@
   "isFixRequest": false,
   "existing_features": [
     {
-      "id": "feature-update-the-add-new-resident-and-edit-resident-flows-to-allow-staff-admin-users-to-set-or-change-the-resident-code-status-full-code-dnr",
-      "title": "Update the \"Add New Resident\" and \"Edit Resident\" flows to allow staff/admin users to set or change the Resident Code Status (Full Code / DNR).",
+      "id": "feature-update-the-resident-medications-ui-to-display-active-medications-and-discontinued-medications-in-separate-clearly-labeled-tables-sections-do-not-use-strikethrough-crossed-out-styling-for-discontinued-medications",
+      "title": "Update the resident medications UI to display active medications and discontinued medications in separate, clearly labeled tables/sections (do not use strikethrough/crossed-out styling for discontinued medications).",
       "reqIds": [
-        "REQ-3"
+        "REQ-1"
       ],
       "version": 1
     },
     {
-      "id": "feature-display-each-resident-s-code-status-on-the-residents-dashboard-in-a-bold-visually-highlighted-style-that-clearly-distinguishes-dnr-from-full-code",
-      "title": "Display each resident’s Code Status on the Residents Dashboard in a bold, visually highlighted style that clearly distinguishes \"DNR\" from \"Full Code\".",
+      "id": "feature-ensure-the-resident-profile-page-medications-tab-also-shows-discontinued-medications-in-a-separate-section-table-currently-it-only-lists-active-medications",
+      "title": "Ensure the resident profile page Medications tab also shows discontinued medications in a separate section/table (currently it only lists active medications).",
       "reqIds": [
-        "REQ-4"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-show-the-resident-s-code-status-on-the-resident-profile-page-so-the-code-status-is-visible-when-viewing-an-individual-resident-record",
-      "title": "Show the resident’s Code Status on the Resident Profile page so the Code Status is visible when viewing an individual resident record.",
-      "reqIds": [
-        "REQ-5"
+        "REQ-2"
       ],
       "version": 1
     }
@@ -34,28 +26,12 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Add Code Status (Full Code / DNR) to each Resident profile and display it in bold/highlight on the Residents Dashboard",
+      "summary": "Show discontinued medications in resident medication list in a separate table instead of crossing them out",
       "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-2",
-      "summary": "Add a persistent \"Code Status\" field to each Resident record in the backend with exactly two supported values: \"Full Code\" and \"DNR\".",
-      "reqIds": [
-        "REQ-1"
-      ],
-      "status": "pending"
-    },
-    {
-      "id": "AR-3",
-      "summary": "Implement upgrade-safe state migration so that all existing stored residents receive a valid default Code Status value (default to \"Full Code\") after deployment.",
-      "reqIds": [
-        "REQ-2"
-      ],
       "status": "pending"
     }
   ],
-  "projectName": "Add Resident Code Status (Full Code / DNR) and highlight it on the Residents Dashboard",
+  "projectName": "Show discontinued medications in a separate table on the resident medication list",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

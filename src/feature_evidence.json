@@ -2,12 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-update-the-add-new-resident-and-edit-resident-flows-to-allow-staff-admin-users-to-set-or-change-the-resident-code-status-full-code-dnr",
-      "featureTitle": "Update the \"Add New Resident\" and \"Edit Resident\" flows to allow staff/admin users to set or change the Resident Code Status (Full Code / DNR).",
+      "featureId": "feature-update-the-resident-medications-ui-to-display-active-medications-and-discontinued-medications-in-separate-clearly-labeled-tables-sections-do-not-use-strikethrough-crossed-out-styling-for-discontinued-medications",
+      "featureTitle": "Update the resident medications UI to display active medications and discontinued medications in separate, clearly labeled tables/sections (do not use strikethrough/crossed-out styling for discontinued medications).",
       "files": [
-        "frontend/src/components/residents/CodeStatusBadge.tsx",
-        "frontend/src/components/residents/modals/AddNewResidentModal.tsx",
-        "frontend/src/components/residents/modals/EditResidentInformationModal.tsx"
+        "frontend/src/components/medications/MedicationSections.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -18,36 +16,15 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-3"
+        "REQ-1"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-display-each-resident-s-code-status-on-the-residents-dashboard-in-a-bold-visually-highlighted-style-that-clearly-distinguishes-dnr-from-full-code",
-      "featureTitle": "Display each resident’s Code Status on the Residents Dashboard in a bold, visually highlighted style that clearly distinguishes \"DNR\" from \"Full Code\".",
+      "featureId": "feature-ensure-the-resident-profile-page-medications-tab-also-shows-discontinued-medications-in-a-separate-section-table-currently-it-only-lists-active-medications",
+      "featureTitle": "Ensure the resident profile page Medications tab also shows discontinued medications in a separate section/table (currently it only lists active medications).",
       "files": [
-        "frontend/src/components/residents/CodeStatusBadge.tsx",
-        "frontend/src/pages/ResidentDashboardPage.tsx"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-4"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-show-the-resident-s-code-status-on-the-resident-profile-page-so-the-code-status-is-visible-when-viewing-an-individual-resident-record",
-      "featureTitle": "Show the resident’s Code Status on the Resident Profile page so the Code Status is visible when viewing an individual resident record.",
-      "files": [
-        "frontend/src/components/residents/CodeStatusBadge.tsx",
-        "frontend/src/components/residents/ResidentProfilePrintReport.tsx",
+        "frontend/src/components/medications/MedicationSections.tsx",
         "frontend/src/pages/ResidentProfilePage.tsx"
       ],
       "components": [
@@ -59,7 +36,7 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-5"
+        "REQ-2"
       ],
       "confidence": "high"
     }

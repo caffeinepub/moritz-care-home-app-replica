@@ -14,6 +14,7 @@ import AddMARRecordModal from '../components/mar/modals/AddMARRecordModal';
 import AddADLRecordModal from '../components/adl/modals/AddADLRecordModal';
 import RecordDailyVitalsModal from '../components/vitals/modals/RecordDailyVitalsModal';
 import ResidentProfilePrintReport from '../components/residents/ResidentProfilePrintReport';
+import MedicationSections from '../components/medications/MedicationSections';
 import { ResidentStatus, Medication } from '../backend';
 import { useDiscontinueMedication } from '../hooks/useQueries';
 import { Label } from '@/components/ui/label';
@@ -295,75 +296,14 @@ export default function ResidentProfilePage() {
               </TabsList>
 
               <TabsContent value="medications">
-                <Card>
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <CardTitle>Current Medications</CardTitle>
-                      {canEdit && (
-                        <Button onClick={() => setShowAddMedicationModal(true)}>
-                          <Plus className="w-4 h-4 mr-2" />
-                          Add Medication
-                        </Button>
-                      )}
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    {resident.medications.filter(m => m.isActive).length === 0 ? (
-                      <p className="text-muted-foreground text-sm">No active medications</p>
-                    ) : (
-                      <div className="space-y-4">
-                        {resident.medications
-                          .filter(m => m.isActive)
-                          .map((medication) => (
-                            <div key={medication.id.toString()} className="border rounded-lg p-4">
-                              <div className="flex items-start justify-between mb-2">
-                                <div>
-                                  <p className="font-medium text-lg">{medication.name}</p>
-                                  <p className="text-sm text-muted-foreground">
-                                    {medication.dosage} - {medication.dosageQuantity}
-                                  </p>
-                                </div>
-                                {canEdit && (
-                                  <div className="flex gap-2">
-                                    <Button
-                                      variant="outline"
-                                      size="sm"
-                                      onClick={() => handleEditMedication(medication)}
-                                    >
-                                      Edit
-                                    </Button>
-                                    <Button
-                                      variant="destructive"
-                                      size="sm"
-                                      onClick={() => handleDiscontinueMedication(medication.id)}
-                                    >
-                                      Discontinue
-                                    </Button>
-                                  </div>
-                                )}
-                              </div>
-                              <div className="grid grid-cols-2 gap-4 text-sm">
-                                <div>
-                                  <p className="text-muted-foreground">Route</p>
-                                  <p className="font-medium">{medication.administrationRoute}</p>
-                                </div>
-                                <div>
-                                  <p className="text-muted-foreground">Times</p>
-                                  <p className="font-medium">{medication.administrationTimes.join(', ')}</p>
-                                </div>
-                              </div>
-                              {medication.notes && (
-                                <div className="mt-2">
-                                  <p className="text-sm text-muted-foreground">Notes</p>
-                                  <p className="text-sm">{medication.notes}</p>
-                                </div>
-                              )}
-                            </div>
-                          ))}
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
+                <MedicationSections
+                  medications={resident.medications}
+                  canEdit={canEdit}
+                  onAddMedication={() => setShowAddMedicationModal(true)}
+                  onEditMedication={handleEditMedication}
+                  onDiscontinueMedication={handleDiscontinueMedication}
+                  physicians={resident.physicians}
+                />
               </TabsContent>
 
               <TabsContent value="mar">
@@ -389,18 +329,31 @@ export default function ResidentProfilePage() {
                           .map((record) => {
                             const medication = resident.medications.find(m => m.id === record.medicationId);
                             return (
-                              <div key={record.id.toString()} className="border rounded-lg p-3">
-                                <div className="flex items-start justify-between">
+                              <div key={record.id.toString()} className="border rounded-lg p-4">
+                                <div className="flex items-start justify-between mb-2">
                                   <div>
                                     <p className="font-medium">{medication?.name || 'Unknown Medication'}</p>
-                                    <p className="text-sm text-muted-foreground">{record.administrationTime}</p>
+                                    <p className="text-sm text-muted-foreground">
+                                      {new Date(Number(record.timestamp) / 1000000).toLocaleDateString()}
+                                    </p>
                                   </div>
-                                  <span className="text-xs text-muted-foreground">
-                                    {new Date(Number(record.timestamp) / 1000000).toLocaleDateString()}
-                                  </span>
                                 </div>
-                                <p className="text-sm mt-2">Administered by: {record.administeredBy}</p>
-                                {record.notes && <p className="text-sm text-muted-foreground mt-1">{record.notes}</p>}
+                                <div className="grid grid-cols-2 gap-4 text-sm">
+                                  <div>
+                                    <p className="text-muted-foreground">Administration Time</p>
+                                    <p className="font-medium">{record.administrationTime}</p>
+                                  </div>
+                                  <div>
+                                    <p className="text-muted-foreground">Administered By</p>
+                                    <p className="font-medium">{record.administeredBy}</p>
+                                  </div>
+                                </div>
+                                {record.notes && (
+                                  <div className="mt-2">
+                                    <p className="text-sm text-muted-foreground">Notes</p>
+                                    <p className="text-sm">{record.notes}</p>
+                                  </div>
+                                )}
                               </div>
                             );
                           })}
@@ -431,18 +384,24 @@ export default function ResidentProfilePage() {
                         {resident.adlRecords
                           .sort((a, b) => Number(b.timestamp - a.timestamp))
                           .map((record) => (
-                            <div key={record.id.toString()} className="border rounded-lg p-3">
+                            <div key={record.id.toString()} className="border rounded-lg p-4">
                               <div className="flex items-start justify-between mb-2">
                                 <div>
                                   <p className="font-medium">{record.activity}</p>
                                   <p className="text-sm text-muted-foreground">{record.date}</p>
                                 </div>
-                                <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded">
-                                  {record.assistanceLevel}
-                                </span>
+                              </div>
+                              <div className="grid grid-cols-2 gap-4 text-sm">
+                                <div>
+                                  <p className="text-muted-foreground">Assistance Level</p>
+                                  <p className="font-medium">{record.assistanceLevel}</p>
+                                </div>
                               </div>
                               {record.staffNotes && (
-                                <p className="text-sm text-muted-foreground">{record.staffNotes}</p>
+                                <div className="mt-2">
+                                  <p className="text-sm text-muted-foreground">Staff Notes</p>
+                                  <p className="text-sm">{record.staffNotes}</p>
+                                </div>
                               )}
                             </div>
                           ))}
@@ -469,7 +428,7 @@ export default function ResidentProfilePage() {
                     {resident.dailyVitals.length === 0 ? (
                       <p className="text-muted-foreground text-sm">No vitals recorded</p>
                     ) : (
-                      <div className="space-y-3">
+                      <div className="space-y-4">
                         {resident.dailyVitals
                           .sort((a, b) => Number(b.timestamp - a.timestamp))
                           .map((vitals) => (
@@ -487,10 +446,12 @@ export default function ResidentProfilePage() {
                                 </div>
                                 <div>
                                   <p className="text-muted-foreground">Blood Pressure</p>
-                                  <p className="font-medium">{Number(vitals.bloodPressureSystolic)}/{Number(vitals.bloodPressureDiastolic)}</p>
+                                  <p className="font-medium">
+                                    {Number(vitals.bloodPressureSystolic)}/{Number(vitals.bloodPressureDiastolic)}
+                                  </p>
                                 </div>
                                 <div>
-                                  <p className="text-muted-foreground">Pulse</p>
+                                  <p className="text-muted-foreground">Pulse Rate</p>
                                   <p className="font-medium">{Number(vitals.pulseRate)} bpm</p>
                                 </div>
                                 <div>
@@ -498,7 +459,7 @@ export default function ResidentProfilePage() {
                                   <p className="font-medium">{Number(vitals.respiratoryRate)} /min</p>
                                 </div>
                                 <div>
-                                  <p className="text-muted-foreground">O2 Saturation</p>
+                                  <p className="text-muted-foreground">Oxygen Saturation</p>
                                   <p className="font-medium">{Number(vitals.oxygenSaturation)}%</p>
                                 </div>
                                 {vitals.bloodGlucose && (
@@ -510,7 +471,8 @@ export default function ResidentProfilePage() {
                               </div>
                               {vitals.notes && (
                                 <div className="mt-3">
-                                  <p className="text-sm text-muted-foreground">{vitals.notes}</p>
+                                  <p className="text-sm text-muted-foreground">Notes</p>
+                                  <p className="text-sm">{vitals.notes}</p>
                                 </div>
                               )}
                             </div>
@@ -527,10 +489,20 @@ export default function ResidentProfilePage() {
         <ResidentProfilePrintReport resident={resident} showPhysicianSignature={showPhysicianSignature} />
       </div>
 
-      {showEditModal && <EditResidentInformationModal resident={resident} onClose={() => setShowEditModal(false)} />}
-      {showAddMedicationModal && (
-        <AddMedicationModal residentId={resident.id} onClose={() => setShowAddMedicationModal(false)} />
+      {showEditModal && (
+        <EditResidentInformationModal
+          resident={resident}
+          onClose={() => setShowEditModal(false)}
+        />
       )}
+
+      {showAddMedicationModal && (
+        <AddMedicationModal
+          residentId={resident.id}
+          onClose={() => setShowAddMedicationModal(false)}
+        />
+      )}
+
       {showEditMedicationModal && selectedMedication && (
         <EditMedicationModal
           residentId={resident.id}
@@ -541,10 +513,26 @@ export default function ResidentProfilePage() {
           }}
         />
       )}
-      {showAddMARModal && <AddMARRecordModal residentId={resident.id} onClose={() => setShowAddMARModal(false)} />}
-      {showAddADLModal && <AddADLRecordModal residentId={resident.id} onClose={() => setShowAddADLModal(false)} />}
+
+      {showAddMARModal && (
+        <AddMARRecordModal
+          residentId={resident.id}
+          onClose={() => setShowAddMARModal(false)}
+        />
+      )}
+
+      {showAddADLModal && (
+        <AddADLRecordModal
+          residentId={resident.id}
+          onClose={() => setShowAddADLModal(false)}
+        />
+      )}
+
       {showRecordVitalsModal && (
-        <RecordDailyVitalsModal residentId={resident.id} onClose={() => setShowRecordVitalsModal(false)} />
+        <RecordDailyVitalsModal
+          residentId={resident.id}
+          onClose={() => setShowRecordVitalsModal(false)}
+        />
       )}
     </>
   );

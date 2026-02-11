@@ -1,35 +1,40 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-11T01:03:38.580Z",
-  "summary": "Most requested Code Status functionality appears implemented across backend (new CodeStatus variant + resident field + migration) and frontend (badge + dashboard/profile display + add/edit state). However, the diff also introduces unrequested audit/change-record structures and adds code status to a print report.",
-  "missing_requirements": [],
-  "hallucinated_features": [
+  "generatedAt": "2026-02-11T01:28:56.947Z",
+  "summary": "Implemented a new shared MedicationSections component and integrated it into ResidentProfilePage to separate active vs discontinued medications. However, the diff does not show updates to the dedicated resident medications list view outside the profile page. Also includes unrelated print/report enhancements not requested.",
+  "missing_requirements": [
     {
-      "description": "Introduces a CodeStatusChangeRecord audit/change-history type for code status changes (and related fields) which is beyond the requested scope (no audit trail requirement).",
-      "reason": "BuildRequest only asks for a persistent code status field with two values, migration, and UI controls/display; it does not request tracking or recording code status change events.",
+      "id": "REQ-1",
+      "requirement": "Update the resident medications UI (resident medications view) to display active and discontinued medications in separate labeled tables/sections, with discontinued medications view-only and an appropriate empty state when none exist.",
+      "reason": "The diff shows a new MedicationSections component and updates to ResidentProfilePage, but does not show changes to any separate 'resident medications' page/view outside ResidentProfilePage. Additionally, the added component is truncated before showing the discontinued section, so the discontinued empty-state and view-only rendering for discontinued medications cannot be confirmed from the provided snippet alone.",
       "evidence": [
-        "backend/main.mo"
-      ]
-    },
-    {
-      "description": "Displays Code Status in the Resident Profile print report output (print-only report).",
-      "reason": "REQ-5 only requires Code Status be visible on the Resident Profile page; printing/report output is not requested and could be considered extra functionality.",
-      "evidence": [
-        "frontend/src/components/residents/ResidentProfilePrintReport.tsx"
+        "frontend/src/components/medications/MedicationSections.tsx (truncated)",
+        "frontend/src/pages/ResidentProfilePage.tsx (truncated)"
       ]
     }
   ],
-  "confidence": 0.72,
+  "hallucinated_features": [
+    {
+      "description": "Resident profile print/report formatting and medication grouping changes (active vs discontinued) in the print-only report.",
+      "reason": "The BuildRequest only asks for UI changes in the resident medications view and the ResidentProfilePage Medications tab. It does not request changes to printed reports.",
+      "evidence": [
+        "frontend/src/components/residents/ResidentProfilePrintReport.tsx (truncated)"
+      ]
+    },
+    {
+      "description": "Physician signature print toggle / print-related enhancements on ResidentProfilePage.",
+      "reason": "Not part of REQ-1 or REQ-2; the request is limited to separating active vs discontinued medications in on-screen medication lists.",
+      "evidence": [
+        "frontend/src/pages/ResidentProfilePage.tsx (truncated)"
+      ]
+    }
+  ],
+  "confidence": 0.62,
   "changed_files": [
-    "backend/main.mo",
-    "backend/migration.mo",
     "frontend-file-summaries.txt",
-    "frontend/src/components/residents/CodeStatusBadge.tsx",
+    "frontend/src/components/medications/MedicationSections.tsx",
     "frontend/src/components/residents/ResidentProfilePrintReport.tsx",
-    "frontend/src/components/residents/modals/AddNewResidentModal.tsx",
-    "frontend/src/components/residents/modals/EditResidentInformationModal.tsx",
-    "frontend/src/pages/ResidentDashboardPage.tsx",
     "frontend/src/pages/ResidentProfilePage.tsx",
     "project_state.json"
   ]

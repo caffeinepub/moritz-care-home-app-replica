@@ -1,90 +1,49 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-11T01:03:38.582Z",
+  "generatedAt": "2026-02-11T01:28:56.949Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 5,
-    "implemented": 3,
+    "total": 2,
+    "implemented": 2,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Add a persistent \"Code Status\" field to each Resident record in the backend with exactly two supported values: \"Full Code\" and \"DNR\".",
-        "status": "unknown",
-        "plannedFiles": [],
-        "matchedFiles": []
+        "summary": "Update the resident medications UI to display active medications and discontinued medications in separate, clearly labeled tables/sections (do not use strikethrough/crossed-out styling for discontinued medications).",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/components/medications/MedicationSections.tsx",
+          "frontend/src/components/medications/MedicationsTab.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/medications/MedicationSections.tsx"
+        ]
       },
       {
         "id": "REQ-2",
-        "summary": "Implement upgrade-safe state migration so that all existing stored residents receive a valid default Code Status value (default to \"Full Code\") after deployment.",
-        "status": "unknown",
-        "plannedFiles": [],
-        "matchedFiles": []
-      },
-      {
-        "id": "REQ-3",
-        "summary": "Update the \"Add New Resident\" and \"Edit Resident\" flows to allow staff/admin users to set or change the Resident Code Status (Full Code / DNR).",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/components/residents/modals/AddNewResidentModal.tsx",
-          "frontend/src/components/residents/modals/EditResidentInformationModal.tsx",
-          "frontend/src/components/residents/CodeStatusBadge.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/components/residents/modals/AddNewResidentModal.tsx",
-          "frontend/src/components/residents/modals/EditResidentInformationModal.tsx",
-          "frontend/src/components/residents/CodeStatusBadge.tsx"
-        ]
-      },
-      {
-        "id": "REQ-4",
-        "summary": "Display each resident’s Code Status on the Residents Dashboard in a bold, visually highlighted style that clearly distinguishes \"DNR\" from \"Full Code\".",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/pages/ResidentDashboardPage.tsx",
-          "frontend/src/components/residents/CodeStatusBadge.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/pages/ResidentDashboardPage.tsx",
-          "frontend/src/components/residents/CodeStatusBadge.tsx"
-        ]
-      },
-      {
-        "id": "REQ-5",
-        "summary": "Show the resident’s Code Status on the Resident Profile page so the Code Status is visible when viewing an individual resident record.",
+        "summary": "Ensure the resident profile page Medications tab also shows discontinued medications in a separate section/table (currently it only lists active medications).",
         "status": "implemented",
         "plannedFiles": [
           "frontend/src/pages/ResidentProfilePage.tsx",
-          "frontend/src/components/residents/ResidentProfilePrintReport.tsx",
-          "frontend/src/components/residents/CodeStatusBadge.tsx"
+          "frontend/src/components/medications/MedicationSections.tsx"
         ],
         "matchedFiles": [
           "frontend/src/pages/ResidentProfilePage.tsx",
-          "frontend/src/components/residents/ResidentProfilePrintReport.tsx",
-          "frontend/src/components/residents/CodeStatusBadge.tsx"
+          "frontend/src/components/medications/MedicationSections.tsx"
         ]
       }
     ]
   },
   "changedFiles": [
-    "backend/main.mo",
-    "backend/migration.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/backend.d.ts",
-    "frontend/src/backend.ts",
-    "frontend/src/components/residents/CodeStatusBadge.tsx",
+    "frontend/src/components/medications/MedicationSections.tsx",
     "frontend/src/components/residents/ResidentProfilePrintReport.tsx",
-    "frontend/src/components/residents/modals/AddNewResidentModal.tsx",
-    "frontend/src/components/residents/modals/EditResidentInformationModal.tsx",
-    "frontend/src/declarations/backend.did.d.ts",
-    "frontend/src/declarations/backend.did.js",
-    "frontend/src/pages/ResidentDashboardPage.tsx",
     "frontend/src/pages/ResidentProfilePage.tsx",
     "project_state.json",
     "scratch/component-selection.json",

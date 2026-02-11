@@ -7,6 +7,9 @@ interface ResidentProfilePrintReportProps {
 }
 
 export default function ResidentProfilePrintReport({ resident, showPhysicianSignature }: ResidentProfilePrintReportProps) {
+  const activeMedications = resident.medications.filter(m => m.isActive);
+  const discontinuedMedications = resident.medications.filter(m => !m.isActive);
+
   return (
     <div className="print-only">
       <div className="print-page">
@@ -149,7 +152,7 @@ export default function ResidentProfilePrintReport({ resident, showPhysicianSign
 
         <div className="print-section">
           <h2 className="print-section-title">Current Medications</h2>
-          {resident.medications.filter(m => m.isActive).length === 0 ? (
+          {activeMedications.length === 0 ? (
             <p className="text-gray-600 text-sm">No active medications</p>
           ) : (
             <table className="print-medication-table">
@@ -163,21 +166,47 @@ export default function ResidentProfilePrintReport({ resident, showPhysicianSign
                 </tr>
               </thead>
               <tbody>
-                {resident.medications
-                  .filter(m => m.isActive)
-                  .map((medication) => (
-                    <tr key={medication.id.toString()}>
-                      <td className="font-medium">{medication.name}</td>
-                      <td>{medication.dosage} - {medication.dosageQuantity}</td>
-                      <td>{medication.administrationRoute}</td>
-                      <td>{medication.administrationTimes.join(', ')}</td>
-                      <td className="text-sm">{medication.notes || '-'}</td>
-                    </tr>
-                  ))}
+                {activeMedications.map((medication) => (
+                  <tr key={medication.id.toString()}>
+                    <td className="font-medium">{medication.name}</td>
+                    <td>{medication.dosage} - {medication.dosageQuantity}</td>
+                    <td>{medication.administrationRoute}</td>
+                    <td>{medication.administrationTimes.join(', ')}</td>
+                    <td className="text-sm">{medication.notes || '-'}</td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           )}
         </div>
+
+        {discontinuedMedications.length > 0 && (
+          <div className="print-section">
+            <h2 className="print-section-title">Discontinued Medications</h2>
+            <table className="print-medication-table">
+              <thead>
+                <tr>
+                  <th>Medication</th>
+                  <th>Dosage</th>
+                  <th>Route</th>
+                  <th>Times</th>
+                  <th>Notes</th>
+                </tr>
+              </thead>
+              <tbody>
+                {discontinuedMedications.map((medication) => (
+                  <tr key={medication.id.toString()} className="text-gray-600">
+                    <td className="font-medium">{medication.name}</td>
+                    <td>{medication.dosage} - {medication.dosageQuantity}</td>
+                    <td>{medication.administrationRoute}</td>
+                    <td>{medication.administrationTimes.join(', ')}</td>
+                    <td className="text-sm">{medication.notes || '-'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
 
         <div className="print-section">
           <h2 className="print-section-title">Recent MAR Records</h2>
