@@ -1,360 +1,286 @@
-import { Resident } from '../../backend';
+import { Resident, ResidentStatus } from '../../backend';
+import CodeStatusBadge from './CodeStatusBadge';
 
 interface ResidentProfilePrintReportProps {
   resident: Resident;
-  includePhysicianSignature?: boolean;
+  showPhysicianSignature: boolean;
 }
 
-export default function ResidentProfilePrintReport({ resident, includePhysicianSignature = false }: ResidentProfilePrintReportProps) {
-  const currentDate = new Date();
-  const formattedDate = currentDate.toLocaleDateString('en-US', { 
-    month: '2-digit', 
-    day: '2-digit', 
-    year: 'numeric' 
-  });
-  const formattedTime = currentDate.toLocaleTimeString('en-US', { 
-    hour: '2-digit', 
-    minute: '2-digit',
-    hour12: false
-  });
-
-  const age = new Date().getFullYear() - new Date(resident.dob).getFullYear();
-  const activeMedications = resident.medications.filter(med => med.isActive);
-  const discontinuedMedications = resident.medications.filter(med => !med.isActive);
-
-  const getPhysicianName = (physicianId?: bigint) => {
-    if (!physicianId) return 'N/A';
-    const physician = resident.physicians.find(p => p.id === physicianId);
-    return physician ? physician.name : 'N/A';
-  };
-
+export default function ResidentProfilePrintReport({ resident, showPhysicianSignature }: ResidentProfilePrintReportProps) {
   return (
-    <div className="print-only hidden print:block">
-      {/* Page 1: Demographics and Insurance */}
+    <div className="print-only">
       <div className="print-page">
-        {/* Page Header */}
-        <div className="print-page-header">
-          <div className="print-page-header-left">{formattedDate} {formattedTime}</div>
-          <div className="print-page-header-center">Moritz Care Home Resident Management Application</div>
-          <div className="print-page-header-right">1/3</div>
+        <div className="print-header">
+          <h1 className="text-2xl font-bold">Resident Profile Report</h1>
+          <p className="text-sm text-gray-600">Generated: {new Date().toLocaleDateString()}</p>
         </div>
 
-        {/* Report Title */}
-        <div className="print-report-title">
-          <h1>Moritz Care Home</h1>
-          <h2>Resident Profile Report</h2>
-        </div>
-
-        {/* Resident Information Section */}
         <div className="print-section">
-          <h3 className="print-section-header">Resident Information</h3>
-          <div className="print-section-divider"></div>
-          <div className="print-info-grid">
-            <div className="print-info-row">
-              <div className="print-info-item">
-                <span className="print-label">RESIDENT NAME:</span>
-                <span className="print-value">{resident.firstName} {resident.lastName}</span>
-              </div>
-              <div className="print-info-item">
-                <span className="print-label">DATE OF BIRTH:</span>
-                <span className="print-value">{resident.dob}</span>
+          <h2 className="print-section-title">Resident Information</h2>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <p className="text-sm text-gray-600">Name</p>
+              <p className="font-medium">{resident.firstName} {resident.lastName}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-600">Status</p>
+              <p className="font-medium">{resident.status === ResidentStatus.active ? 'Active' : 'Discharged'}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-600">Date of Birth</p>
+              <p className="font-medium">{resident.dob}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-600">Admission Date</p>
+              <p className="font-medium">{resident.admissionDate}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-600">Room</p>
+              <p className="font-medium">Room {resident.roomNumber} - {resident.bed}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-600">Room Type</p>
+              <p className="font-medium">{resident.roomType}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-600">Code Status</p>
+              <div className="mt-1">
+                <CodeStatusBadge codeStatus={resident.codeStatus} />
               </div>
             </div>
-            <div className="print-info-row">
-              <div className="print-info-item">
-                <span className="print-label">MEDICAID NUMBER:</span>
-                <span className="print-value">{resident.medicaidNumber || resident.insuranceInfo?.medicaidNumber || 'N/A'}</span>
+            {resident.medicaidNumber && (
+              <div>
+                <p className="text-sm text-gray-600">Medicaid Number</p>
+                <p className="font-medium">{resident.medicaidNumber}</p>
               </div>
-              <div className="print-info-item">
-                <span className="print-label">MEDICARE NUMBER:</span>
-                <span className="print-value">{resident.medicareNumber || resident.insuranceInfo?.medicareNumber || 'N/A'}</span>
+            )}
+            {resident.medicareNumber && (
+              <div>
+                <p className="text-sm text-gray-600">Medicare Number</p>
+                <p className="font-medium">{resident.medicareNumber}</p>
               </div>
-            </div>
-            <div className="print-info-row">
-              <div className="print-info-item">
-                <span className="print-label">ROOM:</span>
-                <span className="print-value">{resident.roomNumber}</span>
-              </div>
-              <div className="print-info-item">
-                <span className="print-label">BED:</span>
-                <span className="print-value">{resident.bed}</span>
-              </div>
-            </div>
-            <div className="print-info-row">
-              <div className="print-info-item">
-                <span className="print-label">AGE:</span>
-                <span className="print-value">{age} years</span>
-              </div>
-              <div className="print-info-item">
-                <span className="print-label">DATE OF ADMISSION:</span>
-                <span className="print-value">{resident.admissionDate}</span>
-              </div>
-            </div>
-            <div className="print-info-row">
-              <div className="print-info-item">
-                <span className="print-label">STATUS:</span>
-                <span className="print-value">{resident.status === 'active' ? 'Active' : 'Discharged'}</span>
-              </div>
-              <div className="print-info-item">
-                <span className="print-label">RESIDENT ID:</span>
-                <span className="print-value">{resident.id.toString()}</span>
-              </div>
-            </div>
+            )}
           </div>
         </div>
 
-        {/* Insurance Information Section */}
         <div className="print-section">
-          <h3 className="print-section-header">Insurance Information</h3>
-          <div className="print-section-divider"></div>
-          <div className="print-info-grid">
-            <div className="print-info-row">
-              <div className="print-info-item">
-                <span className="print-label">INSURANCE COMPANY:</span>
-                <span className="print-value">{resident.insuranceInfo?.provider || 'N/A'}</span>
-              </div>
-              <div className="print-info-item">
-                <span className="print-label">POLICY NUMBER:</span>
-                <span className="print-value">{resident.insuranceInfo?.policyNumber || 'N/A'}</span>
-              </div>
-            </div>
-            <div className="print-info-row">
-              <div className="print-info-item">
-                <span className="print-label">GROUP NUMBER:</span>
-                <span className="print-value">{resident.insuranceInfo?.groupNumber || 'N/A'}</span>
-              </div>
-              <div className="print-info-item">
-                <span className="print-label">MEDICAID NUMBER:</span>
-                <span className="print-value">{resident.insuranceInfo?.medicaidNumber || 'N/A'}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Page Footer */}
-        <div className="print-page-footer">
-          Moritz Care Home Resident Long-Term Care Management Application
-        </div>
-      </div>
-
-      {/* Page 2: Active Medications */}
-      <div className="print-page print-page-break-before">
-        {/* Page Header */}
-        <div className="print-page-header">
-          <div className="print-page-header-left">{formattedDate} {formattedTime}</div>
-          <div className="print-page-header-center">Moritz Care Home Resident Management Application</div>
-          <div className="print-page-header-right">2/3</div>
-        </div>
-
-        {/* Active Medications Section */}
-        <div className="print-section">
-          <h3 className="print-section-header">Active Medications</h3>
-          <div className="print-section-divider"></div>
-          
-          {activeMedications.length > 0 ? (
-            <table className="print-medication-table">
-              <thead>
-                <tr>
-                  <th>Medication Name</th>
-                  <th>Dosage</th>
-                  <th>Quantity</th>
-                  <th>Route</th>
-                  <th>Times</th>
-                  <th>Physician</th>
-                  <th>Notes</th>
-                </tr>
-              </thead>
-              <tbody>
-                {activeMedications.map((med) => (
-                  <tr key={med.id.toString()}>
-                    <td>{med.name}</td>
-                    <td>{med.dosage}</td>
-                    <td>{med.dosageQuantity}</td>
-                    <td>{med.administrationRoute}</td>
-                    <td>{med.administrationTimes.join(', ')}</td>
-                    <td>{getPhysicianName(med.prescribingPhysicianId)}</td>
-                    <td>{med.notes || 'N/A'}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <h2 className="print-section-title">Physicians</h2>
+          {resident.physicians.length === 0 ? (
+            <p className="text-gray-600 text-sm">No physicians assigned</p>
           ) : (
-            <p className="print-no-data">No active medications</p>
-          )}
-        </div>
-
-        {/* Discontinued Medications Section */}
-        <div className="print-section print-avoid-break">
-          <h3 className="print-section-header">Discontinued Medications</h3>
-          <div className="print-section-divider"></div>
-          
-          {discontinuedMedications.length > 0 ? (
-            <table className="print-medication-table">
-              <thead>
-                <tr>
-                  <th>Medication Name</th>
-                  <th>Dosage</th>
-                  <th>Quantity</th>
-                  <th>Route</th>
-                  <th>Times</th>
-                  <th>Physician</th>
-                  <th>Notes</th>
-                </tr>
-              </thead>
-              <tbody>
-                {discontinuedMedications.map((med) => (
-                  <tr key={med.id.toString()}>
-                    <td>{med.name}</td>
-                    <td>{med.dosage}</td>
-                    <td>{med.dosageQuantity}</td>
-                    <td>{med.administrationRoute}</td>
-                    <td>{med.administrationTimes.join(', ')}</td>
-                    <td>{getPhysicianName(med.prescribingPhysicianId)}</td>
-                    <td>{med.notes || 'N/A'}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          ) : (
-            <p className="print-no-data">No discontinued medications</p>
-          )}
-        </div>
-
-        {/* Page Footer */}
-        <div className="print-page-footer">
-          Moritz Care Home Resident Long-Term Care Management Application
-        </div>
-      </div>
-
-      {/* Page 3: Physicians, Pharmacy, and Contacts */}
-      <div className="print-page print-page-break-before">
-        {/* Page Header */}
-        <div className="print-page-header">
-          <div className="print-page-header-left">{formattedDate} {formattedTime}</div>
-          <div className="print-page-header-center">Moritz Care Home Resident Management Application</div>
-          <div className="print-page-header-right">3/3</div>
-        </div>
-
-        {/* Assigned Physicians Section */}
-        <div className="print-section">
-          <h3 className="print-section-header">Assigned Physicians</h3>
-          <div className="print-section-divider"></div>
-          
-          {resident.physicians.length > 0 ? (
-            <div className="print-info-grid">
+            <div className="space-y-3">
               {resident.physicians.map((physician) => (
-                <div key={physician.id.toString()} className="print-info-row">
-                  <div className="print-info-item">
-                    <span className="print-label">PHYSICIAN NAME:</span>
-                    <span className="print-value">{physician.name}</span>
-                  </div>
-                  <div className="print-info-item">
-                    <span className="print-label">SPECIALTY:</span>
-                    <span className="print-value">{physician.specialty}</span>
-                  </div>
-                  <div className="print-info-item print-full-width">
-                    <span className="print-label">CONTACT INFO:</span>
-                    <span className="print-value">{physician.contactInfo}</span>
-                  </div>
+                <div key={physician.id.toString()} className="border-b pb-2">
+                  <p className="font-medium">{physician.name}</p>
+                  <p className="text-sm text-gray-600">{physician.specialty}</p>
+                  <p className="text-sm text-gray-600">Contact: {physician.contactInfo}</p>
+                  {showPhysicianSignature && (
+                    <div className="mt-3">
+                      <p className="text-sm text-gray-600 mb-1">Physician Name:</p>
+                      <div className="physician-signature-line"></div>
+                      <p className="text-sm text-gray-600 mt-3 mb-1">Physician Signature:</p>
+                      <div className="physician-signature-line"></div>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
-          ) : (
-            <p className="print-no-data">No assigned physicians</p>
           )}
         </div>
 
-        {/* Pharmacy Information Section */}
-        <div className="print-section print-avoid-break">
-          <h3 className="print-section-header">Pharmacy Information</h3>
-          <div className="print-section-divider"></div>
-          
-          {resident.pharmacyInfo ? (
-            <div className="print-info-grid">
-              <div className="print-info-row">
-                <div className="print-info-item print-full-width">
-                  <span className="print-label">PHARMACY NAME:</span>
-                  <span className="print-value">{resident.pharmacyInfo.name}</span>
-                </div>
-              </div>
-              <div className="print-info-row">
-                <div className="print-info-item print-full-width">
-                  <span className="print-label">ADDRESS:</span>
-                  <span className="print-value">{resident.pharmacyInfo.address}</span>
-                </div>
-              </div>
-              <div className="print-info-row">
-                <div className="print-info-item">
-                  <span className="print-label">PHONE:</span>
-                  <span className="print-value">{resident.pharmacyInfo.phone}</span>
-                </div>
-                <div className="print-info-item">
-                  <span className="print-label">FAX:</span>
-                  <span className="print-value">{resident.pharmacyInfo.fax}</span>
-                </div>
-              </div>
+        <div className="print-section">
+          <h2 className="print-section-title">Pharmacy Information</h2>
+          {!resident.pharmacyInfo ? (
+            <p className="text-gray-600 text-sm">No pharmacy information</p>
+          ) : (
+            <div className="space-y-1">
+              <p className="font-medium">{resident.pharmacyInfo.name}</p>
+              <p className="text-sm text-gray-600">{resident.pharmacyInfo.address}</p>
+              <p className="text-sm text-gray-600">Phone: {resident.pharmacyInfo.phone}</p>
+              <p className="text-sm text-gray-600">Fax: {resident.pharmacyInfo.fax}</p>
             </div>
-          ) : (
-            <p className="print-no-data">No pharmacy information available</p>
           )}
         </div>
 
-        {/* Responsible Contacts Section */}
-        <div className="print-section print-avoid-break">
-          <h3 className="print-section-header">Responsible Contacts</h3>
-          <div className="print-section-divider"></div>
-          
-          {resident.responsibleContacts.length > 0 ? (
-            <div className="print-info-grid">
+        <div className="print-section">
+          <h2 className="print-section-title">Responsible Contacts</h2>
+          {resident.responsibleContacts.length === 0 ? (
+            <p className="text-gray-600 text-sm">No contacts listed</p>
+          ) : (
+            <div className="space-y-3">
               {resident.responsibleContacts.map((contact) => (
-                <div key={contact.id.toString()} className="print-info-row">
-                  <div className="print-info-item">
-                    <span className="print-label">NAME:</span>
-                    <span className="print-value">{contact.name}{contact.isPrimary ? ' (Primary)' : ''}</span>
+                <div key={contact.id.toString()} className="border-b pb-2">
+                  <div className="flex items-center gap-2">
+                    <p className="font-medium">{contact.name}</p>
+                    {contact.isPrimary && <span className="text-xs bg-gray-200 px-2 py-0.5 rounded">(Primary)</span>}
                   </div>
-                  <div className="print-info-item">
-                    <span className="print-label">RELATIONSHIP:</span>
-                    <span className="print-value">{contact.relationship}</span>
-                  </div>
-                  <div className="print-info-item">
-                    <span className="print-label">PHONE:</span>
-                    <span className="print-value">{contact.phone}</span>
-                  </div>
-                  <div className="print-info-item">
-                    <span className="print-label">EMAIL:</span>
-                    <span className="print-value">{contact.email || 'N/A'}</span>
-                  </div>
+                  <p className="text-sm text-gray-600">{contact.relationship}</p>
+                  <p className="text-sm text-gray-600">Phone: {contact.phone}</p>
+                  <p className="text-sm text-gray-600">Email: {contact.email}</p>
                 </div>
               ))}
             </div>
-          ) : (
-            <p className="print-no-data">No responsible contacts listed</p>
           )}
         </div>
 
-        {/* Physician Name and Signature Section - Conditional */}
-        {includePhysicianSignature && (
-          <div className="print-section print-avoid-break print-physician-signature-section">
-            <h3 className="print-section-header">Physician Certification</h3>
-            <div className="print-section-divider"></div>
-            
-            <div className="print-signature-fields">
-              <div className="print-signature-field">
-                <span className="print-label">PHYSICIAN'S NAME:</span>
-                <div className="print-signature-line"></div>
+        <div className="print-section">
+          <h2 className="print-section-title">Insurance Information</h2>
+          {!resident.insuranceInfo ? (
+            <p className="text-gray-600 text-sm">No insurance information</p>
+          ) : (
+            <div className="space-y-2">
+              <div>
+                <p className="text-sm text-gray-600">Provider</p>
+                <p className="font-medium">{resident.insuranceInfo.provider}</p>
               </div>
-              
-              <div className="print-signature-field">
-                <span className="print-label">PHYSICIAN'S SIGNATURE:</span>
-                <div className="print-signature-line"></div>
+              <div>
+                <p className="text-sm text-gray-600">Policy Number</p>
+                <p className="font-medium">{resident.insuranceInfo.policyNumber}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-600">Group Number</p>
+                <p className="font-medium">{resident.insuranceInfo.groupNumber}</p>
               </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
-        {/* Page Footer */}
-        <div className="print-page-footer">
-          Moritz Care Home Resident Long-Term Care Management Application
+        <div className="print-page-break"></div>
+
+        <div className="print-section">
+          <h2 className="print-section-title">Current Medications</h2>
+          {resident.medications.filter(m => m.isActive).length === 0 ? (
+            <p className="text-gray-600 text-sm">No active medications</p>
+          ) : (
+            <table className="print-medication-table">
+              <thead>
+                <tr>
+                  <th>Medication</th>
+                  <th>Dosage</th>
+                  <th>Route</th>
+                  <th>Times</th>
+                  <th>Notes</th>
+                </tr>
+              </thead>
+              <tbody>
+                {resident.medications
+                  .filter(m => m.isActive)
+                  .map((medication) => (
+                    <tr key={medication.id.toString()}>
+                      <td className="font-medium">{medication.name}</td>
+                      <td>{medication.dosage} - {medication.dosageQuantity}</td>
+                      <td>{medication.administrationRoute}</td>
+                      <td>{medication.administrationTimes.join(', ')}</td>
+                      <td className="text-sm">{medication.notes || '-'}</td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+
+        <div className="print-section">
+          <h2 className="print-section-title">Recent MAR Records</h2>
+          {resident.marRecords.length === 0 ? (
+            <p className="text-gray-600 text-sm">No MAR records</p>
+          ) : (
+            <div className="space-y-2">
+              {resident.marRecords
+                .sort((a, b) => Number(b.timestamp - a.timestamp))
+                .slice(0, 10)
+                .map((record) => {
+                  const medication = resident.medications.find(m => m.id === record.medicationId);
+                  return (
+                    <div key={record.id.toString()} className="border-b pb-2 text-sm">
+                      <div className="flex justify-between">
+                        <p className="font-medium">{medication?.name || 'Unknown'}</p>
+                        <p className="text-gray-600">{new Date(Number(record.timestamp) / 1000000).toLocaleDateString()}</p>
+                      </div>
+                      <p className="text-gray-600">Time: {record.administrationTime}</p>
+                      <p className="text-gray-600">By: {record.administeredBy}</p>
+                      {record.notes && <p className="text-gray-600">Notes: {record.notes}</p>}
+                    </div>
+                  );
+                })}
+            </div>
+          )}
+        </div>
+
+        <div className="print-section">
+          <h2 className="print-section-title">Recent ADL Records</h2>
+          {resident.adlRecords.length === 0 ? (
+            <p className="text-gray-600 text-sm">No ADL records</p>
+          ) : (
+            <div className="space-y-2">
+              {resident.adlRecords
+                .sort((a, b) => Number(b.timestamp - a.timestamp))
+                .slice(0, 10)
+                .map((record) => (
+                  <div key={record.id.toString()} className="border-b pb-2 text-sm">
+                    <div className="flex justify-between">
+                      <p className="font-medium">{record.activity}</p>
+                      <p className="text-gray-600">{record.date}</p>
+                    </div>
+                    <p className="text-gray-600">Assistance: {record.assistanceLevel}</p>
+                    {record.staffNotes && <p className="text-gray-600">Notes: {record.staffNotes}</p>}
+                  </div>
+                ))}
+            </div>
+          )}
+        </div>
+
+        <div className="print-section">
+          <h2 className="print-section-title">Recent Vitals</h2>
+          {resident.dailyVitals.length === 0 ? (
+            <p className="text-gray-600 text-sm">No vitals recorded</p>
+          ) : (
+            <div className="space-y-3">
+              {resident.dailyVitals
+                .sort((a, b) => Number(b.timestamp - a.timestamp))
+                .slice(0, 5)
+                .map((vitals) => (
+                  <div key={vitals.id.toString()} className="border-b pb-2">
+                    <div className="flex justify-between mb-2">
+                      <p className="font-medium">{vitals.measurementDate}</p>
+                      <p className="text-sm text-gray-600">{vitals.measurementTime}</p>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2 text-sm">
+                      <div>
+                        <p className="text-gray-600">Temp</p>
+                        <p>{vitals.temperature}°{vitals.temperatureUnit}</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-600">BP</p>
+                        <p>{Number(vitals.bloodPressureSystolic)}/{Number(vitals.bloodPressureDiastolic)}</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-600">Pulse</p>
+                        <p>{Number(vitals.pulseRate)} bpm</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-600">Resp</p>
+                        <p>{Number(vitals.respiratoryRate)} /min</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-600">O2 Sat</p>
+                        <p>{Number(vitals.oxygenSaturation)}%</p>
+                      </div>
+                      {vitals.bloodGlucose && (
+                        <div>
+                          <p className="text-gray-600">Glucose</p>
+                          <p>{Number(vitals.bloodGlucose)} mg/dL</p>
+                        </div>
+                      )}
+                    </div>
+                    {vitals.notes && <p className="text-sm text-gray-600 mt-2">{vitals.notes}</p>}
+                  </div>
+                ))}
+            </div>
+          )}
+        </div>
+
+        <div className="print-footer">
+          <p className="text-sm text-gray-600">End of Report</p>
         </div>
       </div>
     </div>

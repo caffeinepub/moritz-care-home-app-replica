@@ -34,6 +34,7 @@ export interface Resident {
     responsibleContacts: Array<ResponsibleContact>;
     medicaidNumber?: string;
     physicians: Array<Physician>;
+    codeStatus: CodeStatus;
     lastName: string;
     roomType: string;
     medicareNumber?: string;
@@ -60,6 +61,16 @@ export interface ADLRecord {
     date: string;
     timestamp: bigint;
     activity: string;
+}
+export interface CodeStatusChangeRecord {
+    id: bigint;
+    residentId: ResidentId;
+    changedByName: string;
+    changedBy: Principal;
+    notes: string;
+    timestamp: bigint;
+    newStatus: CodeStatus;
+    previousStatus: CodeStatus;
 }
 export interface ResponsibleContact {
     id: bigint;
@@ -103,6 +114,10 @@ export interface InsuranceInfo {
     policyNumber: string;
     medicareNumber?: string;
 }
+export enum CodeStatus {
+    dnr = "dnr",
+    fullCode = "fullCode"
+}
 export enum ResidentStatus {
     active = "active",
     discharged = "discharged"
@@ -133,6 +148,8 @@ export interface backendInterface {
     getAllResidents(): Promise<Array<Resident>>;
     getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
+    getCodeStatus(residentId: ResidentId): Promise<CodeStatus | null>;
+    getCodeStatusHistory(residentId: ResidentId): Promise<Array<CodeStatusChangeRecord>>;
     getDailyVitals(residentId: ResidentId): Promise<Array<DailyVitals>>;
     getMARRecords(residentId: ResidentId): Promise<Array<MARRecord>>;
     getMedications(residentId: ResidentId): Promise<Array<Medication>>;
@@ -147,6 +164,7 @@ export interface backendInterface {
     getUserProfile(user: Principal): Promise<UserProfile | null>;
     isCallerAdmin(): Promise<boolean>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
+    updateCodeStatus(residentId: ResidentId, newCodeStatus: CodeStatus, notes: string): Promise<void>;
     updateInsuranceInfo(residentId: ResidentId, insuranceInfo: InsuranceInfo): Promise<void>;
     updateMedication(residentId: ResidentId, medicationId: bigint, updatedMedication: Medication): Promise<void>;
     updatePharmacyInfo(residentId: ResidentId, pharmacyInfo: PharmacyInfo): Promise<void>;

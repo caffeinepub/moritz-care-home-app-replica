@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Plus, X } from 'lucide-react';
 import { useUpdateResident } from '../../../hooks/useQueries';
-import { Resident, Physician, ResidentStatus } from '../../../backend';
+import { Resident, Physician, PharmacyInfo, ResidentStatus, CodeStatus } from '../../../backend';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface EditResidentInformationModalProps {
@@ -25,6 +25,7 @@ export default function EditResidentInformationModal({ resident, onClose }: Edit
   const [roomType, setRoomType] = useState(resident.roomType);
   const [bed, setBed] = useState(resident.bed);
   const [status, setStatus] = useState<ResidentStatus>(resident.status);
+  const [codeStatus, setCodeStatus] = useState<CodeStatus>(resident.codeStatus);
   const [medicaidNumber, setMedicaidNumber] = useState(resident.medicaidNumber || '');
   const [medicareNumber, setMedicareNumber] = useState(resident.medicareNumber || '');
 
@@ -53,14 +54,25 @@ export default function EditResidentInformationModal({ resident, onClose }: Edit
       return;
     }
 
+    let nextPhysicianId = Math.max(0, ...resident.physicians.map(p => Number(p.id))) + 1;
+
     const physiciansList: Physician[] = physicians
       .filter(p => p.name.trim())
-      .map((p, i) => ({
-        id: p.id || BigInt(Date.now() + i),
+      .map((p) => ({
+        id: p.id || BigInt(nextPhysicianId++),
         name: p.name,
         specialty: p.specialty,
         contactInfo: p.contactInfo,
       }));
+
+    const pharmacyInfo: PharmacyInfo | undefined = pharmacyName.trim()
+      ? {
+          name: pharmacyName,
+          address: pharmacyAddress,
+          phone: pharmacyPhone,
+          fax: pharmacyFax,
+        }
+      : undefined;
 
     const updatedResident: Resident = {
       ...resident,
@@ -71,18 +83,12 @@ export default function EditResidentInformationModal({ resident, onClose }: Edit
       roomNumber,
       roomType,
       bed,
-      status: status,
+      status,
+      codeStatus,
       medicaidNumber: medicaidNumber.trim() || undefined,
       medicareNumber: medicareNumber.trim() || undefined,
       physicians: physiciansList,
-      pharmacyInfo: pharmacyName.trim()
-        ? {
-            name: pharmacyName,
-            address: pharmacyAddress,
-            phone: pharmacyPhone,
-            fax: pharmacyFax,
-          }
-        : undefined,
+      pharmacyInfo,
     };
 
     await updateResident.mutateAsync({ residentId: resident.id, updatedData: updatedResident });
@@ -122,7 +128,7 @@ export default function EditResidentInformationModal({ resident, onClose }: Edit
                 </div>
                 <div>
                   <Label htmlFor="roomNumber">Room Number *</Label>
-                  <Input id="roomNumber" value={roomNumber} onChange={(e) => setRoomNumber(e.target.value)} required />
+                  <Input id="roomNumber" value={roomNumber} onChange={(e) => setRoomNumber(e.target.value)} placeholder="e.g., 001" required />
                 </div>
                 <div>
                   <Label htmlFor="roomType">Room Type *</Label>
@@ -149,8 +155,8 @@ export default function EditResidentInformationModal({ resident, onClose }: Edit
                   </Select>
                 </div>
                 <div>
-                  <Label htmlFor="status">Status</Label>
-                  <Select value={status} onValueChange={(value: ResidentStatus) => setStatus(value)}>
+                  <Label htmlFor="status">Status *</Label>
+                  <Select value={status} onValueChange={(value) => setStatus(value as ResidentStatus)}>
                     <SelectTrigger id="status">
                       <SelectValue />
                     </SelectTrigger>
@@ -161,12 +167,24 @@ export default function EditResidentInformationModal({ resident, onClose }: Edit
                   </Select>
                 </div>
                 <div>
+                  <Label htmlFor="codeStatus">Code Status *</Label>
+                  <Select value={codeStatus} onValueChange={(value) => setCodeStatus(value as CodeStatus)}>
+                    <SelectTrigger id="codeStatus">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={CodeStatus.fullCode}>Full Code</SelectItem>
+                      <SelectItem value={CodeStatus.dnr}>DNR</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
                   <Label htmlFor="medicaidNumber">Medicaid Number</Label>
-                  <Input id="medicaidNumber" value={medicaidNumber} onChange={(e) => setMedicaidNumber(e.target.value)} />
+                  <Input id="medicaidNumber" value={medicaidNumber} onChange={(e) => setMedicaidNumber(e.target.value)} placeholder="Optional" />
                 </div>
                 <div>
                   <Label htmlFor="medicareNumber">Medicare Number</Label>
-                  <Input id="medicareNumber" value={medicareNumber} onChange={(e) => setMedicareNumber(e.target.value)} />
+                  <Input id="medicareNumber" value={medicareNumber} onChange={(e) => setMedicareNumber(e.target.value)} placeholder="Optional" />
                 </div>
               </div>
             </div>
@@ -201,6 +219,7 @@ export default function EditResidentInformationModal({ resident, onClose }: Edit
                           updated[index].name = e.target.value;
                           setPhysicians(updated);
                         }}
+                        placeholder="Dr. Smith"
                       />
                     </div>
                     <div>
@@ -212,6 +231,7 @@ export default function EditResidentInformationModal({ resident, onClose }: Edit
                           updated[index].contactInfo = e.target.value;
                           setPhysicians(updated);
                         }}
+                        placeholder="555-123-4567"
                       />
                     </div>
                     <div>
@@ -223,6 +243,7 @@ export default function EditResidentInformationModal({ resident, onClose }: Edit
                           updated[index].specialty = e.target.value;
                           setPhysicians(updated);
                         }}
+                        placeholder="Cardiology"
                       />
                     </div>
                   </div>
@@ -235,19 +256,19 @@ export default function EditResidentInformationModal({ resident, onClose }: Edit
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label>Pharmacy Name</Label>
-                  <Input value={pharmacyName} onChange={(e) => setPharmacyName(e.target.value)} />
+                  <Input value={pharmacyName} onChange={(e) => setPharmacyName(e.target.value)} placeholder="CVS Pharmacy" />
                 </div>
                 <div>
                   <Label>Address</Label>
-                  <Input value={pharmacyAddress} onChange={(e) => setPharmacyAddress(e.target.value)} />
+                  <Input value={pharmacyAddress} onChange={(e) => setPharmacyAddress(e.target.value)} placeholder="123 Main St" />
                 </div>
                 <div>
                   <Label>Contact Number</Label>
-                  <Input value={pharmacyPhone} onChange={(e) => setPharmacyPhone(e.target.value)} />
+                  <Input value={pharmacyPhone} onChange={(e) => setPharmacyPhone(e.target.value)} placeholder="555-987-6543" />
                 </div>
                 <div>
                   <Label>Fax</Label>
-                  <Input value={pharmacyFax} onChange={(e) => setPharmacyFax(e.target.value)} />
+                  <Input value={pharmacyFax} onChange={(e) => setPharmacyFax(e.target.value)} placeholder="555-987-6544" />
                 </div>
               </div>
             </div>
@@ -255,10 +276,10 @@ export default function EditResidentInformationModal({ resident, onClose }: Edit
         </ScrollArea>
 
         <DialogFooter>
-          <Button type="button" variant="outline" onClick={onClose}>
+          <Button variant="outline" onClick={onClose} disabled={updateResident.isPending}>
             Cancel
           </Button>
-          <Button type="submit" onClick={handleSubmit} disabled={updateResident.isPending} className="bg-blue-600 hover:bg-blue-700">
+          <Button onClick={handleSubmit} disabled={updateResident.isPending}>
             {updateResident.isPending ? 'Saving...' : 'Save Changes'}
           </Button>
         </DialogFooter>

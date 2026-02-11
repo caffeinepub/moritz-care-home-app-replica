@@ -1,6 +1,80 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Frontend plan: no changes required (backend-only fix for _initializeAccessControlWithSecret hang)",
-  "requirements": []
+  "title": "Add Resident Code Status selection + highlighted display on dashboard and profile",
+  "requirements": [
+    {
+      "id": "REQ-3",
+      "summary": "Add Code Status control (Full Code / DNR) to Add New Resident and Edit Resident flows and persist via existing save/update mutations.",
+      "acceptanceCriteria": [
+        "Add New Resident modal includes a required Code Status control with options \"Full Code\" and \"DNR\".",
+        "Edit Resident Information modal includes a Code Status control with the same two options and saves changes successfully.",
+        "Saving a resident persists code status and it remains correct after refresh/navigation."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/residents/modals/AddNewResidentModal.tsx",
+          "operation": "modify",
+          "description": "Add a required Code Status field to the form (using the existing Select UI), store it in local state defaulting to CodeStatus.fullCode, and include residentData.codeStatus when calling useAddResident. Ensure the UI only offers exactly two options and displays user-facing labels \"Full Code\" / \"DNR\"."
+        },
+        {
+          "path": "frontend/src/components/residents/modals/EditResidentInformationModal.tsx",
+          "operation": "modify",
+          "description": "Add Code Status editing to the modal (Select control with exactly two options), initialize state from resident.codeStatus, and include the updated codeStatus when building the updated Resident object passed to useUpdateResident."
+        },
+        {
+          "path": "frontend/src/components/residents/CodeStatusBadge.tsx",
+          "operation": "create",
+          "description": "Create a small presentational component to render a resident Code Status label/value consistently (maps enum values to \"Full Code\" / \"DNR\"), intended for reuse across dashboard and profile with appropriate emphasis styling."
+        }
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "summary": "Show each resident’s Code Status on the Residents Dashboard with bold, high-contrast highlighting (DNR more prominent than Full Code).",
+      "acceptanceCriteria": [
+        "Each resident card on the dashboard shows a visible \"Code Status\" label/value.",
+        "The Code Status value is rendered with bold styling.",
+        "\"DNR\" is visually highlighted more strongly than \"Full Code\" (e.g., higher-contrast badge/background/text treatment) while remaining readable in the existing dashboard design.",
+        "If a resident has the defaulted value from migration, it still displays correctly on the dashboard."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/ResidentDashboardPage.tsx",
+          "operation": "modify",
+          "description": "Render a visible Code Status row/badge on each resident card using the resident.codeStatus value. Use the new CodeStatusBadge component so the value is bold; apply stronger visual treatment when status is DNR than when status is Full Code."
+        },
+        {
+          "path": "frontend/src/components/residents/CodeStatusBadge.tsx",
+          "operation": "modify",
+          "description": "Extend the badge component styling/props (if needed) to support the dashboard’s stronger DNR emphasis vs Full Code while keeping text bold and readable."
+        }
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "summary": "Display the resident’s Code Status on the Resident Profile page with the exact user-facing text and consistent value with dashboard.",
+      "acceptanceCriteria": [
+        "Resident Profile page displays the resident’s Code Status with the exact user-facing text \"Full Code\" or \"DNR\".",
+        "The displayed Code Status matches what is shown on the dashboard for the same resident."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/ResidentProfilePage.tsx",
+          "operation": "modify",
+          "description": "Add a Code Status field to the profile’s summary section (e.g., the top demographics grid) using CodeStatusBadge so it shows the exact user-facing labels and stays consistent with the dashboard."
+        },
+        {
+          "path": "frontend/src/components/residents/ResidentProfilePrintReport.tsx",
+          "operation": "modify",
+          "description": "Include Code Status in the printable resident profile report so code status remains visible when viewing/printing an individual resident record and matches the on-screen profile/dashboard display."
+        },
+        {
+          "path": "frontend/src/components/residents/CodeStatusBadge.tsx",
+          "operation": "modify",
+          "description": "Ensure the CodeStatusBadge renders the exact user-facing text \"Full Code\" / \"DNR\" and can be used in the profile context (including print-friendly rendering if necessary)."
+        }
+      ]
+    }
+  ]
 }

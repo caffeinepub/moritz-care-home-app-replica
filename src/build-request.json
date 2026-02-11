@@ -1,53 +1,107 @@
 {
   "kind": "build_request",
-  "title": "Prevent production app from hanging on loading when caffeineAdminToken is missing",
-  "priority": "high",
+  "title": "Add Resident Code Status (Full Code / DNR) and highlight it on the Residents Dashboard",
+  "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Update the backend implementation of the `_initializeAccessControlWithSecret` call path so that when the provided secret token is missing/empty (e.g., production URL has no `caffeineAdminToken`), the call returns promptly and does not hang or block actor initialization.",
+      "text": "Add a persistent \"Code Status\" field to each Resident record in the backend with exactly two supported values: \"Full Code\" and \"DNR\".",
       "target": "backend",
       "source": {
         "messageIds": [
-          "recent-messages"
+          "msg-6"
         ],
         "quotes": [
-          "apply the fix so production stops getting stuck on loading",
-          "the draft is working fine but the live app is stuck in the loading screen"
+          "Add Code Status (Full Code / DNR) for every Resident's Profile that will be shown in BOLD/Highlight in the Residents Dashboard."
         ]
       },
       "acceptanceCriteria": [
-        "When the frontend calls `await actor._initializeAccessControlWithSecret(adminToken)` with an empty string token, the call completes quickly (no indefinite await).",
-        "Production build loads past the global loading spinner even when `caffeineAdminToken` is not present in the URL.",
-        "Draft behavior continues to work when a valid `caffeineAdminToken` is present."
+        "Backend exposes Resident records that include a code status field.",
+        "The code status field only supports the two values \"Full Code\" and \"DNR\" (no free-text)."
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Ensure that the backend initialization behavior for `_initializeAccessControlWithSecret` remains safe: invalid/empty secrets must not grant admin privileges and must not weaken existing authorization checks for normal operations.",
+      "text": "Implement upgrade-safe state migration so that all existing stored residents receive a valid default Code Status value (default to \"Full Code\") after deployment.",
       "target": "backend",
       "source": {
         "messageIds": [
-          "recent-messages"
+          "msg-6"
         ],
         "quotes": [
-          "The fix is simple: you must make `_initializeAccessControlWithSecret` optional and only call it when the secret token is present."
+          "Add Code Status (Full Code / DNR) for every Resident's Profile"
         ]
       },
       "acceptanceCriteria": [
-        "With an empty or invalid token, the caller does not become an admin and admin-only methods remain inaccessible.",
-        "With a valid token (as used in draft), expected admin initialization still occurs."
+        "After upgrading, previously-created residents can still be fetched without traps/serialization errors.",
+        "All residents returned from getResident/getAllResidents have a non-null code status value.",
+        "Residents created before the change show code status = \"Full Code\" unless later edited."
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "text": "Update the \"Add New Resident\" and \"Edit Resident\" flows to allow staff/admin users to set or change the Resident Code Status (Full Code / DNR).",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-6"
+        ],
+        "quotes": [
+          "Add Code Status (Full Code / DNR) for every Resident's Profile"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Add New Resident modal includes a required Code Status control with options \"Full Code\" and \"DNR\".",
+        "Edit Resident Information modal includes a Code Status control with the same two options and saves changes successfully.",
+        "Saving a resident persists code status and it remains correct after refresh/navigation."
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "text": "Display each resident’s Code Status on the Residents Dashboard in a bold, visually highlighted style that clearly distinguishes \"DNR\" from \"Full Code\".",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-6"
+        ],
+        "quotes": [
+          "will be shown in BOLD/Highlight in the Residents Dashboard."
+        ]
+      },
+      "acceptanceCriteria": [
+        "Each resident card on the dashboard shows a visible \"Code Status\" label/value.",
+        "The Code Status value is rendered with bold styling.",
+        "\"DNR\" is visually highlighted more strongly than \"Full Code\" (e.g., higher-contrast badge/background/text treatment) while remaining readable in the existing dashboard design.",
+        "If a resident has the defaulted value from migration, it still displays correctly on the dashboard."
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "text": "Show the resident’s Code Status on the Resident Profile page so the Code Status is visible when viewing an individual resident record.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-6"
+        ],
+        "quotes": [
+          "Add Code Status (Full Code / DNR) for every Resident's Profile"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Resident Profile page displays the resident’s Code Status with the exact user-facing text \"Full Code\" or \"DNR\".",
+        "The displayed Code Status matches what is shown on the dashboard for the same resident."
       ]
     }
   ],
   "constraints": [
-    "Frontend immutable file paths must not be edited, including `frontend/src/hooks/useActor.ts`.",
-    "Keep the backend as a single Motoko actor in `backend/main.mo`; only add `backend/migration.mo` if a stable-state upgrade is required (it should not be required for this fix)."
+    "Backend must remain a single Motoko actor in backend/main.mo.",
+    "If existing stable state shape is changed, provide a conditional migration using backend/migration.mo per the project migration policy.",
+    "Do not edit any files under frontend/src/components/ui or any other paths listed as immutable in SYSTEM_CONTEXT."
   ],
   "nonGoals": [
-    "Redesigning the loading screen UI/UX.",
-    "Changing Internet Identity authentication flow or introducing a new authentication provider.",
-    "Adding new product features unrelated to the production loading hang."
+    "Do not implement additional clinical code status options beyond \"Full Code\" and \"DNR\".",
+    "Do not add role/permission changes beyond existing staff/admin edit permissions.",
+    "Do not add real-time updates or notifications for code status changes."
   ],
   "imageRequirements": {
     "required": [],

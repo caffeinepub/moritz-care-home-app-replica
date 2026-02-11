@@ -4,9 +4,12 @@ import Principal "mo:core/Principal";
 import Text "mo:core/Text";
 import Time "mo:core/Time";
 import Order "mo:core/Order";
+import Migration "migration";
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
 
+// Use data migration for upgrade safety
+(with migration = Migration.run)
 actor {
   let accessControlState = AccessControl.initState();
   include MixinAuthorization(accessControlState);
@@ -51,6 +54,7 @@ actor {
   // Resident Types
   public type ResidentId = Nat;
   public type ResidentStatus = { #active; #discharged };
+  public type CodeStatus = { #fullCode; #dnr };
 
   public type Physician = {
     id : Nat;
@@ -129,6 +133,17 @@ actor {
     timestamp : Int;
   };
 
+  public type CodeStatusChangeRecord = {
+    id : Nat;
+    residentId : ResidentId;
+    previousStatus : CodeStatus;
+    newStatus : CodeStatus;
+    changedBy : Principal;
+    changedByName : Text;
+    timestamp : Int;
+    notes : Text;
+  };
+
   public type Resident = {
     id : ResidentId;
     firstName : Text;
@@ -139,6 +154,7 @@ actor {
     roomType : Text;
     bed : Text;
     status : ResidentStatus;
+    codeStatus : CodeStatus;
     medicaidNumber : ?Text;
     medicareNumber : ?Text;
     physicians : [Physician];
@@ -160,6 +176,10 @@ actor {
   var nextMARId = 1;
   var nextADLId = 1;
   var nextVitalsId = 1;
+  var nextCodeStatusChangeId = 1;
+
+  // Code Status Change Audit Trail
+  let codeStatusChanges = Map.empty<Nat, CodeStatusChangeRecord>();
 
   // Authorization Helper Functions
   func isStaffOrAdmin(caller : Principal) : Bool {
@@ -325,6 +345,80 @@ actor {
     };
 
     { totalResidents = total; activeResidents = active; dischargedResidents = discharged };
+  };
+
+  // Code Status Management - Admin Only
+  public shared ({ caller }) func updateCodeStatus(residentId : ResidentId, newCodeStatus : CodeStatus, notes : Text) : async () {
+    // Code Status changes require admin authorization due to legal/medical implications
+    if (not AccessControl.isAdmin(accessControlState, caller)) {
+      Runtime.trap("Unauthorized: Only admins can update Code Status");
+    };
+
+    switch (residents.get(residentId)) {
+      case (null) { Runtime.trap("Resident not found") };
+      case (?resident) {
+        let previousStatus = resident.codeStatus;
+        
+        // Only record change if status actually changed
+        if (previousStatus != newCodeStatus) {
+          // Get caller's name for audit trail
+          let callerName = switch (userProfiles.get(caller)) {
+            case (null) { caller.toText() };
+            case (?profile) { profile.name };
+          };
+
+          // Create audit record
+          let changeId = nextCodeStatusChangeId;
+          nextCodeStatusChangeId += 1;
+
+          let changeRecord : CodeStatusChangeRecord = {
+            id = changeId;
+            residentId;
+            previousStatus;
+            newStatus = newCodeStatus;
+            changedBy = caller;
+            changedByName = callerName;
+            timestamp = Time.now();
+            notes;
+          };
+
+          codeStatusChanges.add(changeId, changeRecord);
+
+          // Update resident
+          let updatedResident = { resident with codeStatus = newCodeStatus };
+          residents.add(residentId, updatedResident);
+        };
+      };
+    };
+  };
+
+  public query ({ caller }) func getCodeStatus(residentId : ResidentId) : async ?CodeStatus {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Authentication required");
+    };
+
+    if (not canAccessResident(caller, residentId)) {
+      Runtime.trap("Unauthorized: Cannot access this resident's Code Status");
+    };
+
+    switch (residents.get(residentId)) {
+      case (null) { null };
+      case (?resident) { ?resident.codeStatus };
+    };
+  };
+
+  public query ({ caller }) func getCodeStatusHistory(residentId : ResidentId) : async [CodeStatusChangeRecord] {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Authentication required");
+    };
+
+    if (not canAccessResident(caller, residentId)) {
+      Runtime.trap("Unauthorized: Cannot access this resident's Code Status history");
+    };
+
+    codeStatusChanges.values().toArray().filter(
+      func(record) { record.residentId == residentId }
+    );
   };
 
   // Physician Management

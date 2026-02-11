@@ -18,6 +18,18 @@ export interface ADLRecord {
   'timestamp' : bigint,
   'activity' : string,
 }
+export type CodeStatus = { 'dnr' : null } |
+  { 'fullCode' : null };
+export interface CodeStatusChangeRecord {
+  'id' : bigint,
+  'residentId' : ResidentId,
+  'changedByName' : string,
+  'changedBy' : Principal,
+  'notes' : string,
+  'timestamp' : bigint,
+  'newStatus' : CodeStatus,
+  'previousStatus' : CodeStatus,
+}
 export interface DailyVitals {
   'id' : bigint,
   'temperatureUnit' : string,
@@ -87,6 +99,7 @@ export interface Resident {
   'responsibleContacts' : Array<ResponsibleContact>,
   'medicaidNumber' : [] | [string],
   'physicians' : Array<Physician>,
+  'codeStatus' : CodeStatus,
   'lastName' : string,
   'roomType' : string,
   'medicareNumber' : [] | [string],
@@ -159,6 +172,11 @@ export interface _SERVICE {
   'getAllResidents' : ActorMethod<[], Array<Resident>>,
   'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
   'getCallerUserRole' : ActorMethod<[], UserRole>,
+  'getCodeStatus' : ActorMethod<[ResidentId], [] | [CodeStatus]>,
+  'getCodeStatusHistory' : ActorMethod<
+    [ResidentId],
+    Array<CodeStatusChangeRecord>
+  >,
   'getDailyVitals' : ActorMethod<[ResidentId], Array<DailyVitals>>,
   'getMARRecords' : ActorMethod<[ResidentId], Array<MARRecord>>,
   'getMedications' : ActorMethod<[ResidentId], Array<Medication>>,
@@ -182,6 +200,7 @@ export interface _SERVICE {
   'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
+  'updateCodeStatus' : ActorMethod<[ResidentId, CodeStatus, string], undefined>,
   'updateInsuranceInfo' : ActorMethod<[ResidentId, InsuranceInfo], undefined>,
   'updateMedication' : ActorMethod<[ResidentId, bigint, Medication], undefined>,
   'updatePharmacyInfo' : ActorMethod<[ResidentId, PharmacyInfo], undefined>,

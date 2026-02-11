@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Plus, X } from 'lucide-react';
 import { useAddResident } from '../../../hooks/useQueries';
-import { Resident, Physician, PharmacyInfo, InsuranceInfo, ResponsibleContact, Medication, ResidentStatus } from '../../../backend';
+import { Resident, Physician, PharmacyInfo, InsuranceInfo, ResponsibleContact, Medication, ResidentStatus, CodeStatus } from '../../../backend';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface AddNewResidentModalProps {
@@ -24,6 +24,7 @@ export default function AddNewResidentModal({ onClose }: AddNewResidentModalProp
   const [roomNumber, setRoomNumber] = useState('');
   const [roomType, setRoomType] = useState('Shared');
   const [bed, setBed] = useState('Bed A');
+  const [codeStatus, setCodeStatus] = useState<CodeStatus>(CodeStatus.fullCode);
   const [medicaidNumber, setMedicaidNumber] = useState('');
   const [medicareNumber, setMedicareNumber] = useState('');
 
@@ -147,6 +148,7 @@ export default function AddNewResidentModal({ onClose }: AddNewResidentModalProp
       roomType,
       bed,
       status: ResidentStatus.active,
+      codeStatus,
       medicaidNumber: medicaidNumber.trim() || undefined,
       medicareNumber: medicareNumber.trim() || undefined,
       physicians: physiciansList,
@@ -219,6 +221,18 @@ export default function AddNewResidentModal({ onClose }: AddNewResidentModalProp
                     <SelectContent>
                       <SelectItem value="Bed A">Bed A</SelectItem>
                       <SelectItem value="Bed B">Bed B</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label htmlFor="codeStatus">Code Status *</Label>
+                  <Select value={codeStatus} onValueChange={(value) => setCodeStatus(value as CodeStatus)}>
+                    <SelectTrigger id="codeStatus">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={CodeStatus.fullCode}>Full Code</SelectItem>
+                      <SelectItem value={CodeStatus.dnr}>DNR</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -455,41 +469,87 @@ export default function AddNewResidentModal({ onClose }: AddNewResidentModalProp
                           placeholder="100mg"
                         />
                       </div>
+                      <div>
+                        <Label>Dosage Quantity</Label>
+                        <Input
+                          value={medication.dosageQuantity}
+                          onChange={(e) => {
+                            const updated = [...medications];
+                            updated[medIndex].dosageQuantity = e.target.value;
+                            setMedications(updated);
+                          }}
+                          placeholder="1 tablet"
+                        />
+                      </div>
+                      <div>
+                        <Label>Administration Route</Label>
+                        <Select
+                          value={medication.administrationRoute}
+                          onValueChange={(value) => {
+                            const updated = [...medications];
+                            updated[medIndex].administrationRoute = value;
+                            setMedications(updated);
+                          }}
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Oral">Oral</SelectItem>
+                            <SelectItem value="IV">IV</SelectItem>
+                            <SelectItem value="IM">IM</SelectItem>
+                            <SelectItem value="Topical">Topical</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
                     </div>
                     <div>
-                      <Label>Administration Times</Label>
+                      <div className="flex items-center justify-between mb-2">
+                        <Label>Administration Times</Label>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleAddAdministrationTime(medIndex)}
+                        >
+                          <Plus className="w-3 h-3 mr-1" />
+                          Add Time
+                        </Button>
+                      </div>
                       {medication.administrationTimes.map((time, timeIndex) => (
                         <div key={timeIndex} className="flex gap-2 mb-2">
                           <Input
+                            type="time"
                             value={time}
                             onChange={(e) => {
                               const updated = [...medications];
                               updated[medIndex].administrationTimes[timeIndex] = e.target.value;
                               setMedications(updated);
                             }}
-                            placeholder="8:00 AM, 8:00 PM (comma separated)"
                           />
-                          {medication.administrationTimes.length > 1 && (
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleRemoveAdministrationTime(medIndex, timeIndex)}
-                            >
-                              <X className="w-4 h-4" />
-                            </Button>
-                          )}
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleRemoveAdministrationTime(medIndex, timeIndex)}
+                          >
+                            <X className="w-4 h-4" />
+                          </Button>
                         </div>
                       ))}
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleAddAdministrationTime(medIndex)}
-                      >
-                        <Plus className="w-4 h-4 mr-1" />
-                        Add Time
-                      </Button>
+                    </div>
+                    <div>
+                      <Label>Notes</Label>
+                      <Textarea
+                        value={medication.notes}
+                        onChange={(e) => {
+                          const updated = [...medications];
+                          updated[medIndex].notes = e.target.value;
+                          setMedications(updated);
+                        }}
+                        placeholder="Additional notes"
+                        rows={2}
+                      />
                     </div>
                   </div>
                 </div>
@@ -499,10 +559,10 @@ export default function AddNewResidentModal({ onClose }: AddNewResidentModalProp
         </ScrollArea>
 
         <DialogFooter>
-          <Button type="button" variant="outline" onClick={onClose}>
+          <Button variant="outline" onClick={onClose} disabled={addResident.isPending}>
             Cancel
           </Button>
-          <Button type="submit" onClick={handleSubmit} disabled={addResident.isPending} className="bg-blue-600 hover:bg-blue-700">
+          <Button onClick={handleSubmit} disabled={addResident.isPending}>
             {addResident.isPending ? 'Adding...' : 'Add Resident'}
           </Button>
         </DialogFooter>

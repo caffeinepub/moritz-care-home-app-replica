@@ -2,33 +2,60 @@
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
   "summary": "New project",
-  "architectural_notes": [
-    "Actor initialization should only call _initializeAccessControlWithSecret(adminToken) when an admin token is present (e.g., caffeineAdminToken in URL); otherwise skip to avoid blocking app startup in production."
+  "architectural_notes": [],
+  "known_issues": [],
+  "isFixRequest": false,
+  "existing_features": [
+    {
+      "id": "feature-update-the-add-new-resident-and-edit-resident-flows-to-allow-staff-admin-users-to-set-or-change-the-resident-code-status-full-code-dnr",
+      "title": "Update the \"Add New Resident\" and \"Edit Resident\" flows to allow staff/admin users to set or change the Resident Code Status (Full Code / DNR).",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-display-each-resident-s-code-status-on-the-residents-dashboard-in-a-bold-visually-highlighted-style-that-clearly-distinguishes-dnr-from-full-code",
+      "title": "Display each resident’s Code Status on the Residents Dashboard in a bold, visually highlighted style that clearly distinguishes \"DNR\" from \"Full Code\".",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-show-the-resident-s-code-status-on-the-resident-profile-page-so-the-code-status-is-visible-when-viewing-an-individual-resident-record",
+      "title": "Show the resident’s Code Status on the Resident Profile page so the Code Status is visible when viewing an individual resident record.",
+      "reqIds": [
+        "REQ-5"
+      ],
+      "version": 1
+    }
   ],
-  "known_issues": [
-    "Live/production app stuck on loading screen because actor initialization awaits _initializeAccessControlWithSecret(adminToken) but production lacks caffeineAdminToken, causing initialization/profile fetch to never complete."
-  ],
-  "isFixRequest": true,
-  "existing_features": [],
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Update the backend implementation of the `_initializeAccessControlWithSecret` call path so that when the provided secret token is missing/empty (e.g., production URL has no `caffeineAdminToken`), the call returns promptly and does not hang or block actor initialization.",
+      "summary": "Add Code Status (Full Code / DNR) to each Resident profile and display it in bold/highlight on the Residents Dashboard",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Add a persistent \"Code Status\" field to each Resident record in the backend with exactly two supported values: \"Full Code\" and \"DNR\".",
       "reqIds": [
         "REQ-1"
       ],
       "status": "pending"
     },
     {
-      "id": "AR-2",
-      "summary": "Ensure that the backend initialization behavior for `_initializeAccessControlWithSecret` remains safe: invalid/empty secrets must not grant admin privileges and must not weaken existing authorization checks for normal operations.",
+      "id": "AR-3",
+      "summary": "Implement upgrade-safe state migration so that all existing stored residents receive a valid default Code Status value (default to \"Full Code\") after deployment.",
       "reqIds": [
         "REQ-2"
       ],
       "status": "pending"
     }
   ],
-  "projectName": "Prevent production app from hanging on loading when caffeineAdminToken is missing",
+  "projectName": "Add Resident Code Status (Full Code / DNR) and highlight it on the Residents Dashboard",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }
