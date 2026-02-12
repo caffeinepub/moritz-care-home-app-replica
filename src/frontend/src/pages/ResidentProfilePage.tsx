@@ -276,6 +276,18 @@ export default function ResidentProfilePage() {
                         <p className="text-sm text-muted-foreground">Group Number</p>
                         <p className="font-medium">{resident.insuranceInfo.groupNumber}</p>
                       </div>
+                      {resident.insuranceInfo.medicaidNumber && (
+                        <div>
+                          <p className="text-sm text-muted-foreground">Medicaid Number</p>
+                          <p className="font-medium">{resident.insuranceInfo.medicaidNumber}</p>
+                        </div>
+                      )}
+                      {resident.insuranceInfo.medicareNumber && (
+                        <div>
+                          <p className="text-sm text-muted-foreground">Medicare Number</p>
+                          <p className="font-medium">{resident.insuranceInfo.medicareNumber}</p>
+                        </div>
+                      )}
                     </div>
                   )}
                 </CardContent>
@@ -283,7 +295,7 @@ export default function ResidentProfilePage() {
             </div>
 
             <Tabs defaultValue="medications" className="space-y-4">
-              <TabsList>
+              <TabsList className="grid w-full grid-cols-4">
                 <TabsTrigger value="medications">
                   <Pill className="w-4 h-4 mr-2" />
                   Medications
@@ -292,26 +304,40 @@ export default function ResidentProfilePage() {
                   <FileText className="w-4 h-4 mr-2" />
                   MAR
                 </TabsTrigger>
-                <TabsTrigger value="adl">
-                  <Activity className="w-4 h-4 mr-2" />
-                  ADL
-                </TabsTrigger>
                 <TabsTrigger value="vitals">
                   <Heart className="w-4 h-4 mr-2" />
                   Vitals
                 </TabsTrigger>
+                <TabsTrigger value="adl">
+                  <Activity className="w-4 h-4 mr-2" />
+                  ADL
+                </TabsTrigger>
               </TabsList>
 
               <TabsContent value="medications">
-                <MedicationSections
-                  medications={resident.medications}
-                  canEdit={canEdit}
-                  onAddMedication={() => setShowAddMedicationModal(true)}
-                  onEditMedication={handleEditMedication}
-                  onDiscontinueMedication={handleDiscontinueMedication}
-                  onReactivateMedication={handleReactivateMedication}
-                  physicians={resident.physicians}
-                />
+                <Card>
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <CardTitle>Medications</CardTitle>
+                      {canEdit && (
+                        <Button onClick={() => setShowAddMedicationModal(true)}>
+                          <Plus className="w-4 h-4 mr-2" />
+                          Add Medication
+                        </Button>
+                      )}
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <MedicationSections
+                      medications={resident.medications}
+                      canEdit={canEdit}
+                      onEditMedication={handleEditMedication}
+                      onDiscontinueMedication={handleDiscontinueMedication}
+                      onReactivateMedication={handleReactivateMedication}
+                      physicians={resident.physicians}
+                    />
+                  </CardContent>
+                </Card>
               </TabsContent>
 
               <TabsContent value="mar">
@@ -329,90 +355,28 @@ export default function ResidentProfilePage() {
                   </CardHeader>
                   <CardContent>
                     {resident.marRecords.length === 0 ? (
-                      <p className="text-muted-foreground text-sm">No MAR records</p>
+                      <p className="text-center text-muted-foreground py-8">No MAR records found</p>
                     ) : (
-                      <div className="space-y-3">
-                        {resident.marRecords
-                          .sort((a, b) => Number(b.timestamp - a.timestamp))
-                          .map((record) => {
-                            const medication = resident.medications.find(m => m.id === record.medicationId);
-                            return (
-                              <div key={record.id.toString()} className="border rounded-lg p-4">
-                                <div className="flex items-start justify-between mb-2">
-                                  <div>
-                                    <p className="font-medium">{medication?.name || 'Unknown Medication'}</p>
-                                    <p className="text-sm text-muted-foreground">
-                                      {new Date(Number(record.timestamp) / 1000000).toLocaleDateString()}
-                                    </p>
-                                  </div>
-                                </div>
-                                <div className="grid grid-cols-2 gap-4 text-sm">
-                                  <div>
-                                    <p className="text-muted-foreground">Administration Time</p>
-                                    <p className="font-medium">{record.administrationTime}</p>
-                                  </div>
-                                  <div>
-                                    <p className="text-muted-foreground">Administered By</p>
-                                    <p className="font-medium">{record.administeredBy}</p>
-                                  </div>
-                                </div>
-                                {record.notes && (
-                                  <div className="mt-2">
-                                    <p className="text-sm text-muted-foreground">Notes</p>
-                                    <p className="text-sm">{record.notes}</p>
-                                  </div>
-                                )}
-                              </div>
-                            );
-                          })}
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              <TabsContent value="adl">
-                <Card>
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <CardTitle>Activities of Daily Living</CardTitle>
-                      {canEdit && (
-                        <Button onClick={() => setShowAddADLModal(true)}>
-                          <Plus className="w-4 h-4 mr-2" />
-                          Add ADL Record
-                        </Button>
-                      )}
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    {resident.adlRecords.length === 0 ? (
-                      <p className="text-muted-foreground text-sm">No ADL records</p>
-                    ) : (
-                      <div className="space-y-3">
-                        {resident.adlRecords
-                          .sort((a, b) => Number(b.timestamp - a.timestamp))
-                          .map((record) => (
+                      <div className="space-y-4">
+                        {resident.marRecords.map((record) => {
+                          const medication = resident.medications.find(m => m.id === record.medicationId);
+                          return (
                             <div key={record.id.toString()} className="border rounded-lg p-4">
-                              <div className="flex items-start justify-between mb-2">
+                              <div className="flex items-start justify-between">
                                 <div>
-                                  <p className="font-medium">{record.activity}</p>
-                                  <p className="text-sm text-muted-foreground">{record.date}</p>
+                                  <p className="font-medium">{medication?.name || 'Unknown Medication'}</p>
+                                  <p className="text-sm text-muted-foreground">
+                                    Administered: {record.administrationTime}
+                                  </p>
+                                  <p className="text-sm text-muted-foreground">By: {record.administeredBy}</p>
+                                  {record.notes && (
+                                    <p className="text-sm text-muted-foreground mt-2">Notes: {record.notes}</p>
+                                  )}
                                 </div>
                               </div>
-                              <div className="grid grid-cols-2 gap-4 text-sm">
-                                <div>
-                                  <p className="text-muted-foreground">Assistance Level</p>
-                                  <p className="font-medium">{record.assistanceLevel}</p>
-                                </div>
-                              </div>
-                              {record.staffNotes && (
-                                <div className="mt-2">
-                                  <p className="text-sm text-muted-foreground">Staff Notes</p>
-                                  <p className="text-sm">{record.staffNotes}</p>
-                                </div>
-                              )}
                             </div>
-                          ))}
+                          );
+                        })}
                       </div>
                     )}
                   </CardContent>
@@ -434,55 +398,94 @@ export default function ResidentProfilePage() {
                   </CardHeader>
                   <CardContent>
                     {resident.dailyVitals.length === 0 ? (
-                      <p className="text-muted-foreground text-sm">No vitals recorded</p>
+                      <p className="text-center text-muted-foreground py-8">No vitals recorded</p>
                     ) : (
                       <div className="space-y-4">
-                        {resident.dailyVitals
-                          .sort((a, b) => Number(b.timestamp - a.timestamp))
-                          .map((vitals) => (
-                            <div key={vitals.id.toString()} className="border rounded-lg p-4">
-                              <div className="flex items-start justify-between mb-3">
-                                <div>
-                                  <p className="font-medium">{vitals.measurementDate}</p>
-                                  <p className="text-sm text-muted-foreground">{vitals.measurementTime}</p>
-                                </div>
+                        {resident.dailyVitals.map((vitals) => (
+                          <div key={vitals.id.toString()} className="border rounded-lg p-4">
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                              <div>
+                                <p className="text-sm text-muted-foreground">Date & Time</p>
+                                <p className="font-medium">
+                                  {vitals.measurementDate} {vitals.measurementTime}
+                                </p>
                               </div>
-                              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
-                                <div>
-                                  <p className="text-muted-foreground">Temperature</p>
-                                  <p className="font-medium">{vitals.temperature}°{vitals.temperatureUnit}</p>
-                                </div>
-                                <div>
-                                  <p className="text-muted-foreground">Blood Pressure</p>
-                                  <p className="font-medium">{Number(vitals.bloodPressureSystolic)}/{Number(vitals.bloodPressureDiastolic)}</p>
-                                </div>
-                                <div>
-                                  <p className="text-muted-foreground">Pulse Rate</p>
-                                  <p className="font-medium">{Number(vitals.pulseRate)} bpm</p>
-                                </div>
-                                <div>
-                                  <p className="text-muted-foreground">Respiratory Rate</p>
-                                  <p className="font-medium">{Number(vitals.respiratoryRate)} /min</p>
-                                </div>
-                                <div>
-                                  <p className="text-muted-foreground">Oxygen Saturation</p>
-                                  <p className="font-medium">{Number(vitals.oxygenSaturation)}%</p>
-                                </div>
-                                {vitals.bloodGlucose && (
-                                  <div>
-                                    <p className="text-muted-foreground">Blood Glucose</p>
-                                    <p className="font-medium">{Number(vitals.bloodGlucose)} mg/dL</p>
-                                  </div>
-                                )}
+                              <div>
+                                <p className="text-sm text-muted-foreground">Temperature</p>
+                                <p className="font-medium">
+                                  {vitals.temperature}°{vitals.temperatureUnit}
+                                </p>
                               </div>
-                              {vitals.notes && (
-                                <div className="mt-3">
-                                  <p className="text-sm text-muted-foreground">Notes</p>
-                                  <p className="text-sm">{vitals.notes}</p>
+                              <div>
+                                <p className="text-sm text-muted-foreground">Blood Pressure</p>
+                                <p className="font-medium">
+                                  {vitals.bloodPressureSystolic.toString()}/{vitals.bloodPressureDiastolic.toString()}
+                                </p>
+                              </div>
+                              <div>
+                                <p className="text-sm text-muted-foreground">Pulse</p>
+                                <p className="font-medium">{vitals.pulseRate.toString()} bpm</p>
+                              </div>
+                              <div>
+                                <p className="text-sm text-muted-foreground">Respiratory Rate</p>
+                                <p className="font-medium">{vitals.respiratoryRate.toString()} /min</p>
+                              </div>
+                              <div>
+                                <p className="text-sm text-muted-foreground">O2 Saturation</p>
+                                <p className="font-medium">{vitals.oxygenSaturation.toString()}%</p>
+                              </div>
+                              {vitals.bloodGlucose && (
+                                <div>
+                                  <p className="text-sm text-muted-foreground">Blood Glucose</p>
+                                  <p className="font-medium">{vitals.bloodGlucose.toString()} mg/dL</p>
                                 </div>
                               )}
                             </div>
-                          ))}
+                            {vitals.notes && (
+                              <p className="text-sm text-muted-foreground mt-3">Notes: {vitals.notes}</p>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="adl">
+                <Card>
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <CardTitle>Activities of Daily Living</CardTitle>
+                      {canEdit && (
+                        <Button onClick={() => setShowAddADLModal(true)}>
+                          <Plus className="w-4 h-4 mr-2" />
+                          Add ADL Record
+                        </Button>
+                      )}
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    {resident.adlRecords.length === 0 ? (
+                      <p className="text-center text-muted-foreground py-8">No ADL records found</p>
+                    ) : (
+                      <div className="space-y-4">
+                        {resident.adlRecords.map((record) => (
+                          <div key={record.id.toString()} className="border rounded-lg p-4">
+                            <div className="flex items-start justify-between">
+                              <div>
+                                <p className="font-medium">{record.activity}</p>
+                                <p className="text-sm text-muted-foreground">Date: {record.date}</p>
+                                <p className="text-sm text-muted-foreground">
+                                  Assistance Level: {record.assistanceLevel}
+                                </p>
+                                {record.staffNotes && (
+                                  <p className="text-sm text-muted-foreground mt-2">Notes: {record.staffNotes}</p>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
                       </div>
                     )}
                   </CardContent>
@@ -492,54 +495,36 @@ export default function ResidentProfilePage() {
           </div>
         </div>
 
-        <ResidentProfilePrintReport resident={resident} showPhysicianSignature={showPhysicianSignature} />
+        {showEditModal && <EditResidentInformationModal resident={resident} onClose={() => setShowEditModal(false)} />}
+        {showAddMedicationModal && (
+          <AddMedicationModal
+            residentId={resident.id}
+            physicians={resident.physicians}
+            onClose={() => setShowAddMedicationModal(false)}
+          />
+        )}
+        {showEditMedicationModal && selectedMedication && (
+          <EditMedicationModal
+            residentId={resident.id}
+            medication={selectedMedication}
+            physicians={resident.physicians}
+            onClose={() => setShowEditMedicationModal(false)}
+          />
+        )}
+        {showAddMARModal && (
+          <AddMARRecordModal
+            residentId={resident.id}
+            medications={resident.medications}
+            onClose={() => setShowAddMARModal(false)}
+          />
+        )}
+        {showAddADLModal && <AddADLRecordModal residentId={resident.id} onClose={() => setShowAddADLModal(false)} />}
+        {showRecordVitalsModal && (
+          <RecordDailyVitalsModal residentId={resident.id} onClose={() => setShowRecordVitalsModal(false)} />
+        )}
       </div>
 
-      {showEditModal && (
-        <EditResidentInformationModal
-          resident={resident}
-          onClose={() => setShowEditModal(false)}
-        />
-      )}
-
-      {showAddMedicationModal && (
-        <AddMedicationModal
-          residentId={resident.id}
-          onClose={() => setShowAddMedicationModal(false)}
-        />
-      )}
-
-      {showEditMedicationModal && selectedMedication && (
-        <EditMedicationModal
-          residentId={resident.id}
-          medication={selectedMedication}
-          onClose={() => {
-            setShowEditMedicationModal(false);
-            setSelectedMedication(null);
-          }}
-        />
-      )}
-
-      {showAddMARModal && (
-        <AddMARRecordModal
-          residentId={resident.id}
-          onClose={() => setShowAddMARModal(false)}
-        />
-      )}
-
-      {showAddADLModal && (
-        <AddADLRecordModal
-          residentId={resident.id}
-          onClose={() => setShowAddADLModal(false)}
-        />
-      )}
-
-      {showRecordVitalsModal && (
-        <RecordDailyVitalsModal
-          residentId={resident.id}
-          onClose={() => setShowRecordVitalsModal(false)}
-        />
-      )}
+      <ResidentProfilePrintReport resident={resident} showPhysicianSignature={showPhysicianSignature} />
     </>
   );
 }

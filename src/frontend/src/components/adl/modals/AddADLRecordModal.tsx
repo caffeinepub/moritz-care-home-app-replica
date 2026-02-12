@@ -6,10 +6,9 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { useAddADLRecord } from '../../../hooks/useQueries';
-import type { ResidentId } from '../../../backend';
 
 interface AddADLRecordModalProps {
-  residentId: ResidentId;
+  residentId: bigint;
   onClose: () => void;
 }
 
@@ -34,36 +33,38 @@ export default function AddADLRecordModal({ residentId, onClose }: AddADLRecordM
       date,
       activity,
       assistanceLevel,
-      staffNotes,
+      staffNotes: staffNotes.trim(),
     });
+
     onClose();
   };
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="max-w-md dialog-solid-white">
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold">Add ADL Record</DialogTitle>
-          <DialogDescription>Record activities of daily living</DialogDescription>
+          <DialogTitle>Add ADL Record</DialogTitle>
+          <DialogDescription>
+            Record activities of daily living. Fields marked with * are required.
+          </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <Label htmlFor="date" className="text-sm font-medium">Date *</Label>
+            <Label htmlFor="date">Date *</Label>
             <Input
               id="date"
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
               required
-              className="mt-1"
             />
           </div>
 
           <div>
-            <Label htmlFor="activity" className="text-sm font-medium">Activity *</Label>
+            <Label htmlFor="activity">Activity *</Label>
             <Select value={activity} onValueChange={setActivity}>
-              <SelectTrigger id="activity" className="mt-1">
+              <SelectTrigger id="activity">
                 <SelectValue placeholder="Select activity" />
               </SelectTrigger>
               <SelectContent>
@@ -73,16 +74,15 @@ export default function AddADLRecordModal({ residentId, onClose }: AddADLRecordM
                 <SelectItem value="Toileting">Toileting</SelectItem>
                 <SelectItem value="Transferring">Transferring</SelectItem>
                 <SelectItem value="Walking">Walking</SelectItem>
-                <SelectItem value="Grooming">Grooming</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <div>
-            <Label htmlFor="assistanceLevel" className="text-sm font-medium">Assistance Level *</Label>
+            <Label htmlFor="assistanceLevel">Assistance Level *</Label>
             <Select value={assistanceLevel} onValueChange={setAssistanceLevel}>
-              <SelectTrigger id="assistanceLevel" className="mt-1">
-                <SelectValue placeholder="Select assistance level" />
+              <SelectTrigger id="assistanceLevel">
+                <SelectValue placeholder="Select level" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="Independent">Independent</SelectItem>
@@ -90,29 +90,28 @@ export default function AddADLRecordModal({ residentId, onClose }: AddADLRecordM
                 <SelectItem value="Minimal Assistance">Minimal Assistance</SelectItem>
                 <SelectItem value="Moderate Assistance">Moderate Assistance</SelectItem>
                 <SelectItem value="Maximum Assistance">Maximum Assistance</SelectItem>
-                <SelectItem value="Total Assistance">Total Assistance</SelectItem>
+                <SelectItem value="Total Dependence">Total Dependence</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <div>
-            <Label htmlFor="staffNotes" className="text-sm font-medium">Staff Notes</Label>
+            <Label htmlFor="staffNotes">Staff Notes</Label>
             <Textarea
               id="staffNotes"
               value={staffNotes}
               onChange={(e) => setStaffNotes(e.target.value)}
-              placeholder="Any additional observations..."
+              placeholder="Additional notes..."
               rows={3}
-              className="mt-1"
             />
           </div>
         </form>
 
-        <DialogFooter className="gap-2">
-          <Button type="button" variant="outline" onClick={onClose}>
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose} disabled={addADLRecord.isPending}>
             Cancel
           </Button>
-          <Button type="submit" onClick={handleSubmit} disabled={addADLRecord.isPending} className="bg-blue-600 hover:bg-blue-700">
+          <Button onClick={handleSubmit} disabled={addADLRecord.isPending}>
             {addADLRecord.isPending ? 'Adding...' : 'Add Record'}
           </Button>
         </DialogFooter>

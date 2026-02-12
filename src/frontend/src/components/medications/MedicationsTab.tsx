@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Plus, Edit, Ban } from 'lucide-react';
-import { useGetMedications, useDiscontinueMedication } from '../../hooks/useQueries';
+import { useGetMedications, useDiscontinueMedication, useGetResident } from '../../hooks/useQueries';
 import AddMedicationModal from './modals/AddMedicationModal';
 import EditMedicationModal from './modals/EditMedicationModal';
 import type { ResidentId, Medication } from '../../backend';
@@ -15,9 +15,12 @@ interface MedicationsTabProps {
 
 export default function MedicationsTab({ residentId, canWrite }: MedicationsTabProps) {
   const { data: medications = [] } = useGetMedications(residentId);
+  const { data: resident } = useGetResident(residentId);
   const discontinueMedication = useDiscontinueMedication();
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingMedication, setEditingMedication] = useState<Medication | null>(null);
+
+  const physicians = resident?.physicians || [];
 
   const handleDiscontinue = async (medicationId: bigint) => {
     if (confirm('Are you sure you want to discontinue this medication?')) {
@@ -91,11 +94,18 @@ export default function MedicationsTab({ residentId, canWrite }: MedicationsTabP
         )}
       </CardContent>
 
-      {showAddModal && <AddMedicationModal residentId={residentId} onClose={() => setShowAddModal(false)} />}
+      {showAddModal && (
+        <AddMedicationModal
+          residentId={residentId}
+          physicians={physicians}
+          onClose={() => setShowAddModal(false)}
+        />
+      )}
       {editingMedication && (
         <EditMedicationModal
           residentId={residentId}
           medication={editingMedication}
+          physicians={physicians}
           onClose={() => setEditingMedication(null)}
         />
       )}

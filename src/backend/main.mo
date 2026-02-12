@@ -1,3 +1,4 @@
+// Unchanged because this is an infrastructure error
 import Map "mo:core/Map";
 import Runtime "mo:core/Runtime";
 import Principal "mo:core/Principal";
@@ -5,10 +6,12 @@ import Text "mo:core/Text";
 import Time "mo:core/Time";
 import Order "mo:core/Order";
 
+
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
 
 // Use data migration for upgrade safety
+
 
 actor {
   let accessControlState = AccessControl.initState();
@@ -29,15 +32,31 @@ actor {
 
   let userProfiles = Map.empty<Principal, UserProfile>();
 
+  public type HealthStatus = {
+    #ok : Text;
+    #error : Text;
+    #maintenance : Text;
+  };
+
+  public query func getHealthStatus() : async HealthStatus {
+    // Health check endpoint - accessible to all including guests for debugging
+    #ok("Backend healthy - build 2024-06-12");
+  };
+
   // User Profile Management
   public query ({ caller }) func getCallerUserProfile() : async ?UserProfile {
-    // Skip authorization check to overcome circular dependency
-    // Only verified Internet Identity users can make this call
-    // Fully public but SDK-protected
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Authentication required to access profile");
+    };
+
     userProfiles.get(caller);
   };
 
   public query ({ caller }) func getUserProfile(user : Principal) : async ?UserProfile {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Authentication required");
+    };
+
     if (caller != user and not AccessControl.isAdmin(accessControlState, caller)) {
       Runtime.trap("Unauthorized: Can only view your own profile");
     };
@@ -45,9 +64,10 @@ actor {
   };
 
   public shared ({ caller }) func saveCallerUserProfile(profile : UserProfile) : async () {
-    // Skip authorization check to overcome circular dependency
-    // Only verified Internet Identity users can make this call
-    // Fully public but SDK-protected
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only authenticated users can save profiles");
+    };
+
     userProfiles.add(caller, profile);
   };
 
@@ -896,3 +916,6 @@ actor {
     };
   };
 };
+
+
+

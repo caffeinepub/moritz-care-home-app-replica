@@ -65,7 +65,13 @@ export default function MARTab({ residentId, canWrite }: MARTabProps) {
         )}
       </CardContent>
 
-      {showAddModal && <AddMARRecordModal residentId={residentId} onClose={() => setShowAddModal(false)} />}
+      {showAddModal && (
+        <AddMARRecordModal
+          residentId={residentId}
+          medications={medications}
+          onClose={() => setShowAddModal(false)}
+        />
+      )}
     </Card>
   );
 }

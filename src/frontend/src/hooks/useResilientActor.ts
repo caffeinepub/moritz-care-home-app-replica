@@ -1,6 +1,6 @@
 import { useInternetIdentity } from './useInternetIdentity';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { type backendInterface } from '../backend';
 import { createActorWithConfig } from '../config';
 import { getSecretParameter } from '../utils/urlParams';
@@ -10,15 +10,17 @@ const ACTOR_QUERY_KEY = 'resilient-actor';
 export function useResilientActor() {
   const { identity } = useInternetIdentity();
   const queryClient = useQueryClient();
+  const [attemptNonce, setAttemptNonce] = useState(0);
   
   const actorQuery = useQuery<backendInterface>({
-    queryKey: [ACTOR_QUERY_KEY, identity?.getPrincipal().toString()],
+    queryKey: [ACTOR_QUERY_KEY, identity?.getPrincipal().toString(), attemptNonce],
     queryFn: async () => {
       const isAuthenticated = !!identity;
 
       console.log('[Actor Boot] Starting actor initialization', {
         authenticated: isAuthenticated,
-        principal: identity?.getPrincipal().toString() || 'anonymous'
+        principal: identity?.getPrincipal().toString() || 'anonymous',
+        attempt: attemptNonce,
       });
 
       if (!isAuthenticated) {
@@ -56,20 +58,17 @@ export function useResilientActor() {
       return actor;
     },
     staleTime: Infinity,
+    gcTime: Infinity, // Keep actor in cache
     enabled: true,
-    retry: 1, // Only retry once to avoid infinite loops
-    retryDelay: 1000,
+    retry: 2, // Retry twice on failure
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 5000), // Exponential backoff
   });
 
   // When the actor changes, invalidate dependent queries
   useEffect(() => {
     if (actorQuery.data) {
+      console.log('[Actor Boot] Actor available, invalidating dependent queries');
       queryClient.invalidateQueries({
-        predicate: (query) => {
-          return !query.queryKey.includes(ACTOR_QUERY_KEY);
-        }
-      });
-      queryClient.refetchQueries({
         predicate: (query) => {
           return !query.queryKey.includes(ACTOR_QUERY_KEY);
         }
@@ -77,11 +76,19 @@ export function useResilientActor() {
     }
   }, [actorQuery.data, queryClient]);
 
+  // Force a fresh deployment attempt by incrementing the nonce
+  const forceRetry = () => {
+    console.log('[Actor Boot] Force retry triggered, incrementing attempt nonce');
+    setAttemptNonce(prev => prev + 1);
+  };
+
   return {
     actor: actorQuery.data || null,
     isFetching: actorQuery.isFetching,
     isError: actorQuery.isError,
     error: actorQuery.error,
     refetch: actorQuery.refetch,
+    forceRetry,
+    attemptNumber: attemptNonce,
   };
 }

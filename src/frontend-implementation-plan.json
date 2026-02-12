@@ -1,42 +1,38 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Resident Dashboard: timezone-safe age display from DOB",
+  "title": "Promote Draft Version 27 to Production as “Moritz Care Home” (Frontend docs only)",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Show each resident’s computed age on Resident Dashboard cards alongside the existing DOB field, with safe fallbacks.",
+      "summary": "Document the release-only promotion of Draft Version 27 to Production with release name “Moritz Care Home”, emphasizing no code changes and state preservation.",
       "acceptanceCriteria": [
-        "On the Residents Dashboard (frontend/src/pages/ResidentDashboardPage.tsx), each resident card shows an Age value derived from resident.dob.",
-        "The age display is a whole number of years (e.g., \"Age: 78\").",
-        "If resident.dob is missing/empty or not parseable, the UI does not crash and shows a sensible fallback (e.g., \"Age: —\")."
+        "Production environment points to Draft Version 27 build artifacts.",
+        "Production release name is “Moritz Care Home”.",
+        "No frontend or backend code changes are introduced as part of the promotion.",
+        "Existing backend canister state/data is preserved (no resets/wipes)."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/ResidentDashboardPage.tsx",
-          "operation": "modify",
-          "description": "Add an \"Age\" row to each resident card near the existing DOB row; compute the value from resident.dob using the shared timezone-safe date-only utility and render a fallback (e.g., em dash) when missing/unparseable."
+          "path": "frontend/docs/release/promote-v27-to-production.md",
+          "operation": "create",
+          "description": "Create the initial Draft Version 27 → Production promotion document shell that will record the release name exactly as “Moritz Care Home” and explicitly note the release-only nature (reuse existing build artifacts; no code changes; preserve canister state/data)."
         }
       ]
     },
     {
       "id": "REQ-2",
-      "summary": "Implement timezone-safe, date-only age calculation based on DOB YYYY-MM-DD components (no timezone/DST day shifting).",
+      "summary": "Create a full Markdown release promotion document for promoting Draft Version 27 to Production, mirroring promote-v22-to-production.md structure and updating details to “Moritz Care Home”.",
       "acceptanceCriteria": [
-        "The age calculation uses the DOB string (expected format from <input type=\"date\">, e.g., YYYY-MM-DD) and compares against today’s date using date-only logic (year/month/day), not a time-based conversion that can change the DOB day.",
-        "For a DOB close to a day boundary (e.g., \"2000-01-01\"), the computed age is the same regardless of the user’s local timezone.",
-        "Age increments on the resident’s birthday (based on month/day comparison), not at an arbitrary time of day."
+        "A new Markdown file exists under frontend/docs/release/ documenting promotion of Draft Version 27 to Production (modeled after promote-v22-to-production.md).",
+        "The document explicitly states Version 27 and the release name “Moritz Care Home”.",
+        "The document includes: pre-promotion checklist, promotion process steps, post-promotion verification checklist, rollback plan, and post-deployment notes placeholders."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/utils/dateOnly.ts",
-          "operation": "create",
-          "description": "Create a small date-only utility that parses a DOB in YYYY-MM-DD without constructing a timezone-sensitive Date from the DOB; expose a helper like calculateAgeYears(dob: string, today?: {year:number;month:number;day:number}) returning a whole-number age or null when invalid."
-        },
-        {
-          "path": "frontend/src/pages/ResidentDashboardPage.tsx",
+          "path": "frontend/docs/release/promote-v27-to-production.md",
           "operation": "modify",
-          "description": "Use the new date-only age helper for Age rendering, ensuring month/day birthday comparison logic drives age increment and that invalid DOB strings do not throw."
+          "description": "Populate the document to mirror the structure and headings of frontend/docs/release/promote-v22-to-production.md, updating all references from Version 22 to Version 27 and ensuring the release name is exactly “Moritz Care Home”. Include: Overview, Release Details, Pre-Promotion Checklist, Promotion Process (verify draft, execute promotion, post-promotion verification), Known Issues & Resolutions (placeholders if none), Rollback Plan, Technical Notes, Acceptance Criteria checklist, Sign-off, and Post-Deployment Notes placeholders."
         }
       ]
     }

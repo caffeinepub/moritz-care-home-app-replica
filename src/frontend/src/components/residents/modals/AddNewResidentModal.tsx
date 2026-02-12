@@ -167,7 +167,7 @@ export default function AddNewResidentModal({ onClose }: AddNewResidentModalProp
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh]">
+      <DialogContent className="max-w-2xl max-h-[90vh] dialog-solid-white">
         <DialogHeader>
           <DialogTitle>Add New Resident</DialogTitle>
           <DialogDescription>
@@ -499,6 +499,7 @@ export default function AddNewResidentModal({ onClose }: AddNewResidentModalProp
                             <SelectItem value="IV">IV</SelectItem>
                             <SelectItem value="IM">IM</SelectItem>
                             <SelectItem value="Topical">Topical</SelectItem>
+                            <SelectItem value="Subcutaneous">Subcutaneous</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
@@ -527,14 +528,16 @@ export default function AddNewResidentModal({ onClose }: AddNewResidentModalProp
                               setMedications(updated);
                             }}
                           />
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleRemoveAdministrationTime(medIndex, timeIndex)}
-                          >
-                            <X className="w-4 h-4" />
-                          </Button>
+                          {medication.administrationTimes.length > 1 && (
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleRemoveAdministrationTime(medIndex, timeIndex)}
+                            >
+                              <X className="w-4 h-4" />
+                            </Button>
+                          )}
                         </div>
                       ))}
                     </div>
@@ -547,7 +550,7 @@ export default function AddNewResidentModal({ onClose }: AddNewResidentModalProp
                           updated[medIndex].notes = e.target.value;
                           setMedications(updated);
                         }}
-                        placeholder="Additional notes"
+                        placeholder="Additional notes..."
                         rows={2}
                       />
                     </div>

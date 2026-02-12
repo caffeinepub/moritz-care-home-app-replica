@@ -6,17 +6,17 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Plus, X } from 'lucide-react';
-import { useAddMedication, useGetResident } from '../../../hooks/useQueries';
-import type { ResidentId, Medication } from '../../../backend';
+import { useAddMedication } from '../../../hooks/useQueries';
+import { Medication, Physician } from '../../../backend';
 
 interface AddMedicationModalProps {
-  residentId: ResidentId;
+  residentId: bigint;
+  physicians: Physician[];
   onClose: () => void;
 }
 
-export default function AddMedicationModal({ residentId, onClose }: AddMedicationModalProps) {
+export default function AddMedicationModal({ residentId, physicians, onClose }: AddMedicationModalProps) {
   const addMedication = useAddMedication();
-  const { data: resident } = useGetResident(residentId);
 
   const [name, setName] = useState('');
   const [dosage, setDosage] = useState('');
@@ -25,8 +25,6 @@ export default function AddMedicationModal({ residentId, onClose }: AddMedicatio
   const [administrationTimes, setAdministrationTimes] = useState<string[]>(['']);
   const [prescribingPhysicianId, setPrescribingPhysicianId] = useState<string>('');
   const [notes, setNotes] = useState('');
-
-  const physicians = resident?.physicians || [];
 
   const handleAddTime = () => {
     setAdministrationTimes([...administrationTimes, '']);
@@ -39,8 +37,8 @@ export default function AddMedicationModal({ residentId, onClose }: AddMedicatio
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!name.trim()) {
-      alert('Medication name is required');
+    if (!name.trim() || !dosage.trim() || !dosageQuantity.trim()) {
+      alert('Please fill in all required fields');
       return;
     }
 
@@ -62,105 +60,56 @@ export default function AddMedicationModal({ residentId, onClose }: AddMedicatio
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-xl dialog-solid-white">
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold">Add Medication</DialogTitle>
-          <DialogDescription>Add a new medication for this resident.</DialogDescription>
+          <DialogTitle>Add Medication</DialogTitle>
+          <DialogDescription>
+            Enter the medication details below. Fields marked with * are required.
+          </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <Label htmlFor="name" className="text-sm font-medium">Medication Name *</Label>
-            <Input
-              id="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="e.g., Aspirin"
-              required
-              className="mt-1"
-            />
-          </div>
-
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="dosage" className="text-sm font-medium">Dosage</Label>
-              <Input
-                id="dosage"
-                value={dosage}
-                onChange={(e) => setDosage(e.target.value)}
-                placeholder="e.g., 100mg"
-                className="mt-1"
-              />
+              <Label htmlFor="name">Medication Name *</Label>
+              <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Aspirin" required />
             </div>
             <div>
-              <Label htmlFor="dosageQuantity" className="text-sm font-medium">Dosage Quantity</Label>
-              <Input
-                id="dosageQuantity"
-                value={dosageQuantity}
-                onChange={(e) => setDosageQuantity(e.target.value)}
-                placeholder="e.g., 2 tablets, 5ml, 1 patch"
-                className="mt-1"
-              />
+              <Label htmlFor="dosage">Dosage *</Label>
+              <Input id="dosage" value={dosage} onChange={(e) => setDosage(e.target.value)} placeholder="100mg" required />
+            </div>
+            <div>
+              <Label htmlFor="dosageQuantity">Dosage Quantity *</Label>
+              <Input id="dosageQuantity" value={dosageQuantity} onChange={(e) => setDosageQuantity(e.target.value)} placeholder="1 tablet" required />
+            </div>
+            <div>
+              <Label htmlFor="administrationRoute">Administration Route *</Label>
+              <Select value={administrationRoute} onValueChange={setAdministrationRoute}>
+                <SelectTrigger id="administrationRoute">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Oral">Oral</SelectItem>
+                  <SelectItem value="IV">IV</SelectItem>
+                  <SelectItem value="IM">IM</SelectItem>
+                  <SelectItem value="Topical">Topical</SelectItem>
+                  <SelectItem value="Subcutaneous">Subcutaneous</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
           <div>
-            <Label htmlFor="administrationRoute" className="text-sm font-medium">Administration Route</Label>
-            <Select value={administrationRoute} onValueChange={setAdministrationRoute}>
-              <SelectTrigger id="administrationRoute" className="mt-1">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Oral">Oral</SelectItem>
-                <SelectItem value="Injection">Injection</SelectItem>
-                <SelectItem value="Topical">Topical</SelectItem>
-                <SelectItem value="Inhalation">Inhalation</SelectItem>
-                <SelectItem value="Sublingual">Sublingual</SelectItem>
-                <SelectItem value="Rectal">Rectal</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <Label className="text-sm font-medium">Administration Times</Label>
-              <Button type="button" variant="outline" size="sm" onClick={handleAddTime}>
-                <Plus className="w-4 h-4 mr-1" />
-                Add Time
-              </Button>
-            </div>
-            <div className="space-y-2">
-              {administrationTimes.map((time, index) => (
-                <div key={index} className="flex gap-2">
-                  <Input
-                    value={time}
-                    onChange={(e) => {
-                      const updated = [...administrationTimes];
-                      updated[index] = e.target.value;
-                      setAdministrationTimes(updated);
-                    }}
-                    placeholder="e.g., 8:00 AM"
-                  />
-                  {administrationTimes.length > 1 && (
-                    <Button type="button" variant="ghost" size="sm" onClick={() => handleRemoveTime(index)}>
-                      <X className="w-4 h-4" />
-                    </Button>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <Label htmlFor="prescribingPhysician" className="text-sm font-medium">Prescribing Physician</Label>
+            <Label htmlFor="prescribingPhysician">Prescribing Physician</Label>
             <Select value={prescribingPhysicianId} onValueChange={setPrescribingPhysicianId}>
-              <SelectTrigger id="prescribingPhysician" className="mt-1">
-                <SelectValue placeholder="Select a physician (optional)" />
+              <SelectTrigger id="prescribingPhysician">
+                <SelectValue placeholder="Select physician (optional)" />
               </SelectTrigger>
               <SelectContent>
-                {physicians.map(physician => (
+                <SelectItem value="">None</SelectItem>
+                {physicians.map((physician) => (
                   <SelectItem key={physician.id.toString()} value={physician.id.toString()}>
-                    {physician.name}
+                    {physician.name} - {physician.specialty}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -168,23 +117,51 @@ export default function AddMedicationModal({ residentId, onClose }: AddMedicatio
           </div>
 
           <div>
-            <Label htmlFor="notes" className="text-sm font-medium">Notes</Label>
+            <div className="flex items-center justify-between mb-2">
+              <Label>Administration Times *</Label>
+              <Button type="button" variant="ghost" size="sm" onClick={handleAddTime}>
+                <Plus className="w-3 h-3 mr-1" />
+                Add Time
+              </Button>
+            </div>
+            {administrationTimes.map((time, index) => (
+              <div key={index} className="flex gap-2 mb-2">
+                <Input
+                  type="time"
+                  value={time}
+                  onChange={(e) => {
+                    const updated = [...administrationTimes];
+                    updated[index] = e.target.value;
+                    setAdministrationTimes(updated);
+                  }}
+                  required
+                />
+                {administrationTimes.length > 1 && (
+                  <Button type="button" variant="ghost" size="sm" onClick={() => handleRemoveTime(index)}>
+                    <X className="w-4 h-4" />
+                  </Button>
+                )}
+              </div>
+            ))}
+          </div>
+
+          <div>
+            <Label htmlFor="notes">Notes</Label>
             <Textarea
               id="notes"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              placeholder="Additional instructions or notes..."
+              placeholder="Additional notes..."
               rows={3}
-              className="mt-1"
             />
           </div>
         </form>
 
-        <DialogFooter className="gap-2">
-          <Button type="button" variant="outline" onClick={onClose}>
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose} disabled={addMedication.isPending}>
             Cancel
           </Button>
-          <Button type="submit" onClick={handleSubmit} disabled={addMedication.isPending} className="bg-blue-600 hover:bg-blue-700">
+          <Button onClick={handleSubmit} disabled={addMedication.isPending}>
             {addMedication.isPending ? 'Adding...' : 'Add Medication'}
           </Button>
         </DialogFooter>

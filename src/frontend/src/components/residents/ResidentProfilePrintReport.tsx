@@ -1,5 +1,6 @@
 import { Resident, ResidentStatus } from '../../backend';
 import CodeStatusBadge from './CodeStatusBadge';
+import Logo from '../branding/Logo';
 
 interface ResidentProfilePrintReportProps {
   resident: Resident;
@@ -14,7 +15,13 @@ export default function ResidentProfilePrintReport({ resident, showPhysicianSign
     <div className="print-only">
       <div className="print-page">
         <div className="print-header">
-          <h1 className="text-2xl font-bold">Resident Profile Report</h1>
+          <div className="flex items-center gap-3 mb-2">
+            <Logo variant="header" />
+            <div>
+              <h1 className="text-2xl font-bold">Resident Profile Report</h1>
+              <p className="text-sm text-gray-600">Moritz Care Home</p>
+            </div>
+          </div>
           <p className="text-sm text-gray-600">Generated: {new Date().toLocaleDateString()}</p>
         </div>
 
@@ -205,119 +212,19 @@ export default function ResidentProfilePrintReport({ resident, showPhysicianSign
             <div className="print-signature-fields">
               <div className="print-signature-field">
                 <p className="text-sm text-gray-600 mb-1">Physician Name:</p>
-                <div className="print-signature-line"></div>
+                <div className="print-signature-line" data-signature-field="name"></div>
               </div>
               <div className="print-signature-field">
                 <p className="text-sm text-gray-600 mb-1">Physician Signature:</p>
-                <div className="print-signature-line"></div>
+                <div className="print-signature-line" data-signature-field="signature"></div>
               </div>
               <div className="print-signature-field">
                 <p className="text-sm text-gray-600 mb-1">Date:</p>
-                <div className="print-signature-line"></div>
+                <div className="print-signature-line" data-signature-field="date"></div>
               </div>
             </div>
           </div>
         )}
-
-        <div className="print-section">
-          <h2 className="print-section-title">Recent MAR Records</h2>
-          {resident.marRecords.length === 0 ? (
-            <p className="text-gray-600 text-sm">No MAR records</p>
-          ) : (
-            <div className="space-y-2">
-              {resident.marRecords
-                .sort((a, b) => Number(b.timestamp - a.timestamp))
-                .slice(0, 10)
-                .map((record) => {
-                  const medication = resident.medications.find(m => m.id === record.medicationId);
-                  return (
-                    <div key={record.id.toString()} className="border-b pb-2 text-sm">
-                      <div className="flex justify-between">
-                        <p className="font-medium">{medication?.name || 'Unknown'}</p>
-                        <p className="text-gray-600">{new Date(Number(record.timestamp) / 1000000).toLocaleDateString()}</p>
-                      </div>
-                      <p className="text-gray-600">Time: {record.administrationTime}</p>
-                      <p className="text-gray-600">By: {record.administeredBy}</p>
-                      {record.notes && <p className="text-gray-600">Notes: {record.notes}</p>}
-                    </div>
-                  );
-                })}
-            </div>
-          )}
-        </div>
-
-        <div className="print-section">
-          <h2 className="print-section-title">Recent ADL Records</h2>
-          {resident.adlRecords.length === 0 ? (
-            <p className="text-gray-600 text-sm">No ADL records</p>
-          ) : (
-            <div className="space-y-2">
-              {resident.adlRecords
-                .sort((a, b) => Number(b.timestamp - a.timestamp))
-                .slice(0, 10)
-                .map((record) => (
-                  <div key={record.id.toString()} className="border-b pb-2 text-sm">
-                    <div className="flex justify-between">
-                      <p className="font-medium">{record.activity}</p>
-                      <p className="text-gray-600">{record.date}</p>
-                    </div>
-                    <p className="text-gray-600">Assistance: {record.assistanceLevel}</p>
-                    {record.staffNotes && <p className="text-gray-600">Notes: {record.staffNotes}</p>}
-                  </div>
-                ))}
-            </div>
-          )}
-        </div>
-
-        <div className="print-section">
-          <h2 className="print-section-title">Recent Vitals</h2>
-          {resident.dailyVitals.length === 0 ? (
-            <p className="text-gray-600 text-sm">No vitals recorded</p>
-          ) : (
-            <div className="space-y-3">
-              {resident.dailyVitals
-                .sort((a, b) => Number(b.timestamp - a.timestamp))
-                .slice(0, 5)
-                .map((vitals) => (
-                  <div key={vitals.id.toString()} className="border-b pb-2">
-                    <div className="flex justify-between mb-2">
-                      <p className="font-medium">{vitals.measurementDate}</p>
-                      <p className="text-sm text-gray-600">{vitals.measurementTime}</p>
-                    </div>
-                    <div className="grid grid-cols-3 gap-2 text-sm">
-                      <div>
-                        <p className="text-gray-600">Temp</p>
-                        <p>{vitals.temperature}°{vitals.temperatureUnit}</p>
-                      </div>
-                      <div>
-                        <p className="text-gray-600">BP</p>
-                        <p>{Number(vitals.bloodPressureSystolic)}/{Number(vitals.bloodPressureDiastolic)}</p>
-                      </div>
-                      <div>
-                        <p className="text-gray-600">Pulse</p>
-                        <p>{Number(vitals.pulseRate)} bpm</p>
-                      </div>
-                      <div>
-                        <p className="text-gray-600">Resp</p>
-                        <p>{Number(vitals.respiratoryRate)} /min</p>
-                      </div>
-                      <div>
-                        <p className="text-gray-600">O2 Sat</p>
-                        <p>{Number(vitals.oxygenSaturation)}%</p>
-                      </div>
-                      {vitals.bloodGlucose && (
-                        <div>
-                          <p className="text-gray-600">Glucose</p>
-                          <p>{Number(vitals.bloodGlucose)} mg/dL</p>
-                        </div>
-                      )}
-                    </div>
-                    {vitals.notes && <p className="text-sm text-gray-600 mt-2">{vitals.notes}</p>}
-                  </div>
-                ))}
-            </div>
-          )}
-        </div>
 
         <div className="print-footer">
           <p className="text-sm text-gray-600">End of Report</p>

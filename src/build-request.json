@@ -1,66 +1,59 @@
 {
   "kind": "build_request",
-  "title": "Show resident age on Resident Dashboard (timezone-safe DOB computation)",
+  "title": "Promote Draft Version 27 to Production as “Moritz Care Home”",
   "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Display each resident’s age on the Resident Dashboard cards, computed from the resident’s date of birth (resident.dob) and shown alongside the existing DOB field.",
-      "target": "frontend",
+      "text": "Promote (release-only) Draft Version 27 to the Production environment with the production release name exactly set to “Moritz Care Home”, reusing existing build artifacts and preserving all backend canister state/data (no code changes as part of this promotion).",
+      "target": "unknown",
       "source": {
         "messageIds": [
-          "recent-messages/user-1"
+          "msg-1"
         ],
         "quotes": [
-          "show resident's age in the residents dashboard (computed based on date of birth and no day/time shifting)"
+          "push draft version 27 to production",
+          "1. yes\n2. Moritz Care Home"
         ]
       },
       "acceptanceCriteria": [
-        "On the Residents Dashboard (frontend/src/pages/ResidentDashboardPage.tsx), each resident card shows an Age value derived from resident.dob.",
-        "The age display is a whole number of years (e.g., \"Age: 78\").",
-        "If resident.dob is missing/empty or not parseable, the UI does not crash and shows a sensible fallback (e.g., \"Age: —\")."
+        "Production environment points to Draft Version 27 build artifacts.",
+        "Production release name is “Moritz Care Home”.",
+        "No frontend or backend code changes are introduced as part of the promotion.",
+        "Existing backend canister state/data is preserved (no resets/wipes)."
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Implement a timezone-safe age calculation that does not shift the DOB by day due to local timezone/DST; compute using the DOB string’s year-month-day components rather than constructing a Date from an ISO datetime that can shift days.",
+      "text": "Add a new release promotion document for this production promotion by creating a Markdown file under frontend/docs/release/ that mirrors the structure of frontend/docs/release/promote-v22-to-production.md, but updated for Draft Version 27 and the release name “Moritz Care Home”, including pre-promotion checklist, promotion steps, post-promotion verification checklist, rollback plan, and a post-deployment notes section.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "recent-messages/user-1"
+          "msg-1"
         ],
         "quotes": [
-          "computed based on date of birth and no day/time shifting"
+          "push draft version 27 to production",
+          "2. Moritz Care Home"
         ]
       },
       "acceptanceCriteria": [
-        "The age calculation uses the DOB string (expected format from <input type=\"date\">, e.g., YYYY-MM-DD) and compares against today’s date using date-only logic (year/month/day), not a time-based conversion that can change the DOB day.",
-        "For a DOB close to a day boundary (e.g., \"2000-01-01\"), the computed age is the same regardless of the user’s local timezone.",
-        "Age increments on the resident’s birthday (based on month/day comparison), not at an arbitrary time of day."
+        "A new Markdown file exists under frontend/docs/release/ documenting promotion of Draft Version 27 to Production (modeled after promote-v22-to-production.md).",
+        "The document explicitly states Version 27 and the release name “Moritz Care Home”.",
+        "The document includes: pre-promotion checklist, promotion process steps, post-promotion verification checklist, rollback plan, and post-deployment notes placeholders."
       ]
     }
   ],
   "constraints": [
-    "Do not edit files under frontend/src/components/ui or any paths listed in frontend.immutablePaths.",
-    "Keep backend as a single-actor Motoko canister; do not introduce additional services."
+    "Do not modify frontend or backend application code as part of this release-only production promotion.",
+    "Preserve all existing backend canister state/data during promotion."
   ],
   "nonGoals": [
-    "Do not change how DOB is stored or validated in the backend Resident model (currently a Text field).",
-    "Do not add age to other pages (e.g., Resident Profile, print reports) unless explicitly requested.",
-    "Do not add new filtering/sorting by age."
+    "Implementing new application features or UI changes.",
+    "Changing branding assets, logos, or favicon files.",
+    "Backend schema/type migrations."
   ],
   "imageRequirements": {
     "required": [],
     "edits": []
-  },
-  "userProfileUpdate": {
-    "goalsToAdd": [],
-    "goalsToRemove": [],
-    "preferencesToAdd": [],
-    "preferencesToRemove": [],
-    "miscToAdd": [],
-    "miscToRemove": [],
-    "fieldsToSet": {},
-    "fieldsToDelete": []
   }
 }

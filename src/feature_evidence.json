@@ -2,10 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-display-each-resident-s-age-on-the-resident-dashboard-cards-computed-from-the-resident-s-date-of-birth-resident-dob-and-shown-alongside-the-existing-dob-field",
-      "featureTitle": "Display each resident’s age on the Resident Dashboard cards, computed from the resident’s date of birth (resident.dob) and shown alongside the existing DOB field.",
+      "featureId": "feature-promote-release-only-draft-version-27-to-the-production-environment-with-the-production-release-name-exactly-set-to-moritz-care-home-reusing-existing-build-artifacts-and-preserving-all-backend-canister-state-data-no-code-changes-as-part-of-this-promotion",
+      "featureTitle": "Promote (release-only) Draft Version 27 to the Production environment with the production release name exactly set to “Moritz Care Home”, reusing existing build artifacts and preserving all backend canister state/data (no code changes as part of this promotion).",
       "files": [
-        "frontend/src/pages/ResidentDashboardPage.tsx"
+        "frontend/docs/release/promote-v27-to-production.md"
       ],
       "components": [
         "authorization@4.0.0",
@@ -21,11 +21,10 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-implement-a-timezone-safe-age-calculation-that-does-not-shift-the-dob-by-day-due-to-local-timezone-dst-compute-using-the-dob-string-s-year-month-day-components-rather-than-constructing-a-date-from-an-iso-datetime-that-can-shift-days",
-      "featureTitle": "Implement a timezone-safe age calculation that does not shift the DOB by day due to local timezone/DST; compute using the DOB string’s year-month-day components rather than constructing a Date from an ISO datetime that can shift days.",
+      "featureId": "feature-add-a-new-release-promotion-document-for-this-production-promotion-by-creating-a-markdown-file-under-frontend-docs-release-that-mirrors-the-structure-of-frontend-docs-release-promote-v22-to-production-md-but-updated-for-draft-version-27-and-the-release-name-moritz-care-home-including-pre-promotion-checklist-promotion-steps-post-promotion-verification-checklist-rollback-plan-and-a-post-deployment-notes-section",
+      "featureTitle": "Add a new release promotion document for this production promotion by creating a Markdown file under frontend/docs/release/ that mirrors the structure of frontend/docs/release/promote-v22-to-production.md, but updated for Draft Version 27 and the release name “Moritz Care Home”, including pre-promotion checklist, promotion steps, post-promotion verification checklist, rollback plan, and a post-deployment notes section.",
       "files": [
-        "frontend/src/pages/ResidentDashboardPage.tsx",
-        "frontend/src/utils/dateOnly.ts"
+        "frontend/docs/release/promote-v27-to-production.md"
       ],
       "components": [
         "authorization@4.0.0",

@@ -54,6 +54,16 @@ export interface MARRecord {
     administrationTime: string;
     administeredBy: string;
 }
+export type HealthStatus = {
+    __kind__: "ok";
+    ok: string;
+} | {
+    __kind__: "error";
+    error: string;
+} | {
+    __kind__: "maintenance";
+    maintenance: string;
+};
 export interface ADLRecord {
     id: bigint;
     staffNotes: string;
@@ -151,6 +161,7 @@ export interface backendInterface {
     getCodeStatus(residentId: ResidentId): Promise<CodeStatus | null>;
     getCodeStatusHistory(residentId: ResidentId): Promise<Array<CodeStatusChangeRecord>>;
     getDailyVitals(residentId: ResidentId): Promise<Array<DailyVitals>>;
+    getHealthStatus(): Promise<HealthStatus>;
     getMARRecords(residentId: ResidentId): Promise<Array<MARRecord>>;
     getMedications(residentId: ResidentId): Promise<Array<Medication>>;
     getResident(residentId: ResidentId): Promise<Resident | null>;

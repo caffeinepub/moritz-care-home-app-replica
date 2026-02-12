@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Plus, X } from 'lucide-react';
 import { useUpdateResident } from '../../../hooks/useQueries';
-import { Resident, Physician, PharmacyInfo, ResidentStatus, CodeStatus } from '../../../backend';
+import { Resident, Physician, PharmacyInfo, CodeStatus } from '../../../backend';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface EditResidentInformationModalProps {
@@ -24,7 +24,6 @@ export default function EditResidentInformationModal({ resident, onClose }: Edit
   const [roomNumber, setRoomNumber] = useState(resident.roomNumber);
   const [roomType, setRoomType] = useState(resident.roomType);
   const [bed, setBed] = useState(resident.bed);
-  const [status, setStatus] = useState<ResidentStatus>(resident.status);
   const [codeStatus, setCodeStatus] = useState<CodeStatus>(resident.codeStatus);
   const [medicaidNumber, setMedicaidNumber] = useState(resident.medicaidNumber || '');
   const [medicareNumber, setMedicareNumber] = useState(resident.medicareNumber || '');
@@ -83,7 +82,6 @@ export default function EditResidentInformationModal({ resident, onClose }: Edit
       roomNumber,
       roomType,
       bed,
-      status,
       codeStatus,
       medicaidNumber: medicaidNumber.trim() || undefined,
       medicareNumber: medicareNumber.trim() || undefined,
@@ -97,7 +95,7 @@ export default function EditResidentInformationModal({ resident, onClose }: Edit
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh]">
+      <DialogContent className="max-w-2xl max-h-[90vh] dialog-solid-white">
         <DialogHeader>
           <DialogTitle>Edit Resident Information</DialogTitle>
           <DialogDescription>
@@ -151,18 +149,6 @@ export default function EditResidentInformationModal({ resident, onClose }: Edit
                     <SelectContent>
                       <SelectItem value="Bed A">Bed A</SelectItem>
                       <SelectItem value="Bed B">Bed B</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label htmlFor="status">Status *</Label>
-                  <Select value={status} onValueChange={(value) => setStatus(value as ResidentStatus)}>
-                    <SelectTrigger id="status">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value={ResidentStatus.active}>Active</SelectItem>
-                      <SelectItem value={ResidentStatus.discharged}>Discharged</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

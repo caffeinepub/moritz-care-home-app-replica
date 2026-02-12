@@ -133,6 +133,11 @@ export const CodeStatusChangeRecord = IDL.Record({
   'newStatus' : CodeStatus,
   'previousStatus' : CodeStatus,
 });
+export const HealthStatus = IDL.Variant({
+  'ok' : IDL.Text,
+  'error' : IDL.Text,
+  'maintenance' : IDL.Text,
+});
 
 export const idlService = IDL.Service({
   '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
@@ -191,6 +196,7 @@ export const idlService = IDL.Service({
       ['query'],
     ),
   'getDailyVitals' : IDL.Func([ResidentId], [IDL.Vec(DailyVitals)], ['query']),
+  'getHealthStatus' : IDL.Func([], [HealthStatus], ['query']),
   'getMARRecords' : IDL.Func([ResidentId], [IDL.Vec(MARRecord)], ['query']),
   'getMedications' : IDL.Func([ResidentId], [IDL.Vec(Medication)], ['query']),
   'getResident' : IDL.Func([ResidentId], [IDL.Opt(Resident)], ['query']),
@@ -365,6 +371,11 @@ export const idlFactory = ({ IDL }) => {
     'newStatus' : CodeStatus,
     'previousStatus' : CodeStatus,
   });
+  const HealthStatus = IDL.Variant({
+    'ok' : IDL.Text,
+    'error' : IDL.Text,
+    'maintenance' : IDL.Text,
+  });
   
   return IDL.Service({
     '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
@@ -431,6 +442,7 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Vec(DailyVitals)],
         ['query'],
       ),
+    'getHealthStatus' : IDL.Func([], [HealthStatus], ['query']),
     'getMARRecords' : IDL.Func([ResidentId], [IDL.Vec(MARRecord)], ['query']),
     'getMedications' : IDL.Func([ResidentId], [IDL.Vec(Medication)], ['query']),
     'getResident' : IDL.Func([ResidentId], [IDL.Opt(Resident)], ['query']),

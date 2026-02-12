@@ -6,10 +6,9 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { useAddDailyVitals } from '../../../hooks/useQueries';
-import type { ResidentId } from '../../../backend';
 
 interface RecordDailyVitalsModalProps {
-  residentId: ResidentId;
+  residentId: bigint;
   onClose: () => void;
 }
 
@@ -31,7 +30,16 @@ export default function RecordDailyVitalsModal({ residentId, onClose }: RecordDa
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!temperature || !bloodPressureSystolic || !bloodPressureDiastolic || !pulseRate || !respiratoryRate || !oxygenSaturation || !measurementDate || !measurementTime) {
+    if (
+      !temperature ||
+      !bloodPressureSystolic ||
+      !bloodPressureDiastolic ||
+      !pulseRate ||
+      !respiratoryRate ||
+      !oxygenSaturation ||
+      !measurementDate ||
+      !measurementTime
+    ) {
       alert('Please fill in all required fields');
       return;
     }
@@ -48,26 +56,27 @@ export default function RecordDailyVitalsModal({ residentId, onClose }: RecordDa
       bloodGlucose: bloodGlucose ? BigInt(bloodGlucose) : null,
       measurementDate,
       measurementTime,
-      notes,
+      notes: notes.trim(),
     });
+
     onClose();
   };
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl dialog-solid-white">
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold">Record Daily Vitals</DialogTitle>
+          <DialogTitle>Record Daily Vitals</DialogTitle>
           <DialogDescription>
-            Enter the resident's vital signs measurements. All fields except Blood Glucose are required.
+            Enter the resident's vital signs. Fields marked with * are required.
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="temperature" className="text-sm font-medium">Temperature *</Label>
-              <div className="flex gap-2 mt-1">
+              <Label htmlFor="temperature">Temperature *</Label>
+              <div className="flex gap-2">
                 <Input
                   id="temperature"
                   type="number"
@@ -91,8 +100,8 @@ export default function RecordDailyVitalsModal({ residentId, onClose }: RecordDa
             </div>
 
             <div>
-              <Label htmlFor="bloodPressure" className="text-sm font-medium">Blood Pressure *</Label>
-              <div className="flex gap-2 items-center mt-1">
+              <Label htmlFor="bloodPressure">Blood Pressure *</Label>
+              <div className="flex gap-2 items-center">
                 <Input
                   id="bloodPressureSystolic"
                   type="number"
@@ -100,9 +109,8 @@ export default function RecordDailyVitalsModal({ residentId, onClose }: RecordDa
                   onChange={(e) => setBloodPressureSystolic(e.target.value)}
                   placeholder="120"
                   required
-                  className="flex-1"
                 />
-                <span className="text-gray-500">/</span>
+                <span className="text-muted-foreground">/</span>
                 <Input
                   id="bloodPressureDiastolic"
                   type="number"
@@ -110,15 +118,12 @@ export default function RecordDailyVitalsModal({ residentId, onClose }: RecordDa
                   onChange={(e) => setBloodPressureDiastolic(e.target.value)}
                   placeholder="80"
                   required
-                  className="flex-1"
                 />
               </div>
             </div>
-          </div>
 
-          <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="pulseRate" className="text-sm font-medium">Pulse Rate (bpm) *</Label>
+              <Label htmlFor="pulseRate">Pulse Rate (bpm) *</Label>
               <Input
                 id="pulseRate"
                 type="number"
@@ -126,12 +131,11 @@ export default function RecordDailyVitalsModal({ residentId, onClose }: RecordDa
                 onChange={(e) => setPulseRate(e.target.value)}
                 placeholder="72"
                 required
-                className="mt-1"
               />
             </div>
 
             <div>
-              <Label htmlFor="respiratoryRate" className="text-sm font-medium">Respiratory Rate (breaths/min) *</Label>
+              <Label htmlFor="respiratoryRate">Respiratory Rate (breaths/min) *</Label>
               <Input
                 id="respiratoryRate"
                 type="number"
@@ -139,14 +143,11 @@ export default function RecordDailyVitalsModal({ residentId, onClose }: RecordDa
                 onChange={(e) => setRespiratoryRate(e.target.value)}
                 placeholder="16"
                 required
-                className="mt-1"
               />
             </div>
-          </div>
 
-          <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="oxygenSaturation" className="text-sm font-medium">Oxygen Saturation (%) *</Label>
+              <Label htmlFor="oxygenSaturation">Oxygen Saturation (%) *</Label>
               <Input
                 id="oxygenSaturation"
                 type="number"
@@ -154,70 +155,60 @@ export default function RecordDailyVitalsModal({ residentId, onClose }: RecordDa
                 onChange={(e) => setOxygenSaturation(e.target.value)}
                 placeholder="98"
                 required
-                className="mt-1"
               />
             </div>
 
             <div>
-              <Label htmlFor="bloodGlucose" className="text-sm font-medium">
-                Blood Glucose (mg/dL) <span className="text-gray-500">(Optional)</span>
-              </Label>
+              <Label htmlFor="bloodGlucose">Blood Glucose (mg/dL)</Label>
               <Input
                 id="bloodGlucose"
                 type="number"
                 value={bloodGlucose}
                 onChange={(e) => setBloodGlucose(e.target.value)}
-                placeholder="100"
-                className="mt-1"
+                placeholder="Optional"
               />
-              <p className="text-xs text-gray-500 mt-1">For residents requiring diabetes monitoring</p>
             </div>
-          </div>
 
-          <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="measurementDate" className="text-sm font-medium">Measurement Date *</Label>
+              <Label htmlFor="measurementDate">Measurement Date *</Label>
               <Input
                 id="measurementDate"
                 type="date"
                 value={measurementDate}
                 onChange={(e) => setMeasurementDate(e.target.value)}
                 required
-                className="mt-1"
               />
             </div>
 
             <div>
-              <Label htmlFor="measurementTime" className="text-sm font-medium">Measurement Time *</Label>
+              <Label htmlFor="measurementTime">Measurement Time *</Label>
               <Input
                 id="measurementTime"
                 type="time"
                 value={measurementTime}
                 onChange={(e) => setMeasurementTime(e.target.value)}
                 required
-                className="mt-1"
               />
             </div>
           </div>
 
           <div>
-            <Label htmlFor="notes" className="text-sm font-medium">Notes (Optional)</Label>
+            <Label htmlFor="notes">Notes</Label>
             <Textarea
               id="notes"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              placeholder="Any additional observations or notes..."
+              placeholder="Additional notes..."
               rows={3}
-              className="mt-1"
             />
           </div>
         </form>
 
-        <DialogFooter className="gap-2">
-          <Button type="button" variant="outline" onClick={onClose}>
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose} disabled={addDailyVitals.isPending}>
             Cancel
           </Button>
-          <Button type="submit" onClick={handleSubmit} disabled={addDailyVitals.isPending} className="bg-blue-600 hover:bg-blue-700">
+          <Button onClick={handleSubmit} disabled={addDailyVitals.isPending}>
             {addDailyVitals.isPending ? 'Recording...' : 'Record Vitals'}
           </Button>
         </DialogFooter>

@@ -1,11 +1,10 @@
 # Specification
 
 ## Summary
-**Goal:** Show each resident’s age on the Resident Dashboard using a timezone-safe computation from the stored date of birth.
+**Goal:** Promote Draft Version 27 to Production as release name “Moritz Care Home” without introducing any code changes and while preserving existing backend canister state/data.
 
 **Planned changes:**
-- Update the Resident Dashboard resident cards to display an “Age” value next to the existing DOB field.
-- Implement a date-only (YYYY-MM-DD) age calculation that compares year/month/day components to avoid timezone/DST day shifting.
-- Add safe handling for missing or invalid DOB values so the UI shows a fallback instead of crashing.
+- Promote (release-only) Draft Version 27 build artifacts to the Production environment with the production release name exactly set to “Moritz Care Home”.
+- Add a new release promotion Markdown document under `frontend/docs/release/`, modeled after `frontend/docs/release/promote-v22-to-production.md`, updated for Draft Version 27 and “Moritz Care Home”, including: pre-promotion checklist, promotion steps, post-promotion verification checklist, rollback plan, and post-deployment notes section.
 
-**User-visible outcome:** On the Resident Dashboard, each resident card shows “Age: N” (whole years) calculated consistently across timezones, or “Age: —” when DOB is unavailable/invalid.
+**User-visible outcome:** The Production environment runs Draft Version 27 as “Moritz Care Home” with existing data preserved, and there is internal documentation describing how the promotion was performed and how to verify/rollback.

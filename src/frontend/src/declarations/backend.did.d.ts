@@ -45,6 +45,9 @@ export interface DailyVitals {
   'measurementTime' : string,
   'bloodPressureSystolic' : bigint,
 }
+export type HealthStatus = { 'ok' : string } |
+  { 'error' : string } |
+  { 'maintenance' : string };
 export interface InsuranceInfo {
   'groupNumber' : string,
   'provider' : string,
@@ -178,6 +181,7 @@ export interface _SERVICE {
     Array<CodeStatusChangeRecord>
   >,
   'getDailyVitals' : ActorMethod<[ResidentId], Array<DailyVitals>>,
+  'getHealthStatus' : ActorMethod<[], HealthStatus>,
   'getMARRecords' : ActorMethod<[ResidentId], Array<MARRecord>>,
   'getMedications' : ActorMethod<[ResidentId], Array<Medication>>,
   'getResident' : ActorMethod<[ResidentId], [] | [Resident]>,
