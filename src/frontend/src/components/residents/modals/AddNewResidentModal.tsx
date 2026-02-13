@@ -136,6 +136,7 @@ export default function AddNewResidentModal({ onClose }: AddNewResidentModalProp
         prescribingPhysicianId: undefined,
         notes: m.notes,
         isActive: true,
+        isPRN: false,
       }));
 
     const residentData: Resident = {
@@ -443,117 +444,115 @@ export default function AddNewResidentModal({ onClose }: AddNewResidentModalProp
                     <X className="w-4 h-4" />
                   </Button>
                   <p className="text-sm font-medium mb-2">Medication {medIndex + 1}</p>
-                  <div className="space-y-3">
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <Label>Medication Name</Label>
-                        <Input
-                          value={medication.name}
-                          onChange={(e) => {
-                            const updated = [...medications];
-                            updated[medIndex].name = e.target.value;
-                            setMedications(updated);
-                          }}
-                          placeholder="Aspirin"
-                        />
-                      </div>
-                      <div>
-                        <Label>Dosage</Label>
-                        <Input
-                          value={medication.dosage}
-                          onChange={(e) => {
-                            const updated = [...medications];
-                            updated[medIndex].dosage = e.target.value;
-                            setMedications(updated);
-                          }}
-                          placeholder="100mg"
-                        />
-                      </div>
-                      <div>
-                        <Label>Dosage Quantity</Label>
-                        <Input
-                          value={medication.dosageQuantity}
-                          onChange={(e) => {
-                            const updated = [...medications];
-                            updated[medIndex].dosageQuantity = e.target.value;
-                            setMedications(updated);
-                          }}
-                          placeholder="1 tablet"
-                        />
-                      </div>
-                      <div>
-                        <Label>Administration Route</Label>
-                        <Select
-                          value={medication.administrationRoute}
-                          onValueChange={(value) => {
-                            const updated = [...medications];
-                            updated[medIndex].administrationRoute = value;
-                            setMedications(updated);
-                          }}
-                        >
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="Oral">Oral</SelectItem>
-                            <SelectItem value="IV">IV</SelectItem>
-                            <SelectItem value="IM">IM</SelectItem>
-                            <SelectItem value="Topical">Topical</SelectItem>
-                            <SelectItem value="Subcutaneous">Subcutaneous</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
+                  <div className="grid grid-cols-2 gap-3 mb-3">
                     <div>
-                      <div className="flex items-center justify-between mb-2">
-                        <Label>Administration Times</Label>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleAddAdministrationTime(medIndex)}
-                        >
-                          <Plus className="w-3 h-3 mr-1" />
-                          Add Time
-                        </Button>
-                      </div>
-                      {medication.administrationTimes.map((time, timeIndex) => (
-                        <div key={timeIndex} className="flex gap-2 mb-2">
-                          <Input
-                            type="time"
-                            value={time}
-                            onChange={(e) => {
-                              const updated = [...medications];
-                              updated[medIndex].administrationTimes[timeIndex] = e.target.value;
-                              setMedications(updated);
-                            }}
-                          />
-                          {medication.administrationTimes.length > 1 && (
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleRemoveAdministrationTime(medIndex, timeIndex)}
-                            >
-                              <X className="w-4 h-4" />
-                            </Button>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                    <div>
-                      <Label>Notes</Label>
-                      <Textarea
-                        value={medication.notes}
+                      <Label>Medication Name</Label>
+                      <Input
+                        value={medication.name}
                         onChange={(e) => {
                           const updated = [...medications];
-                          updated[medIndex].notes = e.target.value;
+                          updated[medIndex].name = e.target.value;
                           setMedications(updated);
                         }}
-                        placeholder="Additional notes..."
-                        rows={2}
+                        placeholder="Aspirin"
                       />
                     </div>
+                    <div>
+                      <Label>Dosage</Label>
+                      <Input
+                        value={medication.dosage}
+                        onChange={(e) => {
+                          const updated = [...medications];
+                          updated[medIndex].dosage = e.target.value;
+                          setMedications(updated);
+                        }}
+                        placeholder="100mg"
+                      />
+                    </div>
+                    <div>
+                      <Label>Dosage Quantity</Label>
+                      <Input
+                        value={medication.dosageQuantity}
+                        onChange={(e) => {
+                          const updated = [...medications];
+                          updated[medIndex].dosageQuantity = e.target.value;
+                          setMedications(updated);
+                        }}
+                        placeholder="1 tablet"
+                      />
+                    </div>
+                    <div>
+                      <Label>Administration Route</Label>
+                      <Select
+                        value={medication.administrationRoute}
+                        onValueChange={(value) => {
+                          const updated = [...medications];
+                          updated[medIndex].administrationRoute = value;
+                          setMedications(updated);
+                        }}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Oral">Oral</SelectItem>
+                          <SelectItem value="IV">IV</SelectItem>
+                          <SelectItem value="IM">IM</SelectItem>
+                          <SelectItem value="Topical">Topical</SelectItem>
+                          <SelectItem value="Subcutaneous">Subcutaneous</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <div className="mb-3">
+                    <div className="flex items-center justify-between mb-2">
+                      <Label>Administration Times</Label>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleAddAdministrationTime(medIndex)}
+                      >
+                        <Plus className="w-3 h-3 mr-1" />
+                        Add Time
+                      </Button>
+                    </div>
+                    {medication.administrationTimes.map((time, timeIndex) => (
+                      <div key={timeIndex} className="flex gap-2 mb-2">
+                        <Input
+                          type="time"
+                          value={time}
+                          onChange={(e) => {
+                            const updated = [...medications];
+                            updated[medIndex].administrationTimes[timeIndex] = e.target.value;
+                            setMedications(updated);
+                          }}
+                        />
+                        {medication.administrationTimes.length > 1 && (
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleRemoveAdministrationTime(medIndex, timeIndex)}
+                          >
+                            <X className="w-4 h-4" />
+                          </Button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                  <div>
+                    <Label>Notes</Label>
+                    <Textarea
+                      value={medication.notes}
+                      onChange={(e) => {
+                        const updated = [...medications];
+                        updated[medIndex].notes = e.target.value;
+                        setMedications(updated);
+                      }}
+                      placeholder="Additional notes..."
+                      rows={2}
+                    />
                   </div>
                 </div>
               ))}

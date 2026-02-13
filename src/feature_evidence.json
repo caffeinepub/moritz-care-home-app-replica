@@ -2,29 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-promote-release-only-draft-version-27-to-the-production-environment-with-the-production-release-name-exactly-set-to-moritz-care-home-reusing-existing-build-artifacts-and-preserving-all-backend-canister-state-data-no-code-changes-as-part-of-this-promotion",
-      "featureTitle": "Promote (release-only) Draft Version 27 to the Production environment with the production release name exactly set to “Moritz Care Home”, reusing existing build artifacts and preserving all backend canister state/data (no code changes as part of this promotion).",
+      "featureId": "feature-update-the-add-medication-modal-ui-to-include-a-prn-checkbox-positioned-next-to-the-administration-times-label-and-when-prn-is-checked-hide-disable-the-administration-times-inputs-and-suppress-any-related-validation-errors",
+      "featureTitle": "Update the Add Medication modal UI to include a PRN checkbox positioned next to the Administration Times label, and when PRN is checked hide/disable the Administration Times inputs and suppress any related validation errors.",
       "files": [
-        "frontend/docs/release/promote-v27-to-production.md"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-1"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-add-a-new-release-promotion-document-for-this-production-promotion-by-creating-a-markdown-file-under-frontend-docs-release-that-mirrors-the-structure-of-frontend-docs-release-promote-v22-to-production-md-but-updated-for-draft-version-27-and-the-release-name-moritz-care-home-including-pre-promotion-checklist-promotion-steps-post-promotion-verification-checklist-rollback-plan-and-a-post-deployment-notes-section",
-      "featureTitle": "Add a new release promotion document for this production promotion by creating a Markdown file under frontend/docs/release/ that mirrors the structure of frontend/docs/release/promote-v22-to-production.md, but updated for Draft Version 27 and the release name “Moritz Care Home”, including pre-promotion checklist, promotion steps, post-promotion verification checklist, rollback plan, and a post-deployment notes section.",
-      "files": [
-        "frontend/docs/release/promote-v27-to-production.md"
+        "frontend/src/components/medications/modals/AddMedicationModal.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -36,6 +17,45 @@
       ],
       "testIds": [
         "REQ-2"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-update-the-edit-medication-modal-to-display-and-allow-editing-the-prn-flag-with-the-same-hide-disable-and-validation-suppression-behavior-for-administration-times-when-prn-is-checked",
+      "featureTitle": "Update the Edit Medication modal to display and allow editing the PRN flag with the same hide/disable and validation-suppression behavior for Administration Times when PRN is checked.",
+      "files": [
+        "frontend/src/components/medications/modals/EditMedicationModal.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-3"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-update-medication-list-display-to-clearly-represent-prn-medications-and-avoid-showing-administration-times-when-prn-is-true",
+      "featureTitle": "Update medication list display to clearly represent PRN medications and avoid showing administration times when PRN is true.",
+      "files": [
+        "frontend/src/components/medications/MedicationSections.tsx",
+        "frontend/src/components/medications/MedicationsTab.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-4"
       ],
       "confidence": "high"
     }

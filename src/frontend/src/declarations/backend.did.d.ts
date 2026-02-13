@@ -72,6 +72,7 @@ export interface Medication {
   'isActive' : boolean,
   'administrationTimes' : Array<string>,
   'notes' : string,
+  'isPRN' : boolean,
   'dosageQuantity' : string,
 }
 export interface PharmacyInfo {

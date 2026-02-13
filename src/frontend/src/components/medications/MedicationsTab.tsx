@@ -55,12 +55,17 @@ export default function MedicationsTab({ residentId, canWrite }: MedicationsTabP
                     <Badge variant={medication.isActive ? 'default' : 'secondary'} className={medication.isActive ? 'bg-green-100 text-green-800' : ''}>
                       {medication.isActive ? 'Active' : 'Discontinued'}
                     </Badge>
+                    {medication.isPRN && (
+                      <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-300">
+                        PRN
+                      </Badge>
+                    )}
                   </div>
                   <p className="text-sm text-gray-600">
                     Dosage: {medication.dosage} | Quantity: {medication.dosageQuantity}
                   </p>
                   <p className="text-sm text-gray-600">Route: {medication.administrationRoute}</p>
-                  {medication.administrationTimes.length > 0 && (
+                  {!medication.isPRN && medication.administrationTimes.length > 0 && (
                     <p className="text-sm text-gray-600">
                       Times: {medication.administrationTimes.join(', ')}
                     </p>

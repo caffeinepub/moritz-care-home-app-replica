@@ -1,46 +1,75 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-12T01:57:29.108Z",
+  "generatedAt": "2026-02-12T19:25:01.375Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 2,
-    "implemented": 2,
+    "total": 4,
+    "implemented": 3,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Promote (release-only) Draft Version 27 to the Production environment with the production release name exactly set to “Moritz Care Home”, reusing existing build artifacts and preserving all backend canister state/data (no code changes as part of this promotion).",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/docs/release/promote-v27-to-production.md"
-        ],
-        "matchedFiles": [
-          "frontend/docs/release/promote-v27-to-production.md"
-        ]
+        "summary": "Add a boolean PRN flag to the Medication data model in the backend and ensure it is persisted and returned in all resident medication read/write operations.",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
       },
       {
         "id": "REQ-2",
-        "summary": "Add a new release promotion document for this production promotion by creating a Markdown file under frontend/docs/release/ that mirrors the structure of frontend/docs/release/promote-v22-to-production.md, but updated for Draft Version 27 and the release name “Moritz Care Home”, including pre-promotion checklist, promotion steps, post-promotion verification checklist, rollback plan, and a post-deployment notes section.",
+        "summary": "Update the Add Medication modal UI to include a PRN checkbox positioned next to the Administration Times label, and when PRN is checked hide/disable the Administration Times inputs and suppress any related validation errors.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/docs/release/promote-v27-to-production.md"
+          "frontend/src/components/medications/modals/AddMedicationModal.tsx"
         ],
         "matchedFiles": [
-          "frontend/docs/release/promote-v27-to-production.md"
+          "frontend/src/components/medications/modals/AddMedicationModal.tsx"
+        ]
+      },
+      {
+        "id": "REQ-3",
+        "summary": "Update the Edit Medication modal to display and allow editing the PRN flag with the same hide/disable and validation-suppression behavior for Administration Times when PRN is checked.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/components/medications/modals/EditMedicationModal.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/medications/modals/EditMedicationModal.tsx"
+        ]
+      },
+      {
+        "id": "REQ-4",
+        "summary": "Update medication list display to clearly represent PRN medications and avoid showing administration times when PRN is true.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/components/medications/MedicationSections.tsx",
+          "frontend/src/components/medications/MedicationsTab.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/medications/MedicationSections.tsx",
+          "frontend/src/components/medications/MedicationsTab.tsx"
         ]
       }
     ]
   },
   "changedFiles": [
     "backend/main.mo",
+    "backend/migration.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/docs/release/promote-v27-to-production.md",
+    "frontend/src/backend.d.ts",
+    "frontend/src/backend.ts",
+    "frontend/src/components/medications/MedicationSections.tsx",
+    "frontend/src/components/medications/MedicationsTab.tsx",
+    "frontend/src/components/medications/modals/AddMedicationModal.tsx",
+    "frontend/src/components/medications/modals/EditMedicationModal.tsx",
+    "frontend/src/components/residents/modals/AddNewResidentModal.tsx",
+    "frontend/src/declarations/backend.did.d.ts",
+    "frontend/src/declarations/backend.did.js",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

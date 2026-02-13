@@ -197,6 +197,7 @@ export interface Medication {
     isActive: boolean;
     administrationTimes: Array<string>;
     notes: string;
+    isPRN: boolean;
     dosageQuantity: string;
 }
 export interface InsuranceInfo {
@@ -943,6 +944,7 @@ function from_candid_record_n30(_uploadFile: (file: ExternalBlob) => Promise<Uin
     isActive: boolean;
     administrationTimes: Array<string>;
     notes: string;
+    isPRN: boolean;
     dosageQuantity: string;
 }): {
     id: bigint;
@@ -953,6 +955,7 @@ function from_candid_record_n30(_uploadFile: (file: ExternalBlob) => Promise<Uin
     isActive: boolean;
     administrationTimes: Array<string>;
     notes: string;
+    isPRN: boolean;
     dosageQuantity: string;
 } {
     return {
@@ -964,6 +967,7 @@ function from_candid_record_n30(_uploadFile: (file: ExternalBlob) => Promise<Uin
         isActive: value.isActive,
         administrationTimes: value.administrationTimes,
         notes: value.notes,
+        isPRN: value.isPRN,
         dosageQuantity: value.dosageQuantity
     };
 }
@@ -1218,6 +1222,7 @@ function to_candid_record_n3(_uploadFile: (file: ExternalBlob) => Promise<Uint8A
     isActive: boolean;
     administrationTimes: Array<string>;
     notes: string;
+    isPRN: boolean;
     dosageQuantity: string;
 }): {
     id: bigint;
@@ -1228,6 +1233,7 @@ function to_candid_record_n3(_uploadFile: (file: ExternalBlob) => Promise<Uint8A
     isActive: boolean;
     administrationTimes: Array<string>;
     notes: string;
+    isPRN: boolean;
     dosageQuantity: string;
 } {
     return {
@@ -1239,6 +1245,7 @@ function to_candid_record_n3(_uploadFile: (file: ExternalBlob) => Promise<Uint8A
         isActive: value.isActive,
         administrationTimes: value.administrationTimes,
         notes: value.notes,
+        isPRN: value.isPRN,
         dosageQuantity: value.dosageQuantity
     };
 }

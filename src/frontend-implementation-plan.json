@@ -1,38 +1,61 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Promote Draft Version 27 to Production as “Moritz Care Home” (Frontend docs only)",
+  "title": "Add PRN checkbox to medication modals and reflect PRN in medication display",
   "requirements": [
     {
-      "id": "REQ-1",
-      "summary": "Document the release-only promotion of Draft Version 27 to Production with release name “Moritz Care Home”, emphasizing no code changes and state preservation.",
+      "id": "REQ-2",
+      "summary": "Add PRN checkbox to Add Medication modal; when checked, hide/disable administration times and suppress time validation; submit PRN boolean.",
       "acceptanceCriteria": [
-        "Production environment points to Draft Version 27 build artifacts.",
-        "Production release name is “Moritz Care Home”.",
-        "No frontend or backend code changes are introduced as part of the promotion.",
-        "Existing backend canister state/data is preserved (no resets/wipes)."
+        "Add Medication modal shows a PRN checkbox aligned next to the Administration Times label/header.",
+        "When PRN is checked, the time input(s) are hidden or disabled and are not marked as required (no browser validation prompts for time).",
+        "When PRN is checked, submission succeeds even if administrationTimes are empty.",
+        "When PRN is unchecked, Administration Times behave as before (including required validation).",
+        "Submitting the Add Medication form sends the PRN boolean to the backend and stores it on the medication record."
       ],
       "file_operations": [
         {
-          "path": "frontend/docs/release/promote-v27-to-production.md",
-          "operation": "create",
-          "description": "Create the initial Draft Version 27 → Production promotion document shell that will record the release name exactly as “Moritz Care Home” and explicitly note the release-only nature (reuse existing build artifacts; no code changes; preserve canister state/data)."
+          "path": "frontend/src/components/medications/modals/AddMedicationModal.tsx",
+          "operation": "modify",
+          "description": "Introduce local isPRN state and render a PRN checkbox next to the Administration Times header. When isPRN is true, hide/disable the administration time inputs and the “Add Time” control, ensure time inputs are not marked required, and ensure submission allows empty administrationTimes. Include isPRN in the Medication payload sent via useAddMedication."
         }
       ]
     },
     {
-      "id": "REQ-2",
-      "summary": "Create a full Markdown release promotion document for promoting Draft Version 27 to Production, mirroring promote-v22-to-production.md structure and updating details to “Moritz Care Home”.",
+      "id": "REQ-3",
+      "summary": "Add PRN checkbox to Edit Medication modal with correct initial state; toggle updates times visibility/validation; save persists PRN.",
       "acceptanceCriteria": [
-        "A new Markdown file exists under frontend/docs/release/ documenting promotion of Draft Version 27 to Production (modeled after promote-v22-to-production.md).",
-        "The document explicitly states Version 27 and the release name “Moritz Care Home”.",
-        "The document includes: pre-promotion checklist, promotion process steps, post-promotion verification checklist, rollback plan, and post-deployment notes placeholders."
+        "Edit Medication modal includes the PRN checkbox in the same position as Add Medication (next to Administration Times).",
+        "If an existing medication has PRN=true, the modal initially renders with PRN checked and the time inputs hidden/disabled and not required.",
+        "Toggling PRN on/off immediately updates visibility/disabled state and required validation of time inputs.",
+        "Saving changes persists the PRN value to the backend."
       ],
       "file_operations": [
         {
-          "path": "frontend/docs/release/promote-v27-to-production.md",
+          "path": "frontend/src/components/medications/modals/EditMedicationModal.tsx",
           "operation": "modify",
-          "description": "Populate the document to mirror the structure and headings of frontend/docs/release/promote-v22-to-production.md, updating all references from Version 22 to Version 27 and ensuring the release name is exactly “Moritz Care Home”. Include: Overview, Release Details, Pre-Promotion Checklist, Promotion Process (verify draft, execute promotion, post-promotion verification), Known Issues & Resolutions (placeholders if none), Rollback Plan, Technical Notes, Acceptance Criteria checklist, Sign-off, and Post-Deployment Notes placeholders."
+          "description": "Add isPRN state initialized from medication.isPRN and render a PRN checkbox next to the Administration Times header matching Add Medication. When isPRN is true, hide/disable time inputs and remove required validation; when toggled off, restore prior behavior and ensure at least one time input is available for required validation. Include isPRN in the updatedMedication payload passed to useUpdateMedication."
+        }
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "summary": "Update medication list UI to label PRN medications and avoid showing administration times when PRN is true.",
+      "acceptanceCriteria": [
+        "In the medications list, medications with PRN=true are labeled as PRN (e.g., a small 'PRN' badge or text).",
+        "For PRN medications, the UI does not render the 'Times:' line (or renders it only when non-PRN).",
+        "Non-PRN medications display times exactly as before."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/medications/MedicationSections.tsx",
+          "operation": "modify",
+          "description": "Adjust the medication card rendering to display a clear PRN label (e.g., small 'PRN' badge/text) when medication.isPRN is true, and conditionally omit the Times block/line for PRN medications while leaving non-PRN times rendering unchanged in both active and discontinued sections."
+        },
+        {
+          "path": "frontend/src/components/medications/MedicationsTab.tsx",
+          "operation": "modify",
+          "description": "Update the medications list item display to add a PRN label when medication.isPRN is true and to avoid rendering the 'Times:' line for PRN medications; preserve existing times display for non-PRN medications."
         }
       ]
     }

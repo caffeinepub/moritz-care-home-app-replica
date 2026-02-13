@@ -1,5 +1,6 @@
 import { Medication } from '../../backend';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Plus, RotateCcw } from 'lucide-react';
 
@@ -55,7 +56,14 @@ export default function MedicationSections({
                 <div key={medication.id.toString()} className="border rounded-lg p-4">
                   <div className="flex items-start justify-between mb-2">
                     <div>
-                      <p className="font-medium text-lg">{medication.name}</p>
+                      <div className="flex items-center gap-2 mb-1">
+                        <p className="font-medium text-lg">{medication.name}</p>
+                        {medication.isPRN && (
+                          <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-300">
+                            PRN
+                          </Badge>
+                        )}
+                      </div>
                       <p className="text-sm text-muted-foreground">
                         {medication.dosage} - {medication.dosageQuantity}
                       </p>
@@ -84,10 +92,12 @@ export default function MedicationSections({
                       <p className="text-muted-foreground">Route</p>
                       <p className="font-medium">{medication.administrationRoute}</p>
                     </div>
-                    <div>
-                      <p className="text-muted-foreground">Times</p>
-                      <p className="font-medium">{medication.administrationTimes.join(', ')}</p>
-                    </div>
+                    {!medication.isPRN && medication.administrationTimes.length > 0 && (
+                      <div>
+                        <p className="text-muted-foreground">Times</p>
+                        <p className="font-medium">{medication.administrationTimes.join(', ')}</p>
+                      </div>
+                    )}
                     {medication.prescribingPhysicianId && (
                       <div>
                         <p className="text-muted-foreground">Prescribing Physician</p>
@@ -120,7 +130,14 @@ export default function MedicationSections({
                 <div key={medication.id.toString()} className="border rounded-lg p-4 bg-muted/30">
                   <div className="flex items-start justify-between mb-2">
                     <div>
-                      <p className="font-medium text-lg text-muted-foreground">{medication.name}</p>
+                      <div className="flex items-center gap-2 mb-1">
+                        <p className="font-medium text-lg text-muted-foreground">{medication.name}</p>
+                        {medication.isPRN && (
+                          <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-300">
+                            PRN
+                          </Badge>
+                        )}
+                      </div>
                       <p className="text-sm text-muted-foreground">
                         {medication.dosage} - {medication.dosageQuantity}
                       </p>
@@ -141,10 +158,12 @@ export default function MedicationSections({
                       <p className="text-muted-foreground">Route</p>
                       <p className="font-medium text-muted-foreground">{medication.administrationRoute}</p>
                     </div>
-                    <div>
-                      <p className="text-muted-foreground">Times</p>
-                      <p className="font-medium text-muted-foreground">{medication.administrationTimes.join(', ')}</p>
-                    </div>
+                    {!medication.isPRN && medication.administrationTimes.length > 0 && (
+                      <div>
+                        <p className="text-muted-foreground">Times</p>
+                        <p className="font-medium text-muted-foreground">{medication.administrationTimes.join(', ')}</p>
+                      </div>
+                    )}
                     {medication.prescribingPhysicianId && (
                       <div>
                         <p className="text-muted-foreground">Prescribing Physician</p>

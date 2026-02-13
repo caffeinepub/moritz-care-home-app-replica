@@ -18,6 +18,7 @@ export const Medication = IDL.Record({
   'isActive' : IDL.Bool,
   'administrationTimes' : IDL.Vec(IDL.Text),
   'notes' : IDL.Text,
+  'isPRN' : IDL.Bool,
   'dosageQuantity' : IDL.Text,
 });
 export const ResidentStatus = IDL.Variant({
@@ -259,6 +260,7 @@ export const idlFactory = ({ IDL }) => {
     'isActive' : IDL.Bool,
     'administrationTimes' : IDL.Vec(IDL.Text),
     'notes' : IDL.Text,
+    'isPRN' : IDL.Bool,
     'dosageQuantity' : IDL.Text,
   });
   const ResidentStatus = IDL.Variant({

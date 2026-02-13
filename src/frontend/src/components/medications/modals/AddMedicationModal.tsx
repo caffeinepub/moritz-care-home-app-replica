@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Plus, X } from 'lucide-react';
 import { useAddMedication } from '../../../hooks/useQueries';
 import { Medication, Physician } from '../../../backend';
@@ -23,8 +24,9 @@ export default function AddMedicationModal({ residentId, physicians, onClose }: 
   const [dosageQuantity, setDosageQuantity] = useState('');
   const [administrationRoute, setAdministrationRoute] = useState('Oral');
   const [administrationTimes, setAdministrationTimes] = useState<string[]>(['']);
-  const [prescribingPhysicianId, setPrescribingPhysicianId] = useState<string>('');
+  const [prescribingPhysicianId, setPrescribingPhysicianId] = useState<string>('none');
   const [notes, setNotes] = useState('');
+  const [isPRN, setIsPRN] = useState(false);
 
   const handleAddTime = () => {
     setAdministrationTimes([...administrationTimes, '']);
@@ -42,16 +44,23 @@ export default function AddMedicationModal({ residentId, physicians, onClose }: 
       return;
     }
 
+    // When PRN is checked, allow empty administration times
+    if (!isPRN && administrationTimes.filter(t => t.trim()).length === 0) {
+      alert('Please add at least one administration time or check PRN');
+      return;
+    }
+
     const medicationData: Medication = {
       id: BigInt(0),
       name: name.trim(),
       dosage: dosage.trim(),
       dosageQuantity: dosageQuantity.trim(),
       administrationRoute,
-      administrationTimes: administrationTimes.filter(t => t.trim()),
-      prescribingPhysicianId: prescribingPhysicianId ? BigInt(prescribingPhysicianId) : undefined,
+      administrationTimes: isPRN ? [] : administrationTimes.filter(t => t.trim()),
+      prescribingPhysicianId: prescribingPhysicianId !== 'none' ? BigInt(prescribingPhysicianId) : undefined,
       notes: notes.trim(),
       isActive: true,
+      isPRN,
     };
 
     await addMedication.mutateAsync({ residentId, medicationData });
@@ -106,7 +115,7 @@ export default function AddMedicationModal({ residentId, physicians, onClose }: 
                 <SelectValue placeholder="Select physician (optional)" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">None</SelectItem>
+                <SelectItem value="none">None</SelectItem>
                 {physicians.map((physician) => (
                   <SelectItem key={physician.id.toString()} value={physician.id.toString()}>
                     {physician.name} - {physician.specialty}
@@ -118,31 +127,54 @@ export default function AddMedicationModal({ residentId, physicians, onClose }: 
 
           <div>
             <div className="flex items-center justify-between mb-2">
-              <Label>Administration Times *</Label>
-              <Button type="button" variant="ghost" size="sm" onClick={handleAddTime}>
-                <Plus className="w-3 h-3 mr-1" />
-                Add Time
-              </Button>
-            </div>
-            {administrationTimes.map((time, index) => (
-              <div key={index} className="flex gap-2 mb-2">
-                <Input
-                  type="time"
-                  value={time}
-                  onChange={(e) => {
-                    const updated = [...administrationTimes];
-                    updated[index] = e.target.value;
-                    setAdministrationTimes(updated);
-                  }}
-                  required
-                />
-                {administrationTimes.length > 1 && (
-                  <Button type="button" variant="ghost" size="sm" onClick={() => handleRemoveTime(index)}>
-                    <X className="w-4 h-4" />
-                  </Button>
-                )}
+              <div className="flex items-center gap-3">
+                <Label>Administration Times {!isPRN && '*'}</Label>
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    id="isPRN"
+                    checked={isPRN}
+                    onCheckedChange={(checked) => setIsPRN(checked === true)}
+                  />
+                  <Label htmlFor="isPRN" className="text-sm font-normal cursor-pointer">
+                    PRN (as needed)
+                  </Label>
+                </div>
               </div>
-            ))}
+              {!isPRN && (
+                <Button type="button" variant="ghost" size="sm" onClick={handleAddTime}>
+                  <Plus className="w-3 h-3 mr-1" />
+                  Add Time
+                </Button>
+              )}
+            </div>
+            {!isPRN && (
+              <>
+                {administrationTimes.map((time, index) => (
+                  <div key={index} className="flex gap-2 mb-2">
+                    <Input
+                      type="time"
+                      value={time}
+                      onChange={(e) => {
+                        const updated = [...administrationTimes];
+                        updated[index] = e.target.value;
+                        setAdministrationTimes(updated);
+                      }}
+                      required={!isPRN}
+                    />
+                    {administrationTimes.length > 1 && (
+                      <Button type="button" variant="ghost" size="sm" onClick={() => handleRemoveTime(index)}>
+                        <X className="w-4 h-4" />
+                      </Button>
+                    )}
+                  </div>
+                ))}
+              </>
+            )}
+            {isPRN && (
+              <p className="text-sm text-muted-foreground">
+                This medication will be administered as needed (PRN)
+              </p>
+            )}
           </div>
 
           <div>

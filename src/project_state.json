@@ -1,24 +1,32 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Project for the “Moritz Care Home” app; deploy Draft Version 27 to production as the production release.",
+  "summary": "Medication form enhancement: add PRN checkbox behavior on Add Medications.",
   "architectural_notes": [],
   "known_issues": [],
   "isFixRequest": false,
   "existing_features": [
     {
-      "id": "feature-promote-release-only-draft-version-27-to-the-production-environment-with-the-production-release-name-exactly-set-to-moritz-care-home-reusing-existing-build-artifacts-and-preserving-all-backend-canister-state-data-no-code-changes-as-part-of-this-promotion",
-      "title": "Promote (release-only) Draft Version 27 to the Production environment with the production release name exactly set to “Moritz Care Home”, reusing existing build artifacts and preserving all backend canister state/data (no code changes as part of this promotion).",
+      "id": "feature-update-the-add-medication-modal-ui-to-include-a-prn-checkbox-positioned-next-to-the-administration-times-label-and-when-prn-is-checked-hide-disable-the-administration-times-inputs-and-suppress-any-related-validation-errors",
+      "title": "Update the Add Medication modal UI to include a PRN checkbox positioned next to the Administration Times label, and when PRN is checked hide/disable the Administration Times inputs and suppress any related validation errors.",
       "reqIds": [
-        "REQ-1"
+        "REQ-2"
       ],
       "version": 1
     },
     {
-      "id": "feature-add-a-new-release-promotion-document-for-this-production-promotion-by-creating-a-markdown-file-under-frontend-docs-release-that-mirrors-the-structure-of-frontend-docs-release-promote-v22-to-production-md-but-updated-for-draft-version-27-and-the-release-name-moritz-care-home-including-pre-promotion-checklist-promotion-steps-post-promotion-verification-checklist-rollback-plan-and-a-post-deployment-notes-section",
-      "title": "Add a new release promotion document for this production promotion by creating a Markdown file under frontend/docs/release/ that mirrors the structure of frontend/docs/release/promote-v22-to-production.md, but updated for Draft Version 27 and the release name “Moritz Care Home”, including pre-promotion checklist, promotion steps, post-promotion verification checklist, rollback plan, and a post-deployment notes section.",
+      "id": "feature-update-the-edit-medication-modal-to-display-and-allow-editing-the-prn-flag-with-the-same-hide-disable-and-validation-suppression-behavior-for-administration-times-when-prn-is-checked",
+      "title": "Update the Edit Medication modal to display and allow editing the PRN flag with the same hide/disable and validation-suppression behavior for Administration Times when PRN is checked.",
       "reqIds": [
-        "REQ-2"
+        "REQ-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-medication-list-display-to-clearly-represent-prn-medications-and-avoid-showing-administration-times-when-prn-is-true",
+      "title": "Update medication list display to clearly represent PRN medications and avoid showing administration times when PRN is true.",
+      "reqIds": [
+        "REQ-4"
       ],
       "version": 1
     }
@@ -26,12 +34,20 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Deploy Draft Version 27 to production with release name “Moritz Care Home”.",
+      "summary": "Add PRN checkbox next to Administration Time in Add Medications; when checked hide/disable Administration Time, suppress its validation errors, and store PRN as a boolean.",
       "reqIds": [],
-      "status": "in_progress"
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Add a boolean PRN flag to the Medication data model in the backend and ensure it is persisted and returned in all resident medication read/write operations.",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "status": "pending"
     }
   ],
-  "projectName": "Moritz Care Home",
+  "projectName": "Add PRN checkbox to Medication form and persist PRN flag",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

@@ -1,18 +1,16 @@
-// Unchanged because this is an infrastructure error
 import Map "mo:core/Map";
 import Runtime "mo:core/Runtime";
 import Principal "mo:core/Principal";
 import Text "mo:core/Text";
 import Time "mo:core/Time";
-import Order "mo:core/Order";
-
+import Iter "mo:core/Iter";
+import Migration "migration";
 
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
 
-// Use data migration for upgrade safety
-
-
+// Specify migration function for upgrades
+(with migration = Migration.run)
 actor {
   let accessControlState = AccessControl.initState();
   include MixinAuthorization(accessControlState);
@@ -27,7 +25,7 @@ actor {
   public type UserProfile = {
     name : Text;
     userType : UserType;
-    relatedResidentIds : [Nat]; // For residents and family members
+    relatedResidentIds : [Nat];
   };
 
   let userProfiles = Map.empty<Principal, UserProfile>();
@@ -39,11 +37,9 @@ actor {
   };
 
   public query func getHealthStatus() : async HealthStatus {
-    // Health check endpoint - accessible to all including guests for debugging
     #ok("Backend healthy - build 2024-06-12");
   };
 
-  // User Profile Management
   public query ({ caller }) func getCallerUserProfile() : async ?UserProfile {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Authentication required to access profile");
@@ -71,7 +67,6 @@ actor {
     userProfiles.add(caller, profile);
   };
 
-  // Resident Types
   public type ResidentId = Nat;
   public type ResidentStatus = { #active; #discharged };
   public type CodeStatus = { #fullCode; #dnr };
@@ -117,6 +112,7 @@ actor {
     prescribingPhysicianId : ?Nat;
     notes : Text;
     isActive : Bool;
+    isPRN : Bool;
   };
 
   public type MARRecord = {
@@ -187,7 +183,6 @@ actor {
     dailyVitals : [DailyVitals];
   };
 
-  // Internal State
   let residents = Map.empty<ResidentId, Resident>();
   var nextResidentId = 1;
   var nextPhysicianId = 1;
@@ -198,10 +193,8 @@ actor {
   var nextVitalsId = 1;
   var nextCodeStatusChangeId = 1;
 
-  // Code Status Change Audit Trail
   let codeStatusChanges = Map.empty<Nat, CodeStatusChangeRecord>();
 
-  // Authorization Helper Functions
   func isStaffOrAdmin(caller : Principal) : Bool {
     if (AccessControl.isAdmin(accessControlState, caller)) {
       return true;
@@ -218,23 +211,14 @@ actor {
   };
 
   func canAccessResident(caller : Principal, residentId : ResidentId) : Bool {
-    // Admins and staff can access all residents
     if (isStaffOrAdmin(caller)) {
       return true;
     };
-
-    // Check if user is the resident or a family member
     switch (userProfiles.get(caller)) {
       case (null) { false };
       case (?profile) {
         profile.relatedResidentIds.any(func(id) { id == residentId });
       };
-    };
-  };
-
-  module Resident {
-    public func compareByLastName(a : Resident, b : Resident) : Order.Order {
-      Text.compare(a.lastName, b.lastName);
     };
   };
 
@@ -273,7 +257,6 @@ actor {
       Runtime.trap("Unauthorized: Authentication required");
     };
 
-    // Only staff and admins can see all residents
     if (not isStaffOrAdmin(caller)) {
       Runtime.trap("Unauthorized: Only staff and admins can view all residents");
     };
@@ -321,7 +304,6 @@ actor {
       Runtime.trap("Unauthorized: Authentication required");
     };
 
-    // Only staff and admins can filter all residents
     if (not isStaffOrAdmin(caller)) {
       Runtime.trap("Unauthorized: Only staff and admins can filter residents");
     };
@@ -367,9 +349,7 @@ actor {
     { totalResidents = total; activeResidents = active; dischargedResidents = discharged };
   };
 
-  // Code Status Management - Admin Only
   public shared ({ caller }) func updateCodeStatus(residentId : ResidentId, newCodeStatus : CodeStatus, notes : Text) : async () {
-    // Code Status changes require admin authorization due to legal/medical implications
     if (not AccessControl.isAdmin(accessControlState, caller)) {
       Runtime.trap("Unauthorized: Only admins can update Code Status");
     };
@@ -379,15 +359,12 @@ actor {
       case (?resident) {
         let previousStatus = resident.codeStatus;
 
-        // Only record change if status actually changed
         if (previousStatus != newCodeStatus) {
-          // Get caller's name for audit trail
           let callerName = switch (userProfiles.get(caller)) {
             case (null) { caller.toText() };
             case (?profile) { profile.name };
           };
 
-          // Create audit record
           let changeId = nextCodeStatusChangeId;
           nextCodeStatusChangeId += 1;
 
@@ -404,7 +381,6 @@ actor {
 
           codeStatusChanges.add(changeId, changeRecord);
 
-          // Update resident
           let updatedResident = { resident with codeStatus = newCodeStatus };
           residents.add(residentId, updatedResident);
         };
@@ -441,7 +417,6 @@ actor {
     );
   };
 
-  // Physician Management
   public shared ({ caller }) func addPhysicianToResident(residentId : ResidentId, name : Text, specialty : Text, contactInfo : Text) : async Nat {
     if (not isStaffOrAdmin(caller)) {
       Runtime.trap("Unauthorized: Only admins and staff can add physicians");
@@ -493,7 +468,6 @@ actor {
     };
   };
 
-  // Medication Management
   public shared ({ caller }) func addMedicationToResident(residentId : ResidentId, medicationData : Medication) : async Nat {
     if (not isStaffOrAdmin(caller)) {
       Runtime.trap("Unauthorized: Only admins and staff can add medications");
@@ -575,7 +549,6 @@ actor {
     };
   };
 
-  // New Method: Reactivate Discontinued Medication
   public shared ({ caller }) func reactivateMedication(residentId : ResidentId, medicationId : Nat) : async () {
     if (not isStaffOrAdmin(caller)) {
       Runtime.trap("Unauthorized: Only admins and staff can reactivate medications");
@@ -619,7 +592,6 @@ actor {
     };
   };
 
-  // MAR (Medication Administration Record) Management
   public shared ({ caller }) func addMARRecord(residentId : ResidentId, medicationId : Nat, administrationTime : Text, administeredBy : Text, notes : Text) : async Nat {
     if (not isStaffOrAdmin(caller)) {
       Runtime.trap("Unauthorized: Only admins and staff can add MAR records");
@@ -668,7 +640,6 @@ actor {
     };
   };
 
-  // ADL (Activities of Daily Living) Management
   public shared ({ caller }) func addADLRecord(residentId : ResidentId, date : Text, activity : Text, assistanceLevel : Text, staffNotes : Text) : async Nat {
     if (not isStaffOrAdmin(caller)) {
       Runtime.trap("Unauthorized: Only admins and staff can add ADL records");
@@ -717,7 +688,6 @@ actor {
     };
   };
 
-  // Daily Vitals Management
   public shared ({ caller }) func addDailyVitals(
     residentId : ResidentId,
     temperature : Float,
@@ -786,7 +756,6 @@ actor {
     };
   };
 
-  // Pharmacy Information Management
   public shared ({ caller }) func updatePharmacyInfo(residentId : ResidentId, pharmacyInfo : PharmacyInfo) : async () {
     if (not isStaffOrAdmin(caller)) {
       Runtime.trap("Unauthorized: Only admins and staff can update pharmacy information");
@@ -805,7 +774,6 @@ actor {
     };
   };
 
-  // Insurance Information Management
   public shared ({ caller }) func updateInsuranceInfo(residentId : ResidentId, insuranceInfo : InsuranceInfo) : async () {
     if (not isStaffOrAdmin(caller)) {
       Runtime.trap("Unauthorized: Only admins and staff can update insurance information");
@@ -824,7 +792,6 @@ actor {
     };
   };
 
-  // Responsible Contacts Management
   public shared ({ caller }) func addResponsibleContact(
     residentId : ResidentId,
     name : Text,
@@ -916,6 +883,3 @@ actor {
     };
   };
 };
-
-
-

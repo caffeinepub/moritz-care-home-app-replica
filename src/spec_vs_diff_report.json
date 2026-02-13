@@ -1,55 +1,105 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-12T01:57:29.105Z",
-  "summary": "REQ-2 is partially satisfied by adding a new promotion Markdown document for Draft Version 27 with the release name “Moritz Care Home”. REQ-1 is not satisfied based on the diff because there are backend and frontend code changes (which are explicitly disallowed for a release-only promotion), and the diff provides no verifiable evidence that Production was pointed to Draft Version 27 artifacts or that release metadata was set in the Production environment.",
+  "generatedAt": "2026-02-12T19:25:01.372Z",
+  "summary": "Diff adds an isPRN flag to the backend Medication type and updates multiple frontend medication UIs to show a PRN badge and hide times when PRN. However, key backend persistence/defaulting behaviors for PRN are not evidenced in the provided diff summary, and the change set includes substantial unrelated frontend and backend work (migration system and various UI/boot/auth/vitals/layout updates) that was not requested.",
   "missing_requirements": [
     {
       "id": "REQ-1",
-      "requirement": "Promote (release-only) Draft Version 27 to the Production environment with the production release name exactly set to “Moritz Care Home”, reusing existing build artifacts and preserving all backend canister state/data (no code changes as part of this promotion).",
-      "reason": "The diff contains application code changes (backend/main.mo and multiple frontend files per frontend-file-summaries.txt), which conflicts with the requirement/AC of “no code changes as part of this promotion”. Also, there is no diff evidence of an actual production promotion action (e.g., deployment config, release metadata change, or environment pointer update) that would demonstrate Production now points to Draft Version 27 artifacts.",
+      "requirement": "Ensure PRN is persisted and returned in all resident medication read/write operations, including addMedicationToResident/updateMedication storing PRN and query endpoints returning it; default PRN to false when older clients omit it.",
+      "reason": "The diff summary shows the Medication type updated to include `isPRN : Bool`, but does not show any changes to the medication add/update functions or query functions to persist/return this field, nor any compatibility defaulting behavior when PRN is omitted. The backend/main.mo content is truncated before those operations, so implementation cannot be confirmed from the provided evidence.",
       "evidence": [
-        "backend/main.mo",
-        "frontend-file-summaries.txt"
+        "backend/main.mo (truncated; shows `public type Medication` includes `isPRN : Bool` but not add/update/query logic)"
       ]
     },
     {
       "id": "REQ-2",
-      "requirement": "Add a new release promotion document ... including pre-promotion checklist, promotion steps, post-promotion verification checklist, rollback plan, and a post-deployment notes section.",
-      "reason": "The added Markdown file clearly includes pre-promotion checklist, promotion steps, post-promotion verification checklist, and a rollback plan, but the provided truncated content does not show an explicit “post-deployment notes” section/placeholders. Because the file is truncated, this section may exist later, but it is not verifiable from the diff summary.",
+      "requirement": "Add Medication modal: PRN checkbox positioned next to Administration Times label; when checked hide/disable time inputs and suppress required/validation; submission succeeds with empty administrationTimes; PRN sent to backend.",
+      "reason": "The diff summary confirms PRN state and submission logic/validation relaxation, but the provided AddMedicationModal.tsx excerpt is truncated before the Administration Times section rendering, so the exact UI placement (next to the Administration Times label) and the actual hide/disable/required attribute behavior for the time inputs cannot be verified from the included excerpt.",
       "evidence": [
-        "frontend/docs/release/promote-v27-to-production.md"
+        "frontend/src/components/medications/modals/AddMedicationModal.tsx (truncated; shows isPRN state and submit logic but not the Administration Times JSX/checkbox positioning)"
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "requirement": "Edit Medication modal: PRN checkbox positioned next to Administration Times label; initial checked state when medication.isPRN=true; toggling hides/disables time inputs and suppresses required/validation; saving persists PRN.",
+      "reason": "The diff summary shows isPRN state initialized from `medication.isPRN` and save payload includes `isPRN`, but the excerpt is truncated before the Administration Times section rendering, so the exact UI placement and hide/disable/required attribute behavior for time inputs cannot be verified from the provided evidence.",
+      "evidence": [
+        "frontend/src/components/medications/modals/EditMedicationModal.tsx (truncated; shows isPRN state and submit logic but not the Administration Times JSX/checkbox positioning)"
       ]
     }
   ],
   "hallucinated_features": [
     {
-      "description": "Backend canister code modifications were introduced despite the release-only/no-code-changes constraint.",
-      "reason": "REQ-1 and the global constraint state no frontend/backend application code changes should be made for this promotion, but backend/main.mo is listed as modified and shows substantial application logic/types.",
+      "description": "Introduced a Motoko upgrade migration module and wired it into the actor via `(with migration = Migration.run)`.",
+      "reason": "BuildRequest did not request adding an upgrade migration system/module; also conflicts with the constraint to keep backend logic in the single actor file (backend/main.mo) with no additional backend services/modules.",
       "evidence": [
-        "backend/main.mo"
+        "backend/migration.mo (added)",
+        "backend/main.mo (imports Migration \"migration\" and uses `(with migration = Migration.run)`)"
       ]
     },
     {
-      "description": "Multiple frontend feature/UI changes (boot state machine, toasts, layout changes with global header logo, new/updated modals, access denied screen, React Query hook behavior, Tailwind/CSS theme and print rules, etc.) were introduced despite the release-only/no-code-changes constraint and non-goals (no UI changes).",
-      "reason": "The diff summary includes a modified file (frontend-file-summaries.txt) describing extensive changes across many frontend source files, which were not requested and conflict with the stated constraint and non-goals.",
+      "description": "Broad frontend boot/state-machine changes with deployment attempt monitoring, Sonner toast notifications, and retry mechanisms.",
+      "reason": "Not requested; unrelated to PRN medication feature.",
       "evidence": [
-        "frontend-file-summaries.txt"
+        "frontend-file-summaries.txt (entry for \"frontend/src/App.tsx\")"
       ]
     },
     {
-      "description": "Project tracking/state metadata updates (project_state.json) were added/modified even though not requested as part of the promotion requirements.",
-      "reason": "BuildRequest only asked for promotion and a release promotion document; it did not request project_state.json updates.",
+      "description": "Global layout changes adding a Moritz Care Home logo header/footer changes and caffeine.ai attribution.",
+      "reason": "Not requested; unrelated to PRN medication feature.",
       "evidence": [
-        "project_state.json"
+        "frontend-file-summaries.txt (entry for \"frontend/src/components/layout/AppShell.tsx\")"
+      ]
+    },
+    {
+      "description": "Vitals modal UI/layout changes (RecordDailyVitalsModal) and global dialog styling utility plus extensive print CSS updates.",
+      "reason": "Not requested; unrelated to PRN medication feature.",
+      "evidence": [
+        "frontend-file-summaries.txt (entry for \"frontend/src/components/vitals/modals/RecordDailyVitalsModal.tsx\")",
+        "frontend-file-summaries.txt (entry for \"frontend/src/index.css\")"
+      ]
+    },
+    {
+      "description": "Added/changed authentication/authorization UI and helpers (ProfileSetupModal, AccessDeniedScreen, auth helpers) and React Query retry/caching behaviors.",
+      "reason": "Non-goal includes not introducing new auth methods; these changes are not requested for PRN and appear unrelated scope expansion (even if still using Internet Identity).",
+      "evidence": [
+        "frontend-file-summaries.txt (entries for \"frontend/src/components/auth/ProfileSetupModal.tsx\", \"frontend/src/components/auth/AccessDeniedScreen.tsx\", \"frontend/src/lib/auth/helpers.ts\", \"frontend/src/hooks/useQueries.ts\")"
+      ]
+    },
+    {
+      "description": "Resident dashboard/profile feature expansions (stats cards, filtering/sorting, print support, physician signature toggle, code status badges).",
+      "reason": "Not requested; unrelated to PRN medication feature.",
+      "evidence": [
+        "frontend-file-summaries.txt (entries for \"frontend/src/pages/ResidentDashboardPage.tsx\", \"frontend/src/pages/ResidentProfilePage.tsx\")"
+      ]
+    },
+    {
+      "description": "Tailwind theme extensions for healthcare design (shadows, border radii).",
+      "reason": "Not requested; unrelated to PRN medication feature.",
+      "evidence": [
+        "frontend-file-summaries.txt (entry for \"frontend/tailwind.config.js\")"
+      ]
+    },
+    {
+      "description": "Changes to AddNewResidentModal to include medications with isPRN defaulted to false and other resident form enhancements (e.g., Code Status field).",
+      "reason": "Not requested by the PRN medication modal/list requirements; scope expansion beyond Add/Edit Medication modals and medication list display.",
+      "evidence": [
+        "frontend/src/components/residents/modals/AddNewResidentModal.tsx (modified)",
+        "frontend-file-summaries.txt (entry for \"frontend/src/components/residents/modals/AddNewResidentModal.tsx\")"
       ]
     }
   ],
-  "confidence": 0.72,
+  "confidence": 0.66,
   "changed_files": [
     "backend/main.mo",
+    "backend/migration.mo",
     "frontend-file-summaries.txt",
-    "frontend/docs/release/promote-v27-to-production.md",
+    "frontend/src/components/medications/MedicationSections.tsx",
+    "frontend/src/components/medications/MedicationsTab.tsx",
+    "frontend/src/components/medications/modals/AddMedicationModal.tsx",
+    "frontend/src/components/medications/modals/EditMedicationModal.tsx",
+    "frontend/src/components/residents/modals/AddNewResidentModal.tsx",
     "project_state.json"
   ]
 }
