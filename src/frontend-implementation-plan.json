@@ -1,61 +1,88 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Add PRN checkbox to medication modals and reflect PRN in medication display",
+  "title": "Force solid white (opaque) surfaces for dialogs, dropdowns, and selection menus",
   "requirements": [
     {
-      "id": "REQ-2",
-      "summary": "Add PRN checkbox to Add Medication modal; when checked, hide/disable administration times and suppress time validation; submit PRN boolean.",
+      "id": "REQ-1",
+      "summary": "Make all modal dialog panels fully opaque solid white (no transparency/blur) across the app, including all modal forms.",
       "acceptanceCriteria": [
-        "Add Medication modal shows a PRN checkbox aligned next to the Administration Times label/header.",
-        "When PRN is checked, the time input(s) are hidden or disabled and are not marked as required (no browser validation prompts for time).",
-        "When PRN is checked, submission succeeds even if administrationTimes are empty.",
-        "When PRN is unchecked, Administration Times behave as before (including required validation).",
-        "Submitting the Add Medication form sends the PRN boolean to the backend and stores it on the medication record."
+        "Every DialogContent panel in the app has an opaque solid white background (opacity 1) in both light and dark modes.",
+        "No dialog panel uses semi-transparent Tailwind classes (e.g., bg-*/xx), backdrop-blur, or CSS opacity less than 1.",
+        "Spot-check: AddMedicationModal DialogContent remains solid white (currently uses `dialog-solid-white`) and the same behavior is applied consistently to all other dialogs."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/auth/ProfileSetupModal.tsx",
+          "operation": "modify",
+          "description": "Ensure the Profile Setup modal DialogContent explicitly uses the existing solid-white dialog class (e.g., add `dialog-solid-white`) so the panel background is fully opaque."
+        },
+        {
+          "path": "frontend/src/components/adl/modals/AddADLRecordModal.tsx",
+          "operation": "modify",
+          "description": "Update the Add ADL Record modal DialogContent to explicitly enforce a solid white, fully opaque background (align with `dialog-solid-white`)."
+        },
+        {
+          "path": "frontend/src/components/mar/modals/AddMARRecordModal.tsx",
+          "operation": "modify",
+          "description": "Update the Add MAR Record modal DialogContent to explicitly enforce a solid white, fully opaque background (align with `dialog-solid-white`)."
+        },
+        {
+          "path": "frontend/src/components/vitals/modals/RecordDailyVitalsModal.tsx",
+          "operation": "modify",
+          "description": "Update the Record Daily Vitals modal DialogContent to explicitly enforce a solid white, fully opaque background (align with `dialog-solid-white`)."
+        },
+        {
+          "path": "frontend/src/components/residents/modals/EditResidentInformationModal.tsx",
+          "operation": "modify",
+          "description": "Update the Edit Resident Information modal DialogContent to explicitly enforce a solid white, fully opaque background (align with `dialog-solid-white`)."
+        }
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "summary": "Make all dropdown menus and selection menus (Select/dropdown/popover-style) fully opaque solid white for the menu surface across the app.",
+      "acceptanceCriteria": [
+        "All SelectContent / dropdown menu content surfaces are solid white (opacity 1) and readable, with no translucency.",
+        "No dropdown/select menu uses semi-transparent Tailwind classes (e.g., bg-*/xx) or backdrop blur for the menu surface.",
+        "Visual verification: opening a route selector (e.g., Administration Route) shows an opaque white menu background."
       ],
       "file_operations": [
         {
           "path": "frontend/src/components/medications/modals/AddMedicationModal.tsx",
           "operation": "modify",
-          "description": "Introduce local isPRN state and render a PRN checkbox next to the Administration Times header. When isPRN is true, hide/disable the administration time inputs and the “Add Time” control, ensure time inputs are not marked required, and ensure submission allows empty administrationTimes. Include isPRN in the Medication payload sent via useAddMedication."
+          "description": "Ensure Select menu surfaces used in Add Medication (e.g., Administration Route, Prescribing Physician) render with a fully opaque solid white menu background (prefer global safeguard + any explicit content class overrides where supported)."
+        },
+        {
+          "path": "frontend/src/components/medications/modals/EditMedicationModal.tsx",
+          "operation": "modify",
+          "description": "Ensure Select menu surfaces used in Edit Medication (e.g., Administration Route, Prescribing Physician) render with a fully opaque solid white menu background (prefer global safeguard + any explicit content class overrides where supported)."
+        },
+        {
+          "path": "frontend/src/components/residents/modals/AddNewResidentModal.tsx",
+          "operation": "modify",
+          "description": "Ensure Select menu surfaces used in Add New Resident (Room Type, Bed, Code Status, etc.) render with a fully opaque solid white menu background (prefer global safeguard + any explicit content class overrides where supported)."
+        },
+        {
+          "path": "frontend/src/components/auth/ProfileSetupModal.tsx",
+          "operation": "modify",
+          "description": "Ensure Select menu surfaces used in Profile Setup (Role selector) render with a fully opaque solid white menu background (prefer global safeguard + any explicit content class overrides where supported)."
         }
       ]
     },
     {
       "id": "REQ-3",
-      "summary": "Add PRN checkbox to Edit Medication modal with correct initial state; toggle updates times visibility/validation; save persists PRN.",
+      "summary": "Add global styling safeguards to prevent any dialog/dropdown/select/popover surfaces from becoming transparent due to theme alpha/defaults, without editing `frontend/src/components/ui`.",
       "acceptanceCriteria": [
-        "Edit Medication modal includes the PRN checkbox in the same position as Add Medication (next to Administration Times).",
-        "If an existing medication has PRN=true, the modal initially renders with PRN checked and the time inputs hidden/disabled and not required.",
-        "Toggling PRN on/off immediately updates visibility/disabled state and required validation of time inputs.",
-        "Saving changes persists the PRN value to the backend."
+        "No changes are made to files in `frontend/src/components/ui/*`.",
+        "Global CSS/theme adjustments prevent transparent popover/menu/dialog surfaces even if a consuming component forgets to pass an explicit solid background class.",
+        "After the change, inspecting computed styles for menu/dialog surfaces shows an opaque white background color (no alpha channel) and opacity 1."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/medications/modals/EditMedicationModal.tsx",
+          "path": "frontend/src/index.css",
           "operation": "modify",
-          "description": "Add isPRN state initialized from medication.isPRN and render a PRN checkbox next to the Administration Times header matching Add Medication. When isPRN is true, hide/disable time inputs and remove required validation; when toggled off, restore prior behavior and ensure at least one time input is available for required validation. Include isPRN in the updatedMedication payload passed to useUpdateMedication."
-        }
-      ]
-    },
-    {
-      "id": "REQ-4",
-      "summary": "Update medication list UI to label PRN medications and avoid showing administration times when PRN is true.",
-      "acceptanceCriteria": [
-        "In the medications list, medications with PRN=true are labeled as PRN (e.g., a small 'PRN' badge or text).",
-        "For PRN medications, the UI does not render the 'Times:' line (or renders it only when non-PRN).",
-        "Non-PRN medications display times exactly as before."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/components/medications/MedicationSections.tsx",
-          "operation": "modify",
-          "description": "Adjust the medication card rendering to display a clear PRN label (e.g., small 'PRN' badge/text) when medication.isPRN is true, and conditionally omit the Times block/line for PRN medications while leaving non-PRN times rendering unchanged in both active and discontinued sections."
-        },
-        {
-          "path": "frontend/src/components/medications/MedicationsTab.tsx",
-          "operation": "modify",
-          "description": "Update the medications list item display to add a PRN label when medication.isPRN is true and to avoid rendering the 'Times:' line for PRN medications; preserve existing times display for non-PRN medications."
+          "description": "Add global CSS overrides that force Radix/shadcn overlay content surfaces (dialogs, popovers, dropdown menus, select menus) to use a solid white background with opacity 1 and no backdrop blur/filter on the surface itself; implement using resilient attribute-based selectors (e.g., targeting common Radix content nodes) and/or a reusable utility class, without modifying any files under `frontend/src/components/ui`."
         }
       ]
     }

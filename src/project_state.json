@@ -1,32 +1,34 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Medication form enhancement: add PRN checkbox behavior on Add Medications.",
+  "summary": "Project to update the app UI to remove transparency (solid white dialogs/menus) and address reported connection failures.",
   "architectural_notes": [],
-  "known_issues": [],
-  "isFixRequest": false,
+  "known_issues": [
+    "Users may encounter an 'Unable to connect' / 'issue connecting with the application' error when trying to access the app."
+  ],
+  "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-update-the-add-medication-modal-ui-to-include-a-prn-checkbox-positioned-next-to-the-administration-times-label-and-when-prn-is-checked-hide-disable-the-administration-times-inputs-and-suppress-any-related-validation-errors",
-      "title": "Update the Add Medication modal UI to include a PRN checkbox positioned next to the Administration Times label, and when PRN is checked hide/disable the Administration Times inputs and suppress any related validation errors.",
+      "id": "feature-ensure-all-pop-up-dialog-panels-render-with-a-fully-opaque-solid-white-background-no-transparency-no-blur-glass-effect-including-all-modal-forms-e-g-profile-setup-add-edit-resident-add-edit-medication-add-mar-adl-vitals",
+      "title": "Ensure all pop-up dialog panels render with a fully opaque solid white background (no transparency, no blur/\"glass\" effect), including all modal forms (e.g., Profile Setup, Add/Edit Resident, Add/Edit Medication, Add MAR/ADL/Vitals).",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-ensure-all-dropdown-menus-and-selection-menus-render-with-a-fully-opaque-solid-white-background-no-transparency-for-the-menu-surface-including-select-menus-and-any-dropdown-popover-style-menus-used-across-the-app",
+      "title": "Ensure all dropdown menus and selection menus render with a fully opaque solid white background (no transparency) for the menu surface, including Select menus and any dropdown/popover-style menus used across the app.",
       "reqIds": [
         "REQ-2"
       ],
       "version": 1
     },
     {
-      "id": "feature-update-the-edit-medication-modal-to-display-and-allow-editing-the-prn-flag-with-the-same-hide-disable-and-validation-suppression-behavior-for-administration-times-when-prn-is-checked",
-      "title": "Update the Edit Medication modal to display and allow editing the PRN flag with the same hide/disable and validation-suppression behavior for Administration Times when PRN is checked.",
+      "id": "feature-add-adjust-global-styling-safeguards-so-that-any-future-dialog-dropdown-select-popover-surfaces-cannot-become-transparent-due-to-theme-alpha-values-or-component-defaults-without-modifying-any-files-under-frontend-src-components-ui-read-only",
+      "title": "Add/adjust global styling safeguards so that any future dialog/dropdown/select/popover surfaces cannot become transparent due to theme alpha values or component defaults, without modifying any files under `frontend/src/components/ui` (read-only).",
       "reqIds": [
         "REQ-3"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-update-medication-list-display-to-clearly-represent-prn-medications-and-avoid-showing-administration-times-when-prn-is-true",
-      "title": "Update medication list display to clearly represent PRN medications and avoid showing administration times when PRN is true.",
-      "reqIds": [
-        "REQ-4"
       ],
       "version": 1
     }
@@ -34,20 +36,12 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Add PRN checkbox next to Administration Time in Add Medications; when checked hide/disable Administration Time, suppress its validation errors, and store PRN as a boolean.",
+      "summary": "Remove all UI transparencies; make pop-up dialogs, dropdown menus, and selection menus solid white.",
       "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-2",
-      "summary": "Add a boolean PRN flag to the Medication data model in the backend and ensure it is persisted and returned in all resident medication read/write operations.",
-      "reqIds": [
-        "REQ-1"
-      ],
       "status": "pending"
     }
   ],
-  "projectName": "Add PRN checkbox to Medication form and persist PRN flag",
+  "projectName": "Remove transparency from dialogs, dropdowns, and selection menus (solid white surfaces)",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

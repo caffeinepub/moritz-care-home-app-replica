@@ -9,6 +9,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Plus, X } from 'lucide-react';
 import { useAddMedication } from '../../../hooks/useQueries';
 import { Medication, Physician } from '../../../backend';
+import { ADMINISTRATION_ROUTES } from '../administrationRoutes';
 
 interface AddMedicationModalProps {
   residentId: bigint;
@@ -98,11 +99,11 @@ export default function AddMedicationModal({ residentId, physicians, onClose }: 
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Oral">Oral</SelectItem>
-                  <SelectItem value="IV">IV</SelectItem>
-                  <SelectItem value="IM">IM</SelectItem>
-                  <SelectItem value="Topical">Topical</SelectItem>
-                  <SelectItem value="Subcutaneous">Subcutaneous</SelectItem>
+                  {ADMINISTRATION_ROUTES.map((route) => (
+                    <SelectItem key={route} value={route}>
+                      {route}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>

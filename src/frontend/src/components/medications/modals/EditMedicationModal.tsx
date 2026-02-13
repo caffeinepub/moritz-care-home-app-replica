@@ -9,6 +9,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Plus, X } from 'lucide-react';
 import { useUpdateMedication } from '../../../hooks/useQueries';
 import { Medication, Physician } from '../../../backend';
+import { getRouteOptions } from '../administrationRoutes';
 
 interface EditMedicationModalProps {
   residentId: bigint;
@@ -30,6 +31,9 @@ export default function EditMedicationModal({ residentId, medication, physicians
   );
   const [prescribingPhysicianId, setPrescribingPhysicianId] = useState<string>(medication.prescribingPhysicianId?.toString() || 'none');
   const [notes, setNotes] = useState(medication.notes);
+
+  // Get route options including the current value if it's not in the standard list
+  const routeOptions = getRouteOptions(medication.administrationRoute);
 
   const handleAddTime = () => {
     setAdministrationTimes([...administrationTimes, '']);
@@ -110,11 +114,11 @@ export default function EditMedicationModal({ residentId, medication, physicians
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Oral">Oral</SelectItem>
-                  <SelectItem value="IV">IV</SelectItem>
-                  <SelectItem value="IM">IM</SelectItem>
-                  <SelectItem value="Topical">Topical</SelectItem>
-                  <SelectItem value="Subcutaneous">Subcutaneous</SelectItem>
+                  {routeOptions.map((route) => (
+                    <SelectItem key={route} value={route}>
+                      {route}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>

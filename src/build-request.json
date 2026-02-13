@@ -1,105 +1,70 @@
 {
   "kind": "build_request",
-  "title": "Add PRN checkbox to Medication form and persist PRN flag",
+  "title": "Remove transparency from dialogs, dropdowns, and selection menus (solid white surfaces)",
   "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Add a boolean PRN flag to the Medication data model in the backend and ensure it is persisted and returned in all resident medication read/write operations.",
-      "target": "backend",
+      "text": "Ensure all pop-up dialog panels render with a fully opaque solid white background (no transparency, no blur/\"glass\" effect), including all modal forms (e.g., Profile Setup, Add/Edit Resident, Add/Edit Medication, Add MAR/ADL/Vitals).",
+      "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-6",
-          "msg-8"
+          "msg-1"
         ],
         "quotes": [
-          "add checkbox for PRN alongside Administration Time in the Add Medications",
-          "add a PRN checkbox next to Administration Time, and when checked it will hide/disable that time field and store PRN as a boolean."
+          "remove all transparencies in the app. all must be solid white pop-up dialogs, dropdown menus or selection menus"
         ]
       },
       "acceptanceCriteria": [
-        "Backend `Medication` type includes a boolean field representing PRN (e.g., `isPRN : Bool`).",
-        "`addMedicationToResident` stores the PRN value from the provided medication payload.",
-        "`updateMedication` stores updates to the PRN value.",
-        "Queries that return medications (e.g., `getMedications`, `getResident`) include the PRN field in returned medication records.",
-        "If PRN is not provided by older clients, backend behavior defaults PRN to `false` (no traps)."
+        "Every DialogContent panel in the app has an opaque solid white background (opacity 1) in both light and dark modes.",
+        "No dialog panel uses semi-transparent Tailwind classes (e.g., bg-*/xx), backdrop-blur, or CSS opacity less than 1.",
+        "Spot-check: AddMedicationModal DialogContent remains solid white (currently uses `dialog-solid-white`) and the same behavior is applied consistently to all other dialogs."
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Update the Add Medication modal UI to include a PRN checkbox positioned next to the Administration Times label, and when PRN is checked hide/disable the Administration Times inputs and suppress any related validation errors.",
+      "text": "Ensure all dropdown menus and selection menus render with a fully opaque solid white background (no transparency) for the menu surface, including Select menus and any dropdown/popover-style menus used across the app.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-6",
-          "msg-8",
-          "msg-9"
+          "msg-1"
         ],
         "quotes": [
-          "1. next to the Administration Time",
-          "add a PRN checkbox next to Administration Time, and when checked it will hide/disable that time field and store PRN as a boolean.",
-          "yes"
+          "remove all transparencies in the app. all must be solid white pop-up dialogs, dropdown menus or selection menus"
         ]
       },
       "acceptanceCriteria": [
-        "Add Medication modal shows a PRN checkbox aligned next to the Administration Times label/header.",
-        "When PRN is checked, the time input(s) are hidden or disabled and are not marked as required (no browser validation prompts for time).",
-        "When PRN is checked, submission succeeds even if administrationTimes are empty.",
-        "When PRN is unchecked, Administration Times behave as before (including required validation).",
-        "Submitting the Add Medication form sends the PRN boolean to the backend and stores it on the medication record."
+        "All SelectContent / dropdown menu content surfaces are solid white (opacity 1) and readable, with no translucency.",
+        "No dropdown/select menu uses semi-transparent Tailwind classes (e.g., bg-*/xx) or backdrop blur for the menu surface.",
+        "Visual verification: opening a route selector (e.g., Administration Route) shows an opaque white menu background."
       ]
     },
     {
       "id": "REQ-3",
-      "text": "Update the Edit Medication modal to display and allow editing the PRN flag with the same hide/disable and validation-suppression behavior for Administration Times when PRN is checked.",
+      "text": "Add/adjust global styling safeguards so that any future dialog/dropdown/select/popover surfaces cannot become transparent due to theme alpha values or component defaults, without modifying any files under `frontend/src/components/ui` (read-only).",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-8",
-          "msg-9"
+          "msg-1"
         ],
         "quotes": [
-          "add a PRN checkbox next to Administration Time, and when checked it will hide/disable that time field and store PRN as a boolean.",
-          "yes"
+          "remove all transparencies in the app. all must be solid white pop-up dialogs, dropdown menus or selection menus"
         ]
       },
       "acceptanceCriteria": [
-        "Edit Medication modal includes the PRN checkbox in the same position as Add Medication (next to Administration Times).",
-        "If an existing medication has PRN=true, the modal initially renders with PRN checked and the time inputs hidden/disabled and not required.",
-        "Toggling PRN on/off immediately updates visibility/disabled state and required validation of time inputs.",
-        "Saving changes persists the PRN value to the backend."
-      ]
-    },
-    {
-      "id": "REQ-4",
-      "text": "Update medication list display to clearly represent PRN medications and avoid showing administration times when PRN is true.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-6",
-          "msg-8"
-        ],
-        "quotes": [
-          "add checkbox for PRN alongside Administration Time in the Add Medications",
-          "store PRN as a boolean"
-        ]
-      },
-      "acceptanceCriteria": [
-        "In the medications list, medications with PRN=true are labeled as PRN (e.g., a small 'PRN' badge or text).",
-        "For PRN medications, the UI does not render the 'Times:' line (or renders it only when non-PRN).",
-        "Non-PRN medications display times exactly as before."
+        "No changes are made to files in `frontend/src/components/ui/*`.",
+        "Global CSS/theme adjustments prevent transparent popover/menu/dialog surfaces even if a consuming component forgets to pass an explicit solid background class.",
+        "After the change, inspecting computed styles for menu/dialog surfaces shows an opaque white background color (no alpha channel) and opacity 1."
       ]
     }
   ],
   "constraints": [
-    "Do not edit any files under frontend/src/components/ui or any paths listed as immutable in SYSTEM_CONTEXT.",
-    "Keep all Motoko backend logic in the single actor at backend/main.mo (no additional backend services).",
-    "Use English for any new user-facing text."
+    "Do not edit any files under `frontend/src/components/ui` (these paths are immutable/read-only)."
   ],
   "nonGoals": [
-    "Changing the MAR (Medication Administration Record) workflow or adding PRN handling to MAR entries.",
-    "Adding new authentication methods beyond Internet Identity.",
-    "Introducing external databases or third-party services."
+    "Do not change backend canister logic or data models.",
+    "Do not redesign unrelated page layouts or typography beyond what is necessary to eliminate transparency on dialogs/menus.",
+    "Do not change print-specific transparency rules unless they directly affect in-app dialogs/menus (print output is out of scope for this request)."
   ],
   "imageRequirements": {
     "required": [],

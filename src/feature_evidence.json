@@ -2,10 +2,31 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-update-the-add-medication-modal-ui-to-include-a-prn-checkbox-positioned-next-to-the-administration-times-label-and-when-prn-is-checked-hide-disable-the-administration-times-inputs-and-suppress-any-related-validation-errors",
-      "featureTitle": "Update the Add Medication modal UI to include a PRN checkbox positioned next to the Administration Times label, and when PRN is checked hide/disable the Administration Times inputs and suppress any related validation errors.",
+      "featureId": "feature-ensure-all-pop-up-dialog-panels-render-with-a-fully-opaque-solid-white-background-no-transparency-no-blur-glass-effect-including-all-modal-forms-e-g-profile-setup-add-edit-resident-add-edit-medication-add-mar-adl-vitals",
+      "featureTitle": "Ensure all pop-up dialog panels render with a fully opaque solid white background (no transparency, no blur/\"glass\" effect), including all modal forms (e.g., Profile Setup, Add/Edit Resident, Add/Edit Medication, Add MAR/ADL/Vitals).",
       "files": [
-        "frontend/src/components/medications/modals/AddMedicationModal.tsx"
+        "frontend/src/components/auth/ProfileSetupModal.tsx",
+        "frontend/src/components/residents/modals/EditResidentInformationModal.tsx",
+        "frontend/src/components/vitals/modals/RecordDailyVitalsModal.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-1"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-ensure-all-dropdown-menus-and-selection-menus-render-with-a-fully-opaque-solid-white-background-no-transparency-for-the-menu-surface-including-select-menus-and-any-dropdown-popover-style-menus-used-across-the-app",
+      "featureTitle": "Ensure all dropdown menus and selection menus render with a fully opaque solid white background (no transparency) for the menu surface, including Select menus and any dropdown/popover-style menus used across the app.",
+      "files": [
+        "frontend/src/components/auth/ProfileSetupModal.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -21,10 +42,10 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-update-the-edit-medication-modal-to-display-and-allow-editing-the-prn-flag-with-the-same-hide-disable-and-validation-suppression-behavior-for-administration-times-when-prn-is-checked",
-      "featureTitle": "Update the Edit Medication modal to display and allow editing the PRN flag with the same hide/disable and validation-suppression behavior for Administration Times when PRN is checked.",
+      "featureId": "feature-add-adjust-global-styling-safeguards-so-that-any-future-dialog-dropdown-select-popover-surfaces-cannot-become-transparent-due-to-theme-alpha-values-or-component-defaults-without-modifying-any-files-under-frontend-src-components-ui-read-only",
+      "featureTitle": "Add/adjust global styling safeguards so that any future dialog/dropdown/select/popover surfaces cannot become transparent due to theme alpha values or component defaults, without modifying any files under `frontend/src/components/ui` (read-only).",
       "files": [
-        "frontend/src/components/medications/modals/EditMedicationModal.tsx"
+        "frontend/src/index.css"
       ],
       "components": [
         "authorization@4.0.0",
@@ -36,26 +57,6 @@
       ],
       "testIds": [
         "REQ-3"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-update-medication-list-display-to-clearly-represent-prn-medications-and-avoid-showing-administration-times-when-prn-is-true",
-      "featureTitle": "Update medication list display to clearly represent PRN medications and avoid showing administration times when PRN is true.",
-      "files": [
-        "frontend/src/components/medications/MedicationSections.tsx",
-        "frontend/src/components/medications/MedicationsTab.tsx"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-4"
       ],
       "confidence": "high"
     }

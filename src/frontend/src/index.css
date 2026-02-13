@@ -78,6 +78,38 @@
   }
 }
 
+/* Global enforcement: all dialogs, popovers, dropdowns, and select menus must be solid white */
+[data-radix-dialog-content],
+[data-radix-popover-content],
+[data-radix-dropdown-menu-content],
+[data-radix-select-content],
+[data-radix-context-menu-content],
+[data-radix-menubar-content],
+[data-radix-hover-card-content],
+[data-radix-alert-dialog-content] {
+  background: white !important;
+  background-color: white !important;
+  opacity: 1 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Dark mode: force solid backgrounds (not transparent) */
+.dark [data-radix-dialog-content],
+.dark [data-radix-popover-content],
+.dark [data-radix-dropdown-menu-content],
+.dark [data-radix-select-content],
+.dark [data-radix-context-menu-content],
+.dark [data-radix-menubar-content],
+.dark [data-radix-hover-card-content],
+.dark [data-radix-alert-dialog-content] {
+  background: oklch(20% 0.02 220) !important;
+  background-color: oklch(20% 0.02 220) !important;
+  opacity: 1 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
 /* Print Styles */
 @media print {
   /* Force white background and dark text for print */

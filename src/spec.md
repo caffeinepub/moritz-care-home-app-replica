@@ -1,12 +1,11 @@
 # Specification
 
 ## Summary
-**Goal:** Add a PRN (as-needed) flag to medications, persist it in the backend, and update the UI to capture, edit, and display PRN medications appropriately.
+**Goal:** Remove all transparency/glass effects from dialogs, dropdowns, and selection menus so these surfaces render as fully opaque solid white across the app.
 
 **Planned changes:**
-- Backend: add a boolean PRN field to the Medication model, persist it on add/update, return it in medication read operations, and default to `false` when not provided.
-- Frontend: Add Medication modal: add a PRN checkbox next to the Administration Times label; when checked, hide/disable time inputs and suppress related required validation; submit PRN to backend.
-- Frontend: Edit Medication modal: show and allow editing the PRN checkbox with the same hide/disable and validation behavior; initialize from existing medication PRN value; persist on save.
-- Frontend: medications list: label PRN medications and do not display administration times when PRN is true.
+- Update dialog/modal surfaces so every DialogContent uses an opaque solid white background (no alpha backgrounds, no blur, no opacity < 1) in both light and dark modes.
+- Update dropdown/select/popover menu surfaces so all menu content panels render with an opaque solid white background (no translucency or backdrop blur).
+- Add global styling safeguards (without editing `frontend/src/components/ui/*`) to prevent future dialog/dropdown/select/popover surfaces from becoming transparent due to theme/component defaults.
 
-**User-visible outcome:** Users can mark a medication as PRN when adding/editing it; PRN medications won’t require or show administration times, will be labeled as PRN in lists, and the PRN setting is saved and loaded consistently.
+**User-visible outcome:** All pop-up dialogs and all dropdown/selection menus consistently appear with solid white, fully opaque backgrounds, improving readability and eliminating transparency effects.

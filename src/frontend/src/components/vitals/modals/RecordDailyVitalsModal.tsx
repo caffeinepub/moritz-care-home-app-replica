@@ -30,16 +30,7 @@ export default function RecordDailyVitalsModal({ residentId, onClose }: RecordDa
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (
-      !temperature ||
-      !bloodPressureSystolic ||
-      !bloodPressureDiastolic ||
-      !pulseRate ||
-      !respiratoryRate ||
-      !oxygenSaturation ||
-      !measurementDate ||
-      !measurementTime
-    ) {
+    if (!temperature || !bloodPressureSystolic || !bloodPressureDiastolic || !pulseRate || !respiratoryRate || !oxygenSaturation || !measurementDate || !measurementTime) {
       alert('Please fill in all required fields');
       return;
     }
@@ -68,11 +59,34 @@ export default function RecordDailyVitalsModal({ residentId, onClose }: RecordDa
         <DialogHeader>
           <DialogTitle>Record Daily Vitals</DialogTitle>
           <DialogDescription>
-            Enter the resident's vital signs. Fields marked with * are required.
+            Enter vital signs measurements. Fields marked with * are required.
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="measurementDate">Measurement Date *</Label>
+              <Input
+                id="measurementDate"
+                type="date"
+                value={measurementDate}
+                onChange={(e) => setMeasurementDate(e.target.value)}
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="measurementTime">Measurement Time *</Label>
+              <Input
+                id="measurementTime"
+                type="time"
+                value={measurementTime}
+                onChange={(e) => setMeasurementTime(e.target.value)}
+                required
+              />
+            </div>
+          </div>
+
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label htmlFor="temperature">Temperature *</Label>
@@ -98,7 +112,6 @@ export default function RecordDailyVitalsModal({ residentId, onClose }: RecordDa
                 </Select>
               </div>
             </div>
-
             <div>
               <Label htmlFor="bloodPressure">Blood Pressure *</Label>
               <div className="flex gap-2 items-center">
@@ -109,6 +122,7 @@ export default function RecordDailyVitalsModal({ residentId, onClose }: RecordDa
                   onChange={(e) => setBloodPressureSystolic(e.target.value)}
                   placeholder="120"
                   required
+                  className="flex-1"
                 />
                 <span className="text-muted-foreground">/</span>
                 <Input
@@ -118,10 +132,13 @@ export default function RecordDailyVitalsModal({ residentId, onClose }: RecordDa
                   onChange={(e) => setBloodPressureDiastolic(e.target.value)}
                   placeholder="80"
                   required
+                  className="flex-1"
                 />
               </div>
             </div>
+          </div>
 
+          <div className="grid grid-cols-2 gap-4">
             <div>
               <Label htmlFor="pulseRate">Pulse Rate (bpm) *</Label>
               <Input
@@ -133,7 +150,6 @@ export default function RecordDailyVitalsModal({ residentId, onClose }: RecordDa
                 required
               />
             </div>
-
             <div>
               <Label htmlFor="respiratoryRate">Respiratory Rate (breaths/min) *</Label>
               <Input
@@ -145,7 +161,9 @@ export default function RecordDailyVitalsModal({ residentId, onClose }: RecordDa
                 required
               />
             </div>
+          </div>
 
+          <div className="grid grid-cols-2 gap-4">
             <div>
               <Label htmlFor="oxygenSaturation">Oxygen Saturation (%) *</Label>
               <Input
@@ -157,7 +175,6 @@ export default function RecordDailyVitalsModal({ residentId, onClose }: RecordDa
                 required
               />
             </div>
-
             <div>
               <Label htmlFor="bloodGlucose">Blood Glucose (mg/dL)</Label>
               <Input
@@ -165,29 +182,7 @@ export default function RecordDailyVitalsModal({ residentId, onClose }: RecordDa
                 type="number"
                 value={bloodGlucose}
                 onChange={(e) => setBloodGlucose(e.target.value)}
-                placeholder="Optional"
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="measurementDate">Measurement Date *</Label>
-              <Input
-                id="measurementDate"
-                type="date"
-                value={measurementDate}
-                onChange={(e) => setMeasurementDate(e.target.value)}
-                required
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="measurementTime">Measurement Time *</Label>
-              <Input
-                id="measurementTime"
-                type="time"
-                value={measurementTime}
-                onChange={(e) => setMeasurementTime(e.target.value)}
-                required
+                placeholder="100"
               />
             </div>
           </div>
@@ -198,7 +193,7 @@ export default function RecordDailyVitalsModal({ residentId, onClose }: RecordDa
               id="notes"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              placeholder="Additional notes..."
+              placeholder="Additional observations..."
               rows={3}
             />
           </div>

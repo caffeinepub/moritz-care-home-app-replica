@@ -1,105 +1,50 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-12T19:25:01.372Z",
-  "summary": "Diff adds an isPRN flag to the backend Medication type and updates multiple frontend medication UIs to show a PRN badge and hide times when PRN. However, key backend persistence/defaulting behaviors for PRN are not evidenced in the provided diff summary, and the change set includes substantial unrelated frontend and backend work (migration system and various UI/boot/auth/vitals/layout updates) that was not requested.",
+  "generatedAt": "2026-02-13T22:03:48.489Z",
+  "summary": "Diff adds a global CSS override in `frontend/src/index.css` forcing Radix dialog/popover/dropdown/select surfaces to be opaque and removes backdrop blur. Several modal `DialogContent` components were also updated to include a `dialog-solid-white` class. However, the dark-mode override forces a dark background instead of solid white, which conflicts with the requirement that dialogs remain solid white in both light and dark modes.",
   "missing_requirements": [
     {
       "id": "REQ-1",
-      "requirement": "Ensure PRN is persisted and returned in all resident medication read/write operations, including addMedicationToResident/updateMedication storing PRN and query endpoints returning it; default PRN to false when older clients omit it.",
-      "reason": "The diff summary shows the Medication type updated to include `isPRN : Bool`, but does not show any changes to the medication add/update functions or query functions to persist/return this field, nor any compatibility defaulting behavior when PRN is omitted. The backend/main.mo content is truncated before those operations, so implementation cannot be confirmed from the provided evidence.",
+      "requirement": "Every DialogContent panel must have a fully opaque solid white background (opacity 1) in both light and dark modes (no transparency/blur).",
+      "reason": "`frontend/src/index.css` explicitly sets dark-mode Radix dialog content backgrounds to `oklch(20% 0.02 220)` (dark), not solid white, so dialogs will not be white in dark mode.",
       "evidence": [
-        "backend/main.mo (truncated; shows `public type Medication` includes `isPRN : Bool` but not add/update/query logic)"
+        "frontend/src/index.css"
       ]
     },
     {
       "id": "REQ-2",
-      "requirement": "Add Medication modal: PRN checkbox positioned next to Administration Times label; when checked hide/disable time inputs and suppress required/validation; submission succeeds with empty administrationTimes; PRN sent to backend.",
-      "reason": "The diff summary confirms PRN state and submission logic/validation relaxation, but the provided AddMedicationModal.tsx excerpt is truncated before the Administration Times section rendering, so the exact UI placement (next to the Administration Times label) and the actual hide/disable/required attribute behavior for the time inputs cannot be verified from the included excerpt.",
+      "requirement": "All dropdown menus and selection menus must render with a fully opaque solid white background (opacity 1) and no translucency/blur.",
+      "reason": "`frontend/src/index.css` sets dark-mode Radix dropdown/select content backgrounds to a dark OKLCH color rather than solid white, so dropdown/select menus will not be white in dark mode.",
       "evidence": [
-        "frontend/src/components/medications/modals/AddMedicationModal.tsx (truncated; shows isPRN state and submit logic but not the Administration Times JSX/checkbox positioning)"
+        "frontend/src/index.css"
       ]
     },
     {
       "id": "REQ-3",
-      "requirement": "Edit Medication modal: PRN checkbox positioned next to Administration Times label; initial checked state when medication.isPRN=true; toggling hides/disables time inputs and suppresses required/validation; saving persists PRN.",
-      "reason": "The diff summary shows isPRN state initialized from `medication.isPRN` and save payload includes `isPRN`, but the excerpt is truncated before the Administration Times section rendering, so the exact UI placement and hide/disable/required attribute behavior for time inputs cannot be verified from the provided evidence.",
+      "requirement": "Global styling safeguards must prevent dialog/dropdown/select/popover surfaces from becoming transparent, ensuring computed backgrounds are opaque solid white (no alpha channel) and opacity 1.",
+      "reason": "The global safeguard in `frontend/src/index.css` enforces opacity 1 and removes blur, but in dark mode it enforces a dark background rather than the required solid white background.",
       "evidence": [
-        "frontend/src/components/medications/modals/EditMedicationModal.tsx (truncated; shows isPRN state and submit logic but not the Administration Times JSX/checkbox positioning)"
+        "frontend/src/index.css"
       ]
     }
   ],
   "hallucinated_features": [
     {
-      "description": "Introduced a Motoko upgrade migration module and wired it into the actor via `(with migration = Migration.run)`.",
-      "reason": "BuildRequest did not request adding an upgrade migration system/module; also conflicts with the constraint to keep backend logic in the single actor file (backend/main.mo) with no additional backend services/modules.",
+      "description": "Project metadata updated to state the project also addresses reported connection failures.",
+      "reason": "BuildRequest non-goals exclude backend/canister logic changes and focuses on removing transparency; the diff’s `project_state.json` summary adds scope about connection failures not requested in REQ-1/2/3.",
       "evidence": [
-        "backend/migration.mo (added)",
-        "backend/main.mo (imports Migration \"migration\" and uses `(with migration = Migration.run)`)"
-      ]
-    },
-    {
-      "description": "Broad frontend boot/state-machine changes with deployment attempt monitoring, Sonner toast notifications, and retry mechanisms.",
-      "reason": "Not requested; unrelated to PRN medication feature.",
-      "evidence": [
-        "frontend-file-summaries.txt (entry for \"frontend/src/App.tsx\")"
-      ]
-    },
-    {
-      "description": "Global layout changes adding a Moritz Care Home logo header/footer changes and caffeine.ai attribution.",
-      "reason": "Not requested; unrelated to PRN medication feature.",
-      "evidence": [
-        "frontend-file-summaries.txt (entry for \"frontend/src/components/layout/AppShell.tsx\")"
-      ]
-    },
-    {
-      "description": "Vitals modal UI/layout changes (RecordDailyVitalsModal) and global dialog styling utility plus extensive print CSS updates.",
-      "reason": "Not requested; unrelated to PRN medication feature.",
-      "evidence": [
-        "frontend-file-summaries.txt (entry for \"frontend/src/components/vitals/modals/RecordDailyVitalsModal.tsx\")",
-        "frontend-file-summaries.txt (entry for \"frontend/src/index.css\")"
-      ]
-    },
-    {
-      "description": "Added/changed authentication/authorization UI and helpers (ProfileSetupModal, AccessDeniedScreen, auth helpers) and React Query retry/caching behaviors.",
-      "reason": "Non-goal includes not introducing new auth methods; these changes are not requested for PRN and appear unrelated scope expansion (even if still using Internet Identity).",
-      "evidence": [
-        "frontend-file-summaries.txt (entries for \"frontend/src/components/auth/ProfileSetupModal.tsx\", \"frontend/src/components/auth/AccessDeniedScreen.tsx\", \"frontend/src/lib/auth/helpers.ts\", \"frontend/src/hooks/useQueries.ts\")"
-      ]
-    },
-    {
-      "description": "Resident dashboard/profile feature expansions (stats cards, filtering/sorting, print support, physician signature toggle, code status badges).",
-      "reason": "Not requested; unrelated to PRN medication feature.",
-      "evidence": [
-        "frontend-file-summaries.txt (entries for \"frontend/src/pages/ResidentDashboardPage.tsx\", \"frontend/src/pages/ResidentProfilePage.tsx\")"
-      ]
-    },
-    {
-      "description": "Tailwind theme extensions for healthcare design (shadows, border radii).",
-      "reason": "Not requested; unrelated to PRN medication feature.",
-      "evidence": [
-        "frontend-file-summaries.txt (entry for \"frontend/tailwind.config.js\")"
-      ]
-    },
-    {
-      "description": "Changes to AddNewResidentModal to include medications with isPRN defaulted to false and other resident form enhancements (e.g., Code Status field).",
-      "reason": "Not requested by the PRN medication modal/list requirements; scope expansion beyond Add/Edit Medication modals and medication list display.",
-      "evidence": [
-        "frontend/src/components/residents/modals/AddNewResidentModal.tsx (modified)",
-        "frontend-file-summaries.txt (entry for \"frontend/src/components/residents/modals/AddNewResidentModal.tsx\")"
+        "project_state.json"
       ]
     }
   ],
-  "confidence": 0.66,
+  "confidence": 0.74,
   "changed_files": [
-    "backend/main.mo",
-    "backend/migration.mo",
     "frontend-file-summaries.txt",
-    "frontend/src/components/medications/MedicationSections.tsx",
-    "frontend/src/components/medications/MedicationsTab.tsx",
-    "frontend/src/components/medications/modals/AddMedicationModal.tsx",
-    "frontend/src/components/medications/modals/EditMedicationModal.tsx",
-    "frontend/src/components/residents/modals/AddNewResidentModal.tsx",
+    "frontend/src/components/auth/ProfileSetupModal.tsx",
+    "frontend/src/components/residents/modals/EditResidentInformationModal.tsx",
+    "frontend/src/components/vitals/modals/RecordDailyVitalsModal.tsx",
+    "frontend/src/index.css",
     "project_state.json"
   ]
 }
