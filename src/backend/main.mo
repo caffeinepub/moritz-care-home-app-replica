@@ -5,12 +5,12 @@ import Text "mo:core/Text";
 import Time "mo:core/Time";
 import Iter "mo:core/Iter";
 
-
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
+import Migration "migration";
 
 // Specify migration function for upgrades
-
+(with migration = Migration.run)
 actor {
   let accessControlState = AccessControl.initState();
   include MixinAuthorization(accessControlState);
@@ -26,6 +26,7 @@ actor {
     name : Text;
     userType : UserType;
     relatedResidentIds : [Nat];
+    showResidentProfileReport : Bool;
   };
 
   let userProfiles = Map.empty<Principal, UserProfile>();

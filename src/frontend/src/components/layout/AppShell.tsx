@@ -1,21 +1,19 @@
+import { Outlet } from '@tanstack/react-router';
 import { useInternetIdentity } from '../../hooks/useInternetIdentity';
 import { useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
-import { LogOut } from 'lucide-react';
-import { ReactNode } from 'react';
+import { Settings } from 'lucide-react';
+import { useNavigate } from '@tanstack/react-router';
 import Logo from '../branding/Logo';
 
-interface AppShellProps {
-  showLogin?: boolean;
-  children?: ReactNode;
-}
-
-export default function AppShell({ showLogin = false, children }: AppShellProps) {
+export default function AppShell() {
   const { login, clear, loginStatus, identity } = useInternetIdentity();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   const isAuthenticated = !!identity;
   const disabled = loginStatus === 'logging-in';
+  const text = loginStatus === 'logging-in' ? 'Logging in...' : isAuthenticated ? 'Logout' : 'Login';
 
   const handleAuth = async () => {
     if (isAuthenticated) {
@@ -34,61 +32,48 @@ export default function AppShell({ showLogin = false, children }: AppShellProps)
     }
   };
 
-  if (showLogin) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-teal-50 flex items-center justify-center p-4">
-        <div className="w-full max-w-md">
-          <header className="bg-white border-b border-gray-200 shadow-sm mb-8 rounded-t-lg">
-            <div className="px-6 py-4 flex items-center justify-center gap-3">
-              <Logo variant="small" />
-              <div className="text-center">
-                <h1 className="text-xl font-bold text-gray-900">Moritz Care Home</h1>
-                <p className="text-sm text-gray-600">Assisted Living Management</p>
-              </div>
-            </div>
-          </header>
-          <div className="bg-white rounded-b-lg shadow-lg p-8">
-            <p className="text-gray-700 mb-6 text-center">
-              Please sign in to access the resident management system.
-            </p>
-            <Button onClick={handleAuth} disabled={disabled} size="lg" className="w-full">
-              {disabled ? 'Signing in...' : 'Sign In'}
+  return (
+    <div className="min-h-screen bg-background flex flex-col">
+      <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
+        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+          <Logo variant="header" />
+          <div className="flex items-center gap-3">
+            {isAuthenticated && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => navigate({ to: '/settings' })}
+                title="Settings"
+              >
+                <Settings className="w-5 h-5" />
+              </Button>
+            )}
+            <Button
+              onClick={handleAuth}
+              disabled={disabled}
+              variant={isAuthenticated ? 'outline' : 'default'}
+            >
+              {text}
             </Button>
           </div>
         </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-teal-50">
-      <header className="bg-white border-b border-gray-200 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Logo variant="small" />
-            <div>
-              <h1 className="text-xl font-bold text-gray-900">Moritz Care Home</h1>
-              <p className="text-sm text-gray-600">Assisted Living Management</p>
-            </div>
-          </div>
-          <Button onClick={handleAuth} disabled={disabled} variant="outline" size="sm">
-            <LogOut className="w-4 h-4 mr-2" />
-            Logout
-          </Button>
-        </div>
       </header>
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {children}
+
+      <main className="flex-1">
+        <Outlet />
       </main>
-      <footer className="bg-white border-t border-gray-200 mt-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center text-sm text-gray-600">
-          <p className="flex items-center justify-center gap-2">
-            © {new Date().getFullYear()} Moritz Care Home. Built with love using{' '}
+
+      <footer className="border-t bg-card/30 py-6 mt-auto">
+        <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
+          <p>
+            © {new Date().getFullYear()} Moritz Care Home. Built with ❤️ using{' '}
             <a
-              href={`https://caffeine.ai/?utm_source=Caffeine-footer&utm_medium=referral&utm_content=${encodeURIComponent(window.location.hostname)}`}
+              href={`https://caffeine.ai/?utm_source=Caffeine-footer&utm_medium=referral&utm_content=${encodeURIComponent(
+                typeof window !== 'undefined' ? window.location.hostname : 'moritz-care-home'
+              )}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-blue-600 hover:underline"
+              className="text-primary hover:underline"
             >
               caffeine.ai
             </a>

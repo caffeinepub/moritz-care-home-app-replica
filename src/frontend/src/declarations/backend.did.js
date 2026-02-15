@@ -122,6 +122,7 @@ export const UserType = IDL.Variant({
 export const UserProfile = IDL.Record({
   'userType' : UserType,
   'name' : IDL.Text,
+  'showResidentProfileReport' : IDL.Bool,
   'relatedResidentIds' : IDL.Vec(IDL.Nat),
 });
 export const CodeStatusChangeRecord = IDL.Record({
@@ -361,6 +362,7 @@ export const idlFactory = ({ IDL }) => {
   const UserProfile = IDL.Record({
     'userType' : UserType,
     'name' : IDL.Text,
+    'showResidentProfileReport' : IDL.Bool,
     'relatedResidentIds' : IDL.Vec(IDL.Nat),
   });
   const CodeStatusChangeRecord = IDL.Record({

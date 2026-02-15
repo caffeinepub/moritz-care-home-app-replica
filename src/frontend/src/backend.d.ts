@@ -10,6 +10,7 @@ export type Option<T> = Some<T> | None;
 export interface UserProfile {
     userType: UserType;
     name: string;
+    showResidentProfileReport: boolean;
     relatedResidentIds: Array<bigint>;
 }
 export interface PharmacyInfo {

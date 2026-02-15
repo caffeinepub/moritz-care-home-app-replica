@@ -1,88 +1,47 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Force solid white (opaque) surfaces for dialogs, dropdowns, and selection menus",
+  "title": "Settings toggle to show/hide Resident Profile Report on Resident Profile page",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Make all modal dialog panels fully opaque solid white (no transparency/blur) across the app, including all modal forms.",
+      "summary": "Add a Settings UI with an English-labeled toggle to control whether the Resident Profile Report feature is visible, and persist the choice per signed-in user via the existing profile save/load flow.",
       "acceptanceCriteria": [
-        "Every DialogContent panel in the app has an opaque solid white background (opacity 1) in both light and dark modes.",
-        "No dialog panel uses semi-transparent Tailwind classes (e.g., bg-*/xx), backdrop-blur, or CSS opacity less than 1.",
-        "Spot-check: AddMedicationModal DialogContent remains solid white (currently uses `dialog-solid-white`) and the same behavior is applied consistently to all other dialogs."
+        "There is a Settings UI reachable in the app that contains a toggle for the Resident Profile Report feature.",
+        "The toggle state is persisted per signed-in user (stored in the backend and reloaded on sign-in/reload).",
+        "User-facing text for the setting is in English."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/auth/ProfileSetupModal.tsx",
-          "operation": "modify",
-          "description": "Ensure the Profile Setup modal DialogContent explicitly uses the existing solid-white dialog class (e.g., add `dialog-solid-white`) so the panel background is fully opaque."
+          "path": "frontend/src/pages/SettingsPage.tsx",
+          "operation": "create",
+          "description": "Create a user-accessible Settings page that loads the signed-in user's profile (via existing profile query) and presents a toggle (Switch + Label) for \"Resident Profile Report\" visibility; on change, save the updated profile using the existing save profile mutation so the value persists per user. Verify the component's usage instructions before implementing."
         },
         {
-          "path": "frontend/src/components/adl/modals/AddADLRecordModal.tsx",
+          "path": "frontend/src/App.tsx",
           "operation": "modify",
-          "description": "Update the Add ADL Record modal DialogContent to explicitly enforce a solid white, fully opaque background (align with `dialog-solid-white`)."
+          "description": "Register a new /settings route pointing to the SettingsPage so the Settings UI is reachable in the app (ensure route is included in the router tree)."
         },
         {
-          "path": "frontend/src/components/mar/modals/AddMARRecordModal.tsx",
+          "path": "frontend/src/components/layout/AppShell.tsx",
           "operation": "modify",
-          "description": "Update the Add MAR Record modal DialogContent to explicitly enforce a solid white, fully opaque background (align with `dialog-solid-white`)."
-        },
-        {
-          "path": "frontend/src/components/vitals/modals/RecordDailyVitalsModal.tsx",
-          "operation": "modify",
-          "description": "Update the Record Daily Vitals modal DialogContent to explicitly enforce a solid white, fully opaque background (align with `dialog-solid-white`)."
-        },
-        {
-          "path": "frontend/src/components/residents/modals/EditResidentInformationModal.tsx",
-          "operation": "modify",
-          "description": "Update the Edit Resident Information modal DialogContent to explicitly enforce a solid white, fully opaque background (align with `dialog-solid-white`)."
+          "description": "Add navigation to the Settings page from the authenticated app shell (e.g., a header button/link) so users can reach Settings from anywhere appropriate. Verify the component's usage instructions before implementing."
         }
       ]
     },
     {
       "id": "REQ-2",
-      "summary": "Make all dropdown menus and selection menus (Select/dropdown/popover-style) fully opaque solid white for the menu surface across the app.",
+      "summary": "Conditionally hide the Resident Profile Report-related UI (Print Profile action and ResidentProfilePrintReport print-only content) on the Resident Profile page when the setting is OFF, without changing other sections.",
       "acceptanceCriteria": [
-        "All SelectContent / dropdown menu content surfaces are solid white (opacity 1) and readable, with no translucency.",
-        "No dropdown/select menu uses semi-transparent Tailwind classes (e.g., bg-*/xx) or backdrop blur for the menu surface.",
-        "Visual verification: opening a route selector (e.g., Administration Route) shows an opaque white menu background."
+        "With the setting OFF, the Resident Profile page does not show the “Print Profile” button and does not render the ResidentProfilePrintReport component (so printing does not include the report).",
+        "With the setting ON, the “Print Profile” button and ResidentProfilePrintReport behave as they do today.",
+        "No other Resident Profile page sections/tabs are removed or changed by this setting."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/medications/modals/AddMedicationModal.tsx",
+          "path": "frontend/src/pages/ResidentProfilePage.tsx",
           "operation": "modify",
-          "description": "Ensure Select menu surfaces used in Add Medication (e.g., Administration Route, Prescribing Physician) render with a fully opaque solid white menu background (prefer global safeguard + any explicit content class overrides where supported)."
-        },
-        {
-          "path": "frontend/src/components/medications/modals/EditMedicationModal.tsx",
-          "operation": "modify",
-          "description": "Ensure Select menu surfaces used in Edit Medication (e.g., Administration Route, Prescribing Physician) render with a fully opaque solid white menu background (prefer global safeguard + any explicit content class overrides where supported)."
-        },
-        {
-          "path": "frontend/src/components/residents/modals/AddNewResidentModal.tsx",
-          "operation": "modify",
-          "description": "Ensure Select menu surfaces used in Add New Resident (Room Type, Bed, Code Status, etc.) render with a fully opaque solid white menu background (prefer global safeguard + any explicit content class overrides where supported)."
-        },
-        {
-          "path": "frontend/src/components/auth/ProfileSetupModal.tsx",
-          "operation": "modify",
-          "description": "Ensure Select menu surfaces used in Profile Setup (Role selector) render with a fully opaque solid white menu background (prefer global safeguard + any explicit content class overrides where supported)."
-        }
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "summary": "Add global styling safeguards to prevent any dialog/dropdown/select/popover surfaces from becoming transparent due to theme alpha/defaults, without editing `frontend/src/components/ui`.",
-      "acceptanceCriteria": [
-        "No changes are made to files in `frontend/src/components/ui/*`.",
-        "Global CSS/theme adjustments prevent transparent popover/menu/dialog surfaces even if a consuming component forgets to pass an explicit solid background class.",
-        "After the change, inspecting computed styles for menu/dialog surfaces shows an opaque white background color (no alpha channel) and opacity 1."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/index.css",
-          "operation": "modify",
-          "description": "Add global CSS overrides that force Radix/shadcn overlay content surfaces (dialogs, popovers, dropdown menus, select menus) to use a solid white background with opacity 1 and no backdrop blur/filter on the surface itself; implement using resilient attribute-based selectors (e.g., targeting common Radix content nodes) and/or a reusable utility class, without modifying any files under `frontend/src/components/ui`."
+          "description": "Read the current user's showResidentProfileReport preference from the loaded user profile (default to ON when missing) and use it to conditionally render (a) the \"Print Profile\" button and (b) the ResidentProfilePrintReport component; ensure all other Resident Profile content remains unchanged. Verify the component's usage instructions before implementing."
         }
       ]
     }

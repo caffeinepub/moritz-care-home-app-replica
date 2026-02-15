@@ -40,6 +40,7 @@ export default function ResidentProfilePage() {
   const [showPhysicianSignature, setShowPhysicianSignature] = useState(false);
 
   const canEdit = canWriteClinicalData(userProfile, isAdmin);
+  const showProfileReport = userProfile?.showResidentProfileReport ?? true;
 
   if (isLoading) {
     return (
@@ -84,21 +85,38 @@ export default function ResidentProfilePage() {
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Back to Dashboard
               </Button>
-              <div className="flex gap-2">
-                <div className="flex items-center gap-2 mr-4">
-                  <Switch
-                    id="physician-signature"
-                    checked={showPhysicianSignature}
-                    onCheckedChange={setShowPhysicianSignature}
-                  />
-                  <Label htmlFor="physician-signature" className="text-sm cursor-pointer">
-                    Show Physician Signature Fields
-                  </Label>
-                </div>
-                <Button variant="outline" onClick={handlePrint}>
-                  <Printer className="w-4 h-4 mr-2" />
-                  Print Profile
-                </Button>
+              <div className="flex gap-3 items-center">
+                {showProfileReport && (
+                  <>
+                    <div 
+                      className={`
+                        flex items-center gap-3 px-5 py-3 rounded-lg border-2 transition-all cursor-pointer
+                        ${showPhysicianSignature 
+                          ? 'bg-primary/10 border-primary shadow-md' 
+                          : 'bg-muted/50 border-border hover:border-primary/50 hover:bg-muted'
+                        }
+                      `}
+                      onClick={() => setShowPhysicianSignature(!showPhysicianSignature)}
+                    >
+                      <Switch
+                        id="physician-signature"
+                        checked={showPhysicianSignature}
+                        onCheckedChange={setShowPhysicianSignature}
+                        className="data-[state=checked]:bg-primary"
+                      />
+                      <Label 
+                        htmlFor="physician-signature" 
+                        className="text-sm font-semibold cursor-pointer select-none"
+                      >
+                        Show Physician Signature Fields
+                      </Label>
+                    </div>
+                    <Button variant="outline" onClick={handlePrint}>
+                      <Printer className="w-4 h-4 mr-2" />
+                      Print Profile
+                    </Button>
+                  </>
+                )}
                 {canEdit && (
                   <Button onClick={() => setShowEditModal(true)}>
                     <Edit className="w-4 h-4 mr-2" />
@@ -406,21 +424,15 @@ export default function ResidentProfilePage() {
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                               <div>
                                 <p className="text-sm text-muted-foreground">Date & Time</p>
-                                <p className="font-medium">
-                                  {vitals.measurementDate} {vitals.measurementTime}
-                                </p>
+                                <p className="font-medium">{vitals.measurementDate} {vitals.measurementTime}</p>
                               </div>
                               <div>
                                 <p className="text-sm text-muted-foreground">Temperature</p>
-                                <p className="font-medium">
-                                  {vitals.temperature}°{vitals.temperatureUnit}
-                                </p>
+                                <p className="font-medium">{vitals.temperature}°{vitals.temperatureUnit}</p>
                               </div>
                               <div>
                                 <p className="text-sm text-muted-foreground">Blood Pressure</p>
-                                <p className="font-medium">
-                                  {vitals.bloodPressureSystolic.toString()}/{vitals.bloodPressureDiastolic.toString()}
-                                </p>
+                                <p className="font-medium">{vitals.bloodPressureSystolic.toString()}/{vitals.bloodPressureDiastolic.toString()}</p>
                               </div>
                               <div>
                                 <p className="text-sm text-muted-foreground">Pulse</p>
@@ -476,9 +488,7 @@ export default function ResidentProfilePage() {
                               <div>
                                 <p className="font-medium">{record.activity}</p>
                                 <p className="text-sm text-muted-foreground">Date: {record.date}</p>
-                                <p className="text-sm text-muted-foreground">
-                                  Assistance Level: {record.assistanceLevel}
-                                </p>
+                                <p className="text-sm text-muted-foreground">Assistance Level: {record.assistanceLevel}</p>
                                 {record.staffNotes && (
                                   <p className="text-sm text-muted-foreground mt-2">Notes: {record.staffNotes}</p>
                                 )}
@@ -495,36 +505,62 @@ export default function ResidentProfilePage() {
           </div>
         </div>
 
-        {showEditModal && <EditResidentInformationModal resident={resident} onClose={() => setShowEditModal(false)} />}
-        {showAddMedicationModal && (
-          <AddMedicationModal
-            residentId={resident.id}
-            physicians={resident.physicians}
-            onClose={() => setShowAddMedicationModal(false)}
+        {showProfileReport && (
+          <ResidentProfilePrintReport
+            resident={resident}
+            showPhysicianSignature={showPhysicianSignature}
           />
-        )}
-        {showEditMedicationModal && selectedMedication && (
-          <EditMedicationModal
-            residentId={resident.id}
-            medication={selectedMedication}
-            physicians={resident.physicians}
-            onClose={() => setShowEditMedicationModal(false)}
-          />
-        )}
-        {showAddMARModal && (
-          <AddMARRecordModal
-            residentId={resident.id}
-            medications={resident.medications}
-            onClose={() => setShowAddMARModal(false)}
-          />
-        )}
-        {showAddADLModal && <AddADLRecordModal residentId={resident.id} onClose={() => setShowAddADLModal(false)} />}
-        {showRecordVitalsModal && (
-          <RecordDailyVitalsModal residentId={resident.id} onClose={() => setShowRecordVitalsModal(false)} />
         )}
       </div>
 
-      <ResidentProfilePrintReport resident={resident} showPhysicianSignature={showPhysicianSignature} />
+      {showEditModal && (
+        <EditResidentInformationModal
+          resident={resident}
+          onClose={() => setShowEditModal(false)}
+        />
+      )}
+
+      {showAddMedicationModal && (
+        <AddMedicationModal
+          residentId={resident.id}
+          physicians={resident.physicians}
+          onClose={() => setShowAddMedicationModal(false)}
+        />
+      )}
+
+      {showEditMedicationModal && selectedMedication && (
+        <EditMedicationModal
+          residentId={resident.id}
+          medication={selectedMedication}
+          physicians={resident.physicians}
+          onClose={() => {
+            setShowEditMedicationModal(false);
+            setSelectedMedication(null);
+          }}
+        />
+      )}
+
+      {showAddMARModal && (
+        <AddMARRecordModal
+          residentId={resident.id}
+          medications={resident.medications}
+          onClose={() => setShowAddMARModal(false)}
+        />
+      )}
+
+      {showAddADLModal && (
+        <AddADLRecordModal
+          residentId={resident.id}
+          onClose={() => setShowAddADLModal(false)}
+        />
+      )}
+
+      {showRecordVitalsModal && (
+        <RecordDailyVitalsModal
+          residentId={resident.id}
+          onClose={() => setShowRecordVitalsModal(false)}
+        />
+      )}
     </>
   );
 }

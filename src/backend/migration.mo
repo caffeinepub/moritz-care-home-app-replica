@@ -1,221 +1,47 @@
 import Map "mo:core/Map";
-import Nat "mo:core/Nat";
+import Principal "mo:core/Principal";
 
 module {
-  type OldMedication = {
-    id : Nat;
+  type OldUserProfile = {
     name : Text;
-    dosage : Text;
-    dosageQuantity : Text;
-    administrationRoute : Text;
-    administrationTimes : [Text];
-    prescribingPhysicianId : ?Nat;
-    notes : Text;
-    isActive : Bool;
-  };
-
-  type OldResident = {
-    id : Nat;
-    firstName : Text;
-    lastName : Text;
-    dob : Text;
-    admissionDate : Text;
-    roomNumber : Text;
-    roomType : Text;
-    bed : Text;
-    status : { #active; #discharged };
-    codeStatus : { #fullCode; #dnr };
-    medicaidNumber : ?Text;
-    medicareNumber : ?Text;
-    physicians : [
-      {
-        id : Nat;
-        name : Text;
-        specialty : Text;
-        contactInfo : Text;
-      }
-    ];
-    pharmacyInfo : ?{
-      name : Text;
-      address : Text;
-      phone : Text;
-      fax : Text;
+    userType : {
+      #staff;
+      #resident;
+      #familyMember;
     };
-    insuranceInfo : ?{
-      provider : Text;
-      policyNumber : Text;
-      groupNumber : Text;
-      medicaidNumber : ?Text;
-      medicareNumber : ?Text;
-    };
-    responsibleContacts : [
-      {
-        id : Nat;
-        name : Text;
-        relationship : Text;
-        phone : Text;
-        email : Text;
-        isPrimary : Bool;
-      }
-    ];
-    medications : [OldMedication];
-    marRecords : [
-      {
-        id : Nat;
-        medicationId : Nat;
-        administrationTime : Text;
-        administeredBy : Text;
-        notes : Text;
-        timestamp : Int;
-      }
-    ];
-    adlRecords : [
-      {
-        id : Nat;
-        date : Text;
-        activity : Text;
-        assistanceLevel : Text;
-        staffNotes : Text;
-        timestamp : Int;
-      }
-    ];
-    dailyVitals : [
-      {
-        id : Nat;
-        temperature : Float;
-        temperatureUnit : Text;
-        bloodPressureSystolic : Nat;
-        bloodPressureDiastolic : Nat;
-        pulseRate : Nat;
-        respiratoryRate : Nat;
-        oxygenSaturation : Nat;
-        bloodGlucose : ?Nat;
-        measurementDate : Text;
-        measurementTime : Text;
-        notes : Text;
-        timestamp : Int;
-      }
-    ];
+    relatedResidentIds : [Nat];
   };
 
   type OldActor = {
-    residents : Map.Map<Nat, OldResident>;
+    userProfiles : Map.Map<Principal, OldUserProfile>;
+    // Keep all other fields unchanged
   };
 
-  type NewMedication = {
-    id : Nat;
+  type NewUserProfile = {
     name : Text;
-    dosage : Text;
-    dosageQuantity : Text;
-    administrationRoute : Text;
-    administrationTimes : [Text];
-    prescribingPhysicianId : ?Nat;
-    notes : Text;
-    isActive : Bool;
-    isPRN : Bool;
-  };
-
-  type NewResident = {
-    id : Nat;
-    firstName : Text;
-    lastName : Text;
-    dob : Text;
-    admissionDate : Text;
-    roomNumber : Text;
-    roomType : Text;
-    bed : Text;
-    status : { #active; #discharged };
-    codeStatus : { #fullCode; #dnr };
-    medicaidNumber : ?Text;
-    medicareNumber : ?Text;
-    physicians : [
-      {
-        id : Nat;
-        name : Text;
-        specialty : Text;
-        contactInfo : Text;
-      }
-    ];
-    pharmacyInfo : ?{
-      name : Text;
-      address : Text;
-      phone : Text;
-      fax : Text;
+    userType : {
+      #staff;
+      #resident;
+      #familyMember;
     };
-    insuranceInfo : ?{
-      provider : Text;
-      policyNumber : Text;
-      groupNumber : Text;
-      medicaidNumber : ?Text;
-      medicareNumber : ?Text;
-    };
-    responsibleContacts : [
-      {
-        id : Nat;
-        name : Text;
-        relationship : Text;
-        phone : Text;
-        email : Text;
-        isPrimary : Bool;
-      }
-    ];
-    medications : [NewMedication];
-    marRecords : [
-      {
-        id : Nat;
-        medicationId : Nat;
-        administrationTime : Text;
-        administeredBy : Text;
-        notes : Text;
-        timestamp : Int;
-      }
-    ];
-    adlRecords : [
-      {
-        id : Nat;
-        date : Text;
-        activity : Text;
-        assistanceLevel : Text;
-        staffNotes : Text;
-        timestamp : Int;
-      }
-    ];
-    dailyVitals : [
-      {
-        id : Nat;
-        temperature : Float;
-        temperatureUnit : Text;
-        bloodPressureSystolic : Nat;
-        bloodPressureDiastolic : Nat;
-        pulseRate : Nat;
-        respiratoryRate : Nat;
-        oxygenSaturation : Nat;
-        bloodGlucose : ?Nat;
-        measurementDate : Text;
-        measurementTime : Text;
-        notes : Text;
-        timestamp : Int;
-      }
-    ];
+    relatedResidentIds : [Nat];
+    showResidentProfileReport : Bool;
   };
 
   type NewActor = {
-    residents : Map.Map<Nat, NewResident>;
+    userProfiles : Map.Map<Principal, NewUserProfile>;
+    // All other fields remain unchanged
   };
 
   public func run(old : OldActor) : NewActor {
-    let updatedResidents = old.residents.map<Nat, OldResident, NewResident>(
-      func(_id, oldResident) {
-        {
-          oldResident with
-          medications = oldResident.medications.map<OldMedication, NewMedication>(
-            func(oldMed) {
-              { oldMed with isPRN = false };
-            }
-          )
-        };
+    let newUserProfiles = old.userProfiles.map<Principal, OldUserProfile, NewUserProfile>(
+      func(_principal, oldProfile) {
+        { oldProfile with showResidentProfileReport = true };
       }
     );
-    { residents = updatedResidents };
+    {
+      old with
+      userProfiles = newUserProfiles;
+    };
   };
 };

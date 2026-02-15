@@ -29,6 +29,7 @@ export default function ProfileSetupModal() {
       name: name.trim(),
       userType: userType,
       relatedResidentIds: relatedIds,
+      showResidentProfileReport: true,
     };
 
     await saveProfile.mutateAsync(profile);

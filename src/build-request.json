@@ -1,73 +1,85 @@
 {
   "kind": "build_request",
-  "title": "Remove transparency from dialogs, dropdowns, and selection menus (solid white surfaces)",
+  "title": "Add settings toggle to show/hide Resident Profile Report on Resident Profile page",
   "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Ensure all pop-up dialog panels render with a fully opaque solid white background (no transparency, no blur/\"glass\" effect), including all modal forms (e.g., Profile Setup, Add/Edit Resident, Add/Edit Medication, Add MAR/ADL/Vitals).",
-      "target": "frontend",
+      "text": "Add a user setting that controls visibility of the “Resident Profile Report” feature on the Resident Profile page, exposed as a toggle in a Settings UI (user-facing label in English).",
+      "target": "both",
       "source": {
         "messageIds": [
           "msg-1"
         ],
         "quotes": [
-          "remove all transparencies in the app. all must be solid white pop-up dialogs, dropdown menus or selection menus"
+          "Hide it behind a toggle in settings"
         ]
       },
       "acceptanceCriteria": [
-        "Every DialogContent panel in the app has an opaque solid white background (opacity 1) in both light and dark modes.",
-        "No dialog panel uses semi-transparent Tailwind classes (e.g., bg-*/xx), backdrop-blur, or CSS opacity less than 1.",
-        "Spot-check: AddMedicationModal DialogContent remains solid white (currently uses `dialog-solid-white`) and the same behavior is applied consistently to all other dialogs."
+        "There is a Settings UI reachable in the app that contains a toggle for the Resident Profile Report feature.",
+        "The toggle state is persisted per signed-in user (stored in the backend and reloaded on sign-in/reload).",
+        "User-facing text for the setting is in English."
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Ensure all dropdown menus and selection menus render with a fully opaque solid white background (no transparency) for the menu surface, including Select menus and any dropdown/popover-style menus used across the app.",
+      "text": "When the Resident Profile Report setting is OFF, hide the Resident Profile Report-related UI on the Resident Profile page, including the Print Profile action and the print-only report content (ResidentProfilePrintReport). When the setting is ON, preserve the current behavior.",
       "target": "frontend",
       "source": {
         "messageIds": [
           "msg-1"
         ],
         "quotes": [
-          "remove all transparencies in the app. all must be solid white pop-up dialogs, dropdown menus or selection menus"
+          "Hide it behind a toggle in settings"
         ]
       },
       "acceptanceCriteria": [
-        "All SelectContent / dropdown menu content surfaces are solid white (opacity 1) and readable, with no translucency.",
-        "No dropdown/select menu uses semi-transparent Tailwind classes (e.g., bg-*/xx) or backdrop blur for the menu surface.",
-        "Visual verification: opening a route selector (e.g., Administration Route) shows an opaque white menu background."
+        "With the setting OFF, the Resident Profile page does not show the “Print Profile” button and does not render the ResidentProfilePrintReport component (so printing does not include the report).",
+        "With the setting ON, the “Print Profile” button and ResidentProfilePrintReport behave as they do today.",
+        "No other Resident Profile page sections/tabs are removed or changed by this setting."
       ]
     },
     {
       "id": "REQ-3",
-      "text": "Add/adjust global styling safeguards so that any future dialog/dropdown/select/popover surfaces cannot become transparent due to theme alpha values or component defaults, without modifying any files under `frontend/src/components/ui` (read-only).",
-      "target": "frontend",
+      "text": "Extend the backend user profile data model to store the Resident Profile Report visibility preference, and update the existing profile save/load flows to include this new preference (with a sensible default for new users).",
+      "target": "backend",
       "source": {
         "messageIds": [
           "msg-1"
         ],
         "quotes": [
-          "remove all transparencies in the app. all must be solid white pop-up dialogs, dropdown menus or selection menus"
+          "Hide it behind a toggle in settings"
         ]
       },
       "acceptanceCriteria": [
-        "No changes are made to files in `frontend/src/components/ui/*`.",
-        "Global CSS/theme adjustments prevent transparent popover/menu/dialog surfaces even if a consuming component forgets to pass an explicit solid background class.",
-        "After the change, inspecting computed styles for menu/dialog surfaces shows an opaque white background color (no alpha channel) and opacity 1."
+        "Backend Candid interface includes the new preference field as part of the user profile (or a dedicated user-settings structure) so it can be saved and fetched for the caller.",
+        "New users who have not set the preference yet get a default value that keeps existing behavior (i.e., the report is available unless explicitly turned off).",
+        "Existing frontend profile setup/save flows continue to work after the backend type/interface update."
       ]
     }
   ],
   "constraints": [
-    "Do not edit any files under `frontend/src/components/ui` (these paths are immutable/read-only)."
+    "Frontend files under frontend/src/components/ui must not be edited; compose existing UI components instead.",
+    "Do not modify immutable frontend hook files listed in SYSTEM_CONTEXT (use new hooks/modules/components where needed).",
+    "Backend must remain a single Motoko actor in backend/main.mo; only add a migration file if it is strictly required for state upgrade."
   ],
   "nonGoals": [
-    "Do not change backend canister logic or data models.",
-    "Do not redesign unrelated page layouts or typography beyond what is necessary to eliminate transparency on dialogs/menus.",
-    "Do not change print-specific transparency rules unless they directly affect in-app dialogs/menus (print output is out of scope for this request)."
+    "Do not change role-based access rules or introduce new roles/permissions for viewing residents.",
+    "Do not redesign or change the content/layout of ResidentProfilePrintReport beyond conditionally hiding it based on the setting.",
+    "Do not add third-party authentication or any external storage/database."
   ],
   "imageRequirements": {
     "required": [],
     "edits": []
+  },
+  "userProfileUpdate": {
+    "goalsToAdd": [],
+    "goalsToRemove": [],
+    "preferencesToAdd": [],
+    "preferencesToRemove": [],
+    "miscToAdd": [],
+    "miscToRemove": [],
+    "fieldsToSet": {},
+    "fieldsToDelete": []
   }
 }

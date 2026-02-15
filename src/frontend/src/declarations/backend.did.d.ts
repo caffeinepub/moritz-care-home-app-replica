@@ -123,6 +123,7 @@ export interface ResponsibleContact {
 export interface UserProfile {
   'userType' : UserType,
   'name' : string,
+  'showResidentProfileReport' : boolean,
   'relatedResidentIds' : Array<bigint>,
 }
 export type UserRole = { 'admin' : null } |

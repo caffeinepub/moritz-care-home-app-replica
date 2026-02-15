@@ -92,6 +92,7 @@ export class ExternalBlob {
 export interface UserProfile {
     userType: UserType;
     name: string;
+    showResidentProfileReport: boolean;
     relatedResidentIds: Array<bigint>;
 }
 export interface PharmacyInfo {
@@ -1019,15 +1020,18 @@ function from_candid_record_n34(_uploadFile: (file: ExternalBlob) => Promise<Uin
 function from_candid_record_n39(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
     userType: _UserType;
     name: string;
+    showResidentProfileReport: boolean;
     relatedResidentIds: Array<bigint>;
 }): {
     userType: UserType;
     name: string;
+    showResidentProfileReport: boolean;
     relatedResidentIds: Array<bigint>;
 } {
     return {
         userType: from_candid_UserType_n40(_uploadFile, _downloadFile, value.userType),
         name: value.name,
+        showResidentProfileReport: value.showResidentProfileReport,
         relatedResidentIds: value.relatedResidentIds
     };
 }
@@ -1318,15 +1322,18 @@ function to_candid_record_n5(_uploadFile: (file: ExternalBlob) => Promise<Uint8A
 function to_candid_record_n54(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
     userType: UserType;
     name: string;
+    showResidentProfileReport: boolean;
     relatedResidentIds: Array<bigint>;
 }): {
     userType: _UserType;
     name: string;
+    showResidentProfileReport: boolean;
     relatedResidentIds: Array<bigint>;
 } {
     return {
         userType: to_candid_UserType_n55(_uploadFile, _downloadFile, value.userType),
         name: value.name,
+        showResidentProfileReport: value.showResidentProfileReport,
         relatedResidentIds: value.relatedResidentIds
     };
 }
