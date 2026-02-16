@@ -4,10 +4,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { Textarea } from '@/components/ui/textarea';
 import { useUpdateResident } from '../../../hooks/useQueries';
 import { Resident, ResidentStatus, CodeStatus } from '../../../backend';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface EditResidentInformationModalProps {
   resident: Resident;
@@ -29,8 +29,8 @@ export default function EditResidentInformationModal({ resident, onClose }: Edit
   const [medicaidNumber, setMedicaidNumber] = useState(resident.medicaidNumber || '');
   const [medicareNumber, setMedicareNumber] = useState(resident.medicareNumber || '');
 
-  const [physicians, setPhysicians] = useState(resident.physicians);
-  const [pharmacyInfo, setPharmacyInfo] = useState(resident.pharmacyInfo || {
+  const firstPharmacy = resident.pharmacyInfos[0];
+  const [pharmacyInfo, setPharmacyInfo] = useState(firstPharmacy || {
     name: '',
     address: '',
     phone: '',
@@ -40,10 +40,7 @@ export default function EditResidentInformationModal({ resident, onClose }: Edit
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!firstName.trim() || !lastName.trim() || !dob || !admissionDate || !roomNumber.trim()) {
-      alert('Please fill in all required fields');
-      return;
-    }
+    const pharmacyInfos = pharmacyInfo.name ? [{ ...pharmacyInfo, id: firstPharmacy?.id || 0n }] : [];
 
     const updatedResident: Resident = {
       ...resident,
@@ -51,94 +48,54 @@ export default function EditResidentInformationModal({ resident, onClose }: Edit
       lastName: lastName.trim(),
       dob,
       admissionDate,
-      roomNumber: roomNumber.trim(),
+      roomNumber,
       roomType,
       bed,
       status,
       codeStatus,
       medicaidNumber: medicaidNumber.trim() || undefined,
       medicareNumber: medicareNumber.trim() || undefined,
-      physicians,
-      pharmacyInfo: pharmacyInfo.name ? pharmacyInfo : undefined,
+      pharmacyInfos,
     };
 
     await updateResident.mutateAsync({ residentId: resident.id, updatedData: updatedResident });
     onClose();
   };
 
-  const handlePhysicianChange = (index: number, field: string, value: string) => {
-    const updated = [...physicians];
-    updated[index] = { ...updated[index], [field]: value };
-    setPhysicians(updated);
-  };
-
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="max-w-3xl max-h-[90vh] dialog-solid-white">
+      <DialogContent className="max-w-2xl max-h-[90vh] dialog-solid-white">
         <DialogHeader>
           <DialogTitle>Edit Resident Information</DialogTitle>
           <DialogDescription>
-            Update resident details. Fields marked with * are required.
+            Update the resident's information below. Fields marked with * are required.
           </DialogDescription>
         </DialogHeader>
 
-        <Tabs defaultValue="basic" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="basic">Basic Info</TabsTrigger>
-            <TabsTrigger value="physicians">Physicians</TabsTrigger>
-            <TabsTrigger value="pharmacy">Pharmacy</TabsTrigger>
-          </TabsList>
-
-          <ScrollArea className="h-[500px] pr-4">
-            <TabsContent value="basic" className="space-y-4 mt-4">
+        <ScrollArea className="max-h-[calc(90vh-200px)] pr-4">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <h3 className="text-lg font-semibold mb-3">Basic Information</h3>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="firstName">First Name *</Label>
-                  <Input
-                    id="firstName"
-                    value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
-                    required
-                  />
+                  <Input id="firstName" value={firstName} onChange={(e) => setFirstName(e.target.value)} required />
                 </div>
                 <div>
                   <Label htmlFor="lastName">Last Name *</Label>
-                  <Input
-                    id="lastName"
-                    value={lastName}
-                    onChange={(e) => setLastName(e.target.value)}
-                    required
-                  />
+                  <Input id="lastName" value={lastName} onChange={(e) => setLastName(e.target.value)} required />
                 </div>
                 <div>
                   <Label htmlFor="dob">Date of Birth *</Label>
-                  <Input
-                    id="dob"
-                    type="date"
-                    value={dob}
-                    onChange={(e) => setDob(e.target.value)}
-                    required
-                  />
+                  <Input id="dob" type="date" value={dob} onChange={(e) => setDob(e.target.value)} required />
                 </div>
                 <div>
                   <Label htmlFor="admissionDate">Admission Date *</Label>
-                  <Input
-                    id="admissionDate"
-                    type="date"
-                    value={admissionDate}
-                    onChange={(e) => setAdmissionDate(e.target.value)}
-                    required
-                  />
+                  <Input id="admissionDate" type="date" value={admissionDate} onChange={(e) => setAdmissionDate(e.target.value)} required />
                 </div>
                 <div>
                   <Label htmlFor="roomNumber">Room Number *</Label>
-                  <Input
-                    id="roomNumber"
-                    value={roomNumber}
-                    onChange={(e) => setRoomNumber(e.target.value)}
-                    placeholder="101"
-                    required
-                  />
+                  <Input id="roomNumber" value={roomNumber} onChange={(e) => setRoomNumber(e.target.value)} required />
                 </div>
                 <div>
                   <Label htmlFor="roomType">Room Type *</Label>
@@ -147,8 +104,8 @@ export default function EditResidentInformationModal({ resident, onClose }: Edit
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Private">Private</SelectItem>
                       <SelectItem value="Shared">Shared</SelectItem>
+                      <SelectItem value="Private">Private</SelectItem>
                       <SelectItem value="Semi-Private">Semi-Private</SelectItem>
                     </SelectContent>
                   </Select>
@@ -169,7 +126,7 @@ export default function EditResidentInformationModal({ resident, onClose }: Edit
                 </div>
                 <div>
                   <Label htmlFor="status">Status *</Label>
-                  <Select value={status} onValueChange={(value: ResidentStatus) => setStatus(value)}>
+                  <Select value={status} onValueChange={(value) => setStatus(value as ResidentStatus)}>
                     <SelectTrigger id="status">
                       <SelectValue />
                     </SelectTrigger>
@@ -181,7 +138,7 @@ export default function EditResidentInformationModal({ resident, onClose }: Edit
                 </div>
                 <div>
                   <Label htmlFor="codeStatus">Code Status *</Label>
-                  <Select value={codeStatus} onValueChange={(value: CodeStatus) => setCodeStatus(value)}>
+                  <Select value={codeStatus} onValueChange={(value) => setCodeStatus(value as CodeStatus)}>
                     <SelectTrigger id="codeStatus">
                       <SelectValue />
                     </SelectTrigger>
@@ -193,57 +150,17 @@ export default function EditResidentInformationModal({ resident, onClose }: Edit
                 </div>
                 <div>
                   <Label htmlFor="medicaidNumber">Medicaid Number</Label>
-                  <Input
-                    id="medicaidNumber"
-                    value={medicaidNumber}
-                    onChange={(e) => setMedicaidNumber(e.target.value)}
-                    placeholder="Optional"
-                  />
+                  <Input id="medicaidNumber" value={medicaidNumber} onChange={(e) => setMedicaidNumber(e.target.value)} />
                 </div>
                 <div>
                   <Label htmlFor="medicareNumber">Medicare Number</Label>
-                  <Input
-                    id="medicareNumber"
-                    value={medicareNumber}
-                    onChange={(e) => setMedicareNumber(e.target.value)}
-                    placeholder="Optional"
-                  />
+                  <Input id="medicareNumber" value={medicareNumber} onChange={(e) => setMedicareNumber(e.target.value)} />
                 </div>
               </div>
-            </TabsContent>
+            </div>
 
-            <TabsContent value="physicians" className="space-y-4 mt-4">
-              {physicians.map((physician, index) => (
-                <div key={physician.id.toString()} className="border rounded-lg p-4 space-y-3">
-                  <h4 className="font-medium">Physician {index + 1}</h4>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <Label>Name</Label>
-                      <Input
-                        value={physician.name}
-                        onChange={(e) => handlePhysicianChange(index, 'name', e.target.value)}
-                      />
-                    </div>
-                    <div>
-                      <Label>Specialty</Label>
-                      <Input
-                        value={physician.specialty}
-                        onChange={(e) => handlePhysicianChange(index, 'specialty', e.target.value)}
-                      />
-                    </div>
-                    <div className="col-span-2">
-                      <Label>Contact Info</Label>
-                      <Input
-                        value={physician.contactInfo}
-                        onChange={(e) => handlePhysicianChange(index, 'contactInfo', e.target.value)}
-                      />
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </TabsContent>
-
-            <TabsContent value="pharmacy" className="space-y-4 mt-4">
+            <div>
+              <h3 className="text-lg font-semibold mb-3">Pharmacy Information</h3>
               <div className="space-y-3">
                 <div>
                   <Label htmlFor="pharmacyName">Pharmacy Name</Label>
@@ -251,16 +168,15 @@ export default function EditResidentInformationModal({ resident, onClose }: Edit
                     id="pharmacyName"
                     value={pharmacyInfo.name}
                     onChange={(e) => setPharmacyInfo({ ...pharmacyInfo, name: e.target.value })}
-                    placeholder="CVS Pharmacy"
                   />
                 </div>
                 <div>
                   <Label htmlFor="pharmacyAddress">Address</Label>
-                  <Input
+                  <Textarea
                     id="pharmacyAddress"
                     value={pharmacyInfo.address}
                     onChange={(e) => setPharmacyInfo({ ...pharmacyInfo, address: e.target.value })}
-                    placeholder="123 Main St"
+                    rows={2}
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
@@ -270,7 +186,6 @@ export default function EditResidentInformationModal({ resident, onClose }: Edit
                       id="pharmacyPhone"
                       value={pharmacyInfo.phone}
                       onChange={(e) => setPharmacyInfo({ ...pharmacyInfo, phone: e.target.value })}
-                      placeholder="(555) 123-4567"
                     />
                   </div>
                   <div>
@@ -279,20 +194,19 @@ export default function EditResidentInformationModal({ resident, onClose }: Edit
                       id="pharmacyFax"
                       value={pharmacyInfo.fax}
                       onChange={(e) => setPharmacyInfo({ ...pharmacyInfo, fax: e.target.value })}
-                      placeholder="(555) 123-4568"
                     />
                   </div>
                 </div>
               </div>
-            </TabsContent>
-          </ScrollArea>
-        </Tabs>
+            </div>
+          </form>
+        </ScrollArea>
 
         <DialogFooter>
-          <Button variant="outline" onClick={onClose} disabled={updateResident.isPending}>
+          <Button type="button" variant="outline" onClick={onClose}>
             Cancel
           </Button>
-          <Button onClick={handleSubmit} disabled={updateResident.isPending}>
+          <Button type="submit" onClick={handleSubmit} disabled={updateResident.isPending}>
             {updateResident.isPending ? 'Saving...' : 'Save Changes'}
           </Button>
         </DialogFooter>

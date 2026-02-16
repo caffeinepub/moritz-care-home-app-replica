@@ -94,24 +94,26 @@ export default function AddNewResidentModal({ onClose }: AddNewResidentModalProp
         contactInfo: p.contactInfo,
       }));
 
-    const pharmacyInfo: PharmacyInfo | undefined = pharmacyName.trim()
-      ? {
+    const pharmacyInfos: PharmacyInfo[] = pharmacyName.trim()
+      ? [{
+          id: 0n,
           name: pharmacyName,
           address: pharmacyAddress,
           phone: pharmacyPhone,
           fax: pharmacyFax,
-        }
-      : undefined;
+        }]
+      : [];
 
-    const insuranceInfo: InsuranceInfo | undefined = insuranceProvider.trim()
-      ? {
+    const insuranceInfos: InsuranceInfo[] = insuranceProvider.trim()
+      ? [{
+          id: 0n,
           provider: insuranceProvider,
           policyNumber,
           groupNumber,
           medicaidNumber: medicaidNumber.trim() || undefined,
           medicareNumber: medicareNumber.trim() || undefined,
-        }
-      : undefined;
+        }]
+      : [];
 
     const contactsList: ResponsibleContact[] = contacts
       .filter(c => c.name.trim())
@@ -153,8 +155,8 @@ export default function AddNewResidentModal({ onClose }: AddNewResidentModalProp
       medicaidNumber: medicaidNumber.trim() || undefined,
       medicareNumber: medicareNumber.trim() || undefined,
       physicians: physiciansList,
-      pharmacyInfo,
-      insuranceInfo,
+      pharmacyInfos,
+      insuranceInfos,
       responsibleContacts: contactsList,
       medications: medicationsList,
       marRecords: [],
@@ -209,7 +211,8 @@ export default function AddNewResidentModal({ onClose }: AddNewResidentModalProp
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="Shared">Shared</SelectItem>
-                      <SelectItem value="Solo">Solo</SelectItem>
+                      <SelectItem value="Private">Private</SelectItem>
+                      <SelectItem value="Semi-Private">Semi-Private</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -222,6 +225,8 @@ export default function AddNewResidentModal({ onClose }: AddNewResidentModalProp
                     <SelectContent>
                       <SelectItem value="Bed A">Bed A</SelectItem>
                       <SelectItem value="Bed B">Bed B</SelectItem>
+                      <SelectItem value="Bed C">Bed C</SelectItem>
+                      <SelectItem value="Bed D">Bed D</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -239,11 +244,11 @@ export default function AddNewResidentModal({ onClose }: AddNewResidentModalProp
                 </div>
                 <div>
                   <Label htmlFor="medicaidNumber">Medicaid Number</Label>
-                  <Input id="medicaidNumber" value={medicaidNumber} onChange={(e) => setMedicaidNumber(e.target.value)} placeholder="Optional" />
+                  <Input id="medicaidNumber" value={medicaidNumber} onChange={(e) => setMedicaidNumber(e.target.value)} />
                 </div>
                 <div>
                   <Label htmlFor="medicareNumber">Medicare Number</Label>
-                  <Input id="medicareNumber" value={medicareNumber} onChange={(e) => setMedicareNumber(e.target.value)} placeholder="Optional" />
+                  <Input id="medicareNumber" value={medicareNumber} onChange={(e) => setMedicareNumber(e.target.value)} />
                 </div>
               </div>
             </div>
@@ -257,20 +262,16 @@ export default function AddNewResidentModal({ onClose }: AddNewResidentModalProp
                 </Button>
               </div>
               {physicians.map((physician, index) => (
-                <div key={index} className="border rounded-lg p-4 mb-3 relative">
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="absolute top-2 right-2"
-                    onClick={() => handleRemovePhysician(index)}
-                  >
-                    <X className="w-4 h-4" />
-                  </Button>
-                  <p className="text-sm font-medium mb-2">Physician {index + 1}</p>
-                  <div className="grid grid-cols-3 gap-3">
+                <div key={index} className="border rounded-lg p-4 mb-3 space-y-3">
+                  <div className="flex justify-between items-center">
+                    <h4 className="font-medium">Physician {index + 1}</h4>
+                    <Button type="button" variant="ghost" size="sm" onClick={() => handleRemovePhysician(index)}>
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <Label>Physician Name</Label>
+                      <Label>Name</Label>
                       <Input
                         value={physician.name}
                         onChange={(e) => {
@@ -278,19 +279,6 @@ export default function AddNewResidentModal({ onClose }: AddNewResidentModalProp
                           updated[index].name = e.target.value;
                           setPhysicians(updated);
                         }}
-                        placeholder="Dr. Smith"
-                      />
-                    </div>
-                    <div>
-                      <Label>Contact Number</Label>
-                      <Input
-                        value={physician.contactInfo}
-                        onChange={(e) => {
-                          const updated = [...physicians];
-                          updated[index].contactInfo = e.target.value;
-                          setPhysicians(updated);
-                        }}
-                        placeholder="555-123-4567"
                       />
                     </div>
                     <div>
@@ -302,7 +290,17 @@ export default function AddNewResidentModal({ onClose }: AddNewResidentModalProp
                           updated[index].specialty = e.target.value;
                           setPhysicians(updated);
                         }}
-                        placeholder="Cardiology"
+                      />
+                    </div>
+                    <div className="col-span-2">
+                      <Label>Contact Info</Label>
+                      <Input
+                        value={physician.contactInfo}
+                        onChange={(e) => {
+                          const updated = [...physicians];
+                          updated[index].contactInfo = e.target.value;
+                          setPhysicians(updated);
+                        }}
                       />
                     </div>
                   </div>
@@ -312,64 +310,64 @@ export default function AddNewResidentModal({ onClose }: AddNewResidentModalProp
 
             <div>
               <h3 className="text-lg font-semibold mb-3">Pharmacy Information</h3>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-3">
                 <div>
-                  <Label>Pharmacy Name</Label>
-                  <Input value={pharmacyName} onChange={(e) => setPharmacyName(e.target.value)} placeholder="CVS Pharmacy" />
+                  <Label htmlFor="pharmacyName">Pharmacy Name</Label>
+                  <Input id="pharmacyName" value={pharmacyName} onChange={(e) => setPharmacyName(e.target.value)} />
                 </div>
                 <div>
-                  <Label>Address</Label>
-                  <Input value={pharmacyAddress} onChange={(e) => setPharmacyAddress(e.target.value)} placeholder="123 Main St" />
+                  <Label htmlFor="pharmacyAddress">Address</Label>
+                  <Textarea id="pharmacyAddress" value={pharmacyAddress} onChange={(e) => setPharmacyAddress(e.target.value)} rows={2} />
                 </div>
-                <div>
-                  <Label>Contact Number</Label>
-                  <Input value={pharmacyPhone} onChange={(e) => setPharmacyPhone(e.target.value)} placeholder="555-987-6543" />
-                </div>
-                <div>
-                  <Label>Fax</Label>
-                  <Input value={pharmacyFax} onChange={(e) => setPharmacyFax(e.target.value)} placeholder="555-987-6544" />
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label htmlFor="pharmacyPhone">Phone</Label>
+                    <Input id="pharmacyPhone" value={pharmacyPhone} onChange={(e) => setPharmacyPhone(e.target.value)} />
+                  </div>
+                  <div>
+                    <Label htmlFor="pharmacyFax">Fax</Label>
+                    <Input id="pharmacyFax" value={pharmacyFax} onChange={(e) => setPharmacyFax(e.target.value)} />
+                  </div>
                 </div>
               </div>
             </div>
 
             <div>
               <h3 className="text-lg font-semibold mb-3">Insurance Information</h3>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-3">
                 <div>
-                  <Label>Insurance Company</Label>
-                  <Input value={insuranceProvider} onChange={(e) => setInsuranceProvider(e.target.value)} placeholder="Blue Cross Blue Shield" />
+                  <Label htmlFor="insuranceProvider">Provider</Label>
+                  <Input id="insuranceProvider" value={insuranceProvider} onChange={(e) => setInsuranceProvider(e.target.value)} />
                 </div>
-                <div>
-                  <Label>Policy Number</Label>
-                  <Input value={policyNumber} onChange={(e) => setPolicyNumber(e.target.value)} placeholder="ABC123456" />
-                </div>
-                <div>
-                  <Label>Group Number</Label>
-                  <Input value={groupNumber} onChange={(e) => setGroupNumber(e.target.value)} placeholder="GRP789" />
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label htmlFor="policyNumber">Policy Number</Label>
+                    <Input id="policyNumber" value={policyNumber} onChange={(e) => setPolicyNumber(e.target.value)} />
+                  </div>
+                  <div>
+                    <Label htmlFor="groupNumber">Group Number</Label>
+                    <Input id="groupNumber" value={groupNumber} onChange={(e) => setGroupNumber(e.target.value)} />
+                  </div>
                 </div>
               </div>
             </div>
 
             <div>
               <div className="flex items-center justify-between mb-3">
-                <h3 className="text-lg font-semibold">Responsible Persons</h3>
+                <h3 className="text-lg font-semibold">Responsible Contacts</h3>
                 <Button type="button" variant="outline" size="sm" onClick={handleAddContact}>
                   <Plus className="w-4 h-4 mr-1" />
                   Add Contact
                 </Button>
               </div>
               {contacts.map((contact, index) => (
-                <div key={index} className="border rounded-lg p-4 mb-3 relative">
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="absolute top-2 right-2"
-                    onClick={() => handleRemoveContact(index)}
-                  >
-                    <X className="w-4 h-4" />
-                  </Button>
-                  <p className="text-sm font-medium mb-2">Contact Person {index + 1}</p>
+                <div key={index} className="border rounded-lg p-4 mb-3 space-y-3">
+                  <div className="flex justify-between items-center">
+                    <h4 className="font-medium">Contact {index + 1}</h4>
+                    <Button type="button" variant="ghost" size="sm" onClick={() => handleRemoveContact(index)}>
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <Label>Name</Label>
@@ -380,7 +378,6 @@ export default function AddNewResidentModal({ onClose }: AddNewResidentModalProp
                           updated[index].name = e.target.value;
                           setContacts(updated);
                         }}
-                        placeholder="John Doe"
                       />
                     </div>
                     <div>
@@ -392,11 +389,10 @@ export default function AddNewResidentModal({ onClose }: AddNewResidentModalProp
                           updated[index].relationship = e.target.value;
                           setContacts(updated);
                         }}
-                        placeholder="Son"
                       />
                     </div>
                     <div>
-                      <Label>Contact Number</Label>
+                      <Label>Phone</Label>
                       <Input
                         value={contact.phone}
                         onChange={(e) => {
@@ -404,7 +400,6 @@ export default function AddNewResidentModal({ onClose }: AddNewResidentModalProp
                           updated[index].phone = e.target.value;
                           setContacts(updated);
                         }}
-                        placeholder="555-111-2222"
                       />
                     </div>
                     <div>
@@ -416,7 +411,6 @@ export default function AddNewResidentModal({ onClose }: AddNewResidentModalProp
                           updated[index].email = e.target.value;
                           setContacts(updated);
                         }}
-                        placeholder="john@example.com"
                       />
                     </div>
                   </div>
@@ -433,20 +427,16 @@ export default function AddNewResidentModal({ onClose }: AddNewResidentModalProp
                 </Button>
               </div>
               {medications.map((medication, medIndex) => (
-                <div key={medIndex} className="border rounded-lg p-4 mb-3 relative">
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="absolute top-2 right-2"
-                    onClick={() => handleRemoveMedication(medIndex)}
-                  >
-                    <X className="w-4 h-4" />
-                  </Button>
-                  <p className="text-sm font-medium mb-2">Medication {medIndex + 1}</p>
-                  <div className="grid grid-cols-2 gap-3 mb-3">
+                <div key={medIndex} className="border rounded-lg p-4 mb-3 space-y-3">
+                  <div className="flex justify-between items-center">
+                    <h4 className="font-medium">Medication {medIndex + 1}</h4>
+                    <Button type="button" variant="ghost" size="sm" onClick={() => handleRemoveMedication(medIndex)}>
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <Label>Medication Name</Label>
+                      <Label>Name</Label>
                       <Input
                         value={medication.name}
                         onChange={(e) => {
@@ -454,7 +444,6 @@ export default function AddNewResidentModal({ onClose }: AddNewResidentModalProp
                           updated[medIndex].name = e.target.value;
                           setMedications(updated);
                         }}
-                        placeholder="Aspirin"
                       />
                     </div>
                     <div>
@@ -466,7 +455,6 @@ export default function AddNewResidentModal({ onClose }: AddNewResidentModalProp
                           updated[medIndex].dosage = e.target.value;
                           setMedications(updated);
                         }}
-                        placeholder="100mg"
                       />
                     </div>
                     <div>
@@ -478,11 +466,10 @@ export default function AddNewResidentModal({ onClose }: AddNewResidentModalProp
                           updated[medIndex].dosageQuantity = e.target.value;
                           setMedications(updated);
                         }}
-                        placeholder="1 tablet"
                       />
                     </div>
                     <div>
-                      <Label>Administration Route</Label>
+                      <Label>Route</Label>
                       <Select
                         value={medication.administrationRoute}
                         onValueChange={(value) => {
@@ -498,37 +485,24 @@ export default function AddNewResidentModal({ onClose }: AddNewResidentModalProp
                           <SelectItem value="Oral">Oral</SelectItem>
                           <SelectItem value="IV">IV</SelectItem>
                           <SelectItem value="IM">IM</SelectItem>
-                          <SelectItem value="Topical">Topical</SelectItem>
                           <SelectItem value="Subcutaneous">Subcutaneous</SelectItem>
+                          <SelectItem value="Topical">Topical</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
-                  </div>
-                  <div className="mb-3">
-                    <div className="flex items-center justify-between mb-2">
+                    <div className="col-span-2">
                       <Label>Administration Times</Label>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleAddAdministrationTime(medIndex)}
-                      >
-                        <Plus className="w-3 h-3 mr-1" />
-                        Add Time
-                      </Button>
-                    </div>
-                    {medication.administrationTimes.map((time, timeIndex) => (
-                      <div key={timeIndex} className="flex gap-2 mb-2">
-                        <Input
-                          type="time"
-                          value={time}
-                          onChange={(e) => {
-                            const updated = [...medications];
-                            updated[medIndex].administrationTimes[timeIndex] = e.target.value;
-                            setMedications(updated);
-                          }}
-                        />
-                        {medication.administrationTimes.length > 1 && (
+                      {medication.administrationTimes.map((time, timeIndex) => (
+                        <div key={timeIndex} className="flex gap-2 mb-2">
+                          <Input
+                            type="time"
+                            value={time}
+                            onChange={(e) => {
+                              const updated = [...medications];
+                              updated[medIndex].administrationTimes[timeIndex] = e.target.value;
+                              setMedications(updated);
+                            }}
+                          />
                           <Button
                             type="button"
                             variant="ghost"
@@ -537,22 +511,30 @@ export default function AddNewResidentModal({ onClose }: AddNewResidentModalProp
                           >
                             <X className="w-4 h-4" />
                           </Button>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                  <div>
-                    <Label>Notes</Label>
-                    <Textarea
-                      value={medication.notes}
-                      onChange={(e) => {
-                        const updated = [...medications];
-                        updated[medIndex].notes = e.target.value;
-                        setMedications(updated);
-                      }}
-                      placeholder="Additional notes..."
-                      rows={2}
-                    />
+                        </div>
+                      ))}
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleAddAdministrationTime(medIndex)}
+                      >
+                        <Plus className="w-4 h-4 mr-1" />
+                        Add Time
+                      </Button>
+                    </div>
+                    <div className="col-span-2">
+                      <Label>Notes</Label>
+                      <Textarea
+                        value={medication.notes}
+                        onChange={(e) => {
+                          const updated = [...medications];
+                          updated[medIndex].notes = e.target.value;
+                          setMedications(updated);
+                        }}
+                        rows={2}
+                      />
+                    </div>
                   </div>
                 </div>
               ))}
@@ -561,10 +543,10 @@ export default function AddNewResidentModal({ onClose }: AddNewResidentModalProp
         </ScrollArea>
 
         <DialogFooter>
-          <Button variant="outline" onClick={onClose} disabled={addResident.isPending}>
+          <Button type="button" variant="outline" onClick={onClose}>
             Cancel
           </Button>
-          <Button onClick={handleSubmit} disabled={addResident.isPending}>
+          <Button type="submit" onClick={handleSubmit} disabled={addResident.isPending}>
             {addResident.isPending ? 'Adding...' : 'Add Resident'}
           </Button>
         </DialogFooter>

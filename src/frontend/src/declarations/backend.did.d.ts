@@ -49,6 +49,7 @@ export type HealthStatus = { 'ok' : string } |
   { 'error' : string } |
   { 'maintenance' : string };
 export interface InsuranceInfo {
+  'id' : bigint,
   'groupNumber' : string,
   'provider' : string,
   'medicaidNumber' : [] | [string],
@@ -57,14 +58,14 @@ export interface InsuranceInfo {
 }
 export interface MARRecord {
   'id' : bigint,
-  'medicationId' : bigint,
+  'medicationId' : MedicationId,
   'notes' : string,
   'timestamp' : bigint,
   'administrationTime' : string,
   'administeredBy' : string,
 }
 export interface Medication {
-  'id' : bigint,
+  'id' : MedicationId,
   'dosage' : string,
   'prescribingPhysicianId' : [] | [bigint],
   'name' : string,
@@ -75,7 +76,9 @@ export interface Medication {
   'isPRN' : boolean,
   'dosageQuantity' : string,
 }
+export type MedicationId = bigint;
 export interface PharmacyInfo {
+  'id' : bigint,
   'fax' : string,
   'name' : string,
   'address' : string,
@@ -92,12 +95,11 @@ export interface Resident {
   'bed' : string,
   'dob' : string,
   'status' : ResidentStatus,
-  'insuranceInfo' : [] | [InsuranceInfo],
+  'insuranceInfos' : Array<InsuranceInfo>,
   'admissionDate' : string,
   'marRecords' : Array<MARRecord>,
   'adlRecords' : Array<ADLRecord>,
   'roomNumber' : string,
-  'pharmacyInfo' : [] | [PharmacyInfo],
   'medications' : Array<Medication>,
   'dailyVitals' : Array<DailyVitals>,
   'responsibleContacts' : Array<ResponsibleContact>,
@@ -107,6 +109,7 @@ export interface Resident {
   'lastName' : string,
   'roomType' : string,
   'medicareNumber' : [] | [string],
+  'pharmacyInfos' : Array<PharmacyInfo>,
   'firstName' : string,
 }
 export type ResidentId = bigint;
@@ -155,24 +158,26 @@ export interface _SERVICE {
     ],
     bigint
   >,
+  'addInsuranceInfo' : ActorMethod<[ResidentId, InsuranceInfo], bigint>,
   'addMARRecord' : ActorMethod<
-    [ResidentId, bigint, string, string, string],
+    [ResidentId, MedicationId, string, string, string],
     bigint
   >,
-  'addMedicationToResident' : ActorMethod<[ResidentId, Medication], bigint>,
-  'addPhysicianToResident' : ActorMethod<
-    [ResidentId, string, string, string],
-    bigint
-  >,
+  'addMedication' : ActorMethod<[ResidentId, Medication], MedicationId>,
+  'addPharmacyInfo' : ActorMethod<[ResidentId, PharmacyInfo], bigint>,
+  'addPhysician' : ActorMethod<[ResidentId, Physician], bigint>,
   'addResident' : ActorMethod<[Resident], ResidentId>,
   'addResponsibleContact' : ActorMethod<
-    [ResidentId, string, string, string, string, boolean],
+    [ResidentId, ResponsibleContact],
     bigint
   >,
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
+  'deleteInsuranceInfo' : ActorMethod<[ResidentId, bigint], undefined>,
+  'deletePharmacyInfo' : ActorMethod<[ResidentId, bigint], undefined>,
+  'deletePhysician' : ActorMethod<[ResidentId, bigint], undefined>,
   'deleteResident' : ActorMethod<[ResidentId], undefined>,
-  'dischargeResident' : ActorMethod<[ResidentId], undefined>,
-  'discontinueMedication' : ActorMethod<[ResidentId, bigint], undefined>,
+  'deleteResponsibleContact' : ActorMethod<[ResidentId, bigint], undefined>,
+  'discontinueMedication' : ActorMethod<[ResidentId, MedicationId], undefined>,
   'getADLRecords' : ActorMethod<[ResidentId], Array<ADLRecord>>,
   'getAllResidents' : ActorMethod<[], Array<Resident>>,
   'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
@@ -182,10 +187,12 @@ export interface _SERVICE {
     [ResidentId],
     Array<CodeStatusChangeRecord>
   >,
-  'getDailyVitals' : ActorMethod<[ResidentId], Array<DailyVitals>>,
   'getHealthStatus' : ActorMethod<[], HealthStatus>,
+  'getInsuranceInfo' : ActorMethod<[ResidentId, bigint], [] | [InsuranceInfo]>,
   'getMARRecords' : ActorMethod<[ResidentId], Array<MARRecord>>,
-  'getMedications' : ActorMethod<[ResidentId], Array<Medication>>,
+  'getMedication' : ActorMethod<[ResidentId, MedicationId], [] | [Medication]>,
+  'getPharmacyInfo' : ActorMethod<[ResidentId, bigint], [] | [PharmacyInfo]>,
+  'getPhysician' : ActorMethod<[ResidentId, bigint], [] | [Physician]>,
   'getResident' : ActorMethod<[ResidentId], [] | [Resident]>,
   'getResidentStats' : ActorMethod<
     [],
@@ -199,25 +206,31 @@ export interface _SERVICE {
     [[] | [string], [] | [ResidentStatus]],
     Array<Resident>
   >,
-  'getResponsibleContacts' : ActorMethod<
-    [ResidentId],
-    Array<ResponsibleContact>
+  'getResponsibleContact' : ActorMethod<
+    [ResidentId, bigint],
+    [] | [ResponsibleContact]
   >,
   'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
-  'reactivateMedication' : ActorMethod<[ResidentId, bigint], undefined>,
+  'reactivateMedication' : ActorMethod<[ResidentId, MedicationId], undefined>,
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
   'updateCodeStatus' : ActorMethod<[ResidentId, CodeStatus, string], undefined>,
-  'updateInsuranceInfo' : ActorMethod<[ResidentId, InsuranceInfo], undefined>,
-  'updateMedication' : ActorMethod<[ResidentId, bigint, Medication], undefined>,
-  'updatePharmacyInfo' : ActorMethod<[ResidentId, PharmacyInfo], undefined>,
-  'updatePhysician' : ActorMethod<
-    [ResidentId, bigint, string, string, string],
+  'updateInsuranceInfo' : ActorMethod<
+    [ResidentId, bigint, InsuranceInfo],
     undefined
   >,
+  'updateMedication' : ActorMethod<
+    [ResidentId, MedicationId, Medication],
+    undefined
+  >,
+  'updatePharmacyInfo' : ActorMethod<
+    [ResidentId, bigint, PharmacyInfo],
+    undefined
+  >,
+  'updatePhysician' : ActorMethod<[ResidentId, bigint, Physician], undefined>,
   'updateResident' : ActorMethod<[ResidentId, Resident], undefined>,
   'updateResponsibleContact' : ActorMethod<
-    [ResidentId, bigint, string, string, string, string, boolean],
+    [ResidentId, bigint, ResponsibleContact],
     undefined
   >,
 }

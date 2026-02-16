@@ -11,19 +11,20 @@ import { ResidentStatus } from '../backend';
 import AddNewResidentModal from '../components/residents/modals/AddNewResidentModal';
 import CodeStatusBadge from '../components/residents/CodeStatusBadge';
 import { calculateAgeYears, formatAge } from '../utils/dateOnly';
+import { sortResidents, SecondarySortOption } from '../utils/residentSorting';
 
 export default function ResidentDashboardPage() {
   const navigate = useNavigate();
-  const { data: residents = [], isLoading } = useGetAccessibleResidents();
+  const { data: residents = [], isLoading, isFetched } = useGetAccessibleResidents();
   const { data: stats } = useGetResidentStats();
 
   const [showAddModal, setShowAddModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | ResidentStatus>('all');
-  const [sortBy, setSortBy] = useState<'name' | 'room'>('name');
+  const [secondarySort, setSecondarySort] = useState<SecondarySortOption>('none');
 
-  const filteredResidents = residents
-    .filter((resident) => {
+  const filteredResidents = sortResidents(
+    residents.filter((resident) => {
       const matchesSearch =
         resident.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
         resident.lastName.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -32,14 +33,9 @@ export default function ResidentDashboardPage() {
       const matchesStatus = statusFilter === 'all' || resident.status === statusFilter;
 
       return matchesSearch && matchesStatus;
-    })
-    .sort((a, b) => {
-      if (sortBy === 'name') {
-        return `${a.lastName} ${a.firstName}`.localeCompare(`${b.lastName} ${b.firstName}`);
-      } else {
-        return a.roomNumber.localeCompare(b.roomNumber);
-      }
-    });
+    }),
+    secondarySort
+  );
 
   return (
     <div className="min-h-screen bg-background">
@@ -99,13 +95,14 @@ export default function ResidentDashboardPage() {
                   className="pl-10"
                 />
               </div>
-              <Select value={sortBy} onValueChange={(value: 'name' | 'room') => setSortBy(value)}>
-                <SelectTrigger className="w-full md:w-[180px]">
-                  <SelectValue placeholder="Sort by" />
+              <Select value={secondarySort} onValueChange={(value: SecondarySortOption) => setSecondarySort(value)}>
+                <SelectTrigger className="w-full md:w-[200px]">
+                  <SelectValue placeholder="Secondary Sort" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="name">Sort by Name</SelectItem>
-                  <SelectItem value="room">Sort by Room</SelectItem>
+                  <SelectItem value="none">Room Only</SelectItem>
+                  <SelectItem value="name">Room + Name</SelectItem>
+                  <SelectItem value="status">Room + Status</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -124,9 +121,15 @@ export default function ResidentDashboardPage() {
           <div className="text-center py-12">
             <p className="text-muted-foreground">Loading residents...</p>
           </div>
+        ) : !isFetched ? (
+          <div className="text-center py-12">
+            <p className="text-muted-foreground">Initializing...</p>
+          </div>
         ) : filteredResidents.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-muted-foreground">No residents found</p>
+            <p className="text-muted-foreground">
+              {residents.length === 0 ? 'No residents found' : 'No residents match your filters'}
+            </p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

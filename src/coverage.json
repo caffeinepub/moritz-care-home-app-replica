@@ -1,35 +1,179 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-15T23:32:39.162Z",
+  "generatedAt": "2026-02-16T21:19:02.571Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 1,
-    "implemented": 1,
+    "total": 8,
+    "implemented": 6,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Update the existing toggle switch labeled “Show Physician Signature Fields” on the Resident Profile page so that only the switch knob (thumb) changes color: white when ON/checked and green when OFF/unchecked. Do not change the label/text colors.",
+        "summary": "Update the Resident Profile page to include a left sidebar/navigation with dedicated sections (tabs) for: Responsible Persons, Pharmacy Information, Insurance Information, and Physician Information, accessible from within the resident’s profile view.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/pages/ResidentProfilePage.tsx"
+          "frontend/src/pages/ResidentProfilePage.tsx",
+          "frontend/src/components/resident-profile/ResidentProfileSidebar.tsx",
+          "frontend/src/components/resident-profile/sections/index.ts"
         ],
         "matchedFiles": [
           "frontend/src/pages/ResidentProfilePage.tsx"
+        ]
+      },
+      {
+        "id": "REQ-2",
+        "summary": "Implement separate add and edit screens (solid white background) for managing multiple Responsible Persons entries per resident with fields: Name, Relationship, Phone Number, Fax Number.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/components/resident-profile/sections/ResponsiblePersonsSection.tsx",
+          "frontend/src/pages/resident-profile/responsible-persons/ResponsiblePersonAddPage.tsx",
+          "frontend/src/pages/resident-profile/responsible-persons/ResponsiblePersonEditPage.tsx",
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/App.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/resident-profile/sections/ResponsiblePersonsSection.tsx",
+          "frontend/src/pages/resident-profile/responsible-persons/ResponsiblePersonAddPage.tsx",
+          "frontend/src/pages/resident-profile/responsible-persons/ResponsiblePersonEditPage.tsx",
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/App.tsx"
+        ]
+      },
+      {
+        "id": "REQ-3",
+        "summary": "Implement separate add and edit screens (solid white background) for managing multiple Pharmacy Information entries per resident with fields: Pharmacy Name, Address, Phone Number, Fax Number.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/components/resident-profile/sections/PharmacyInformationSection.tsx",
+          "frontend/src/pages/resident-profile/pharmacy/PharmacyAddPage.tsx",
+          "frontend/src/pages/resident-profile/pharmacy/PharmacyEditPage.tsx",
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/App.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/resident-profile/sections/PharmacyInformationSection.tsx",
+          "frontend/src/pages/resident-profile/pharmacy/PharmacyAddPage.tsx",
+          "frontend/src/pages/resident-profile/pharmacy/PharmacyEditPage.tsx",
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/App.tsx"
+        ]
+      },
+      {
+        "id": "REQ-4",
+        "summary": "Implement separate add and edit screens (solid white background) for managing multiple Insurance Information entries per resident with fields: Insurance Name, Policy Number, Medicare ID Number, Medicaid ID Number.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/components/resident-profile/sections/InsuranceInformationSection.tsx",
+          "frontend/src/pages/resident-profile/insurance/InsuranceAddPage.tsx",
+          "frontend/src/pages/resident-profile/insurance/InsuranceEditPage.tsx",
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/App.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/resident-profile/sections/InsuranceInformationSection.tsx",
+          "frontend/src/pages/resident-profile/insurance/InsuranceAddPage.tsx",
+          "frontend/src/pages/resident-profile/insurance/InsuranceEditPage.tsx",
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/App.tsx"
+        ]
+      },
+      {
+        "id": "REQ-5",
+        "summary": "Add a Physician Information sidebar section that allows adding and editing multiple physician entries for a resident via separate add/edit screens (solid white background), using the existing physician data shape currently supported by the backend (name, specialty, contact info) unless additional fields are explicitly specified later.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/components/resident-profile/sections/PhysicianInformationSection.tsx",
+          "frontend/src/pages/resident-profile/physicians/PhysicianAddPage.tsx",
+          "frontend/src/pages/resident-profile/physicians/PhysicianEditPage.tsx",
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/App.tsx",
+          "frontend/src/pages/ResidentProfilePage.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/resident-profile/sections/PhysicianInformationSection.tsx",
+          "frontend/src/pages/resident-profile/physicians/PhysicianAddPage.tsx",
+          "frontend/src/pages/resident-profile/physicians/PhysicianEditPage.tsx",
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/App.tsx",
+          "frontend/src/pages/ResidentProfilePage.tsx"
+        ]
+      },
+      {
+        "id": "REQ-6",
+        "summary": "Update the backend resident data model and APIs to support multiple entries for Pharmacy Information and Insurance Information (currently single optional records), and ensure IDs are available to reliably edit specific entries.",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-7",
+        "summary": "Implement an upgrade-safe state migration so existing production data is preserved when changing from single-record pharmacy/insurance storage to multi-entry storage, and when extending Responsible Contacts/Persons fields.",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-8",
+        "summary": "Apply a coherent visual theme to the new Resident Profile sidebar sections and add/edit screens, keeping forms on a solid white background as requested, and ensuring styling is consistent with the rest of the app (Tailwind + existing UI components).",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/index.css",
+          "frontend/src/pages/resident-profile/responsible-persons/ResponsiblePersonAddPage.tsx",
+          "frontend/src/pages/resident-profile/responsible-persons/ResponsiblePersonEditPage.tsx",
+          "frontend/src/pages/resident-profile/pharmacy/PharmacyAddPage.tsx",
+          "frontend/src/pages/resident-profile/pharmacy/PharmacyEditPage.tsx",
+          "frontend/src/pages/resident-profile/insurance/InsuranceAddPage.tsx",
+          "frontend/src/pages/resident-profile/insurance/InsuranceEditPage.tsx",
+          "frontend/src/pages/resident-profile/physicians/PhysicianAddPage.tsx",
+          "frontend/src/pages/resident-profile/physicians/PhysicianEditPage.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/resident-profile/responsible-persons/ResponsiblePersonAddPage.tsx",
+          "frontend/src/pages/resident-profile/responsible-persons/ResponsiblePersonEditPage.tsx",
+          "frontend/src/pages/resident-profile/pharmacy/PharmacyAddPage.tsx",
+          "frontend/src/pages/resident-profile/pharmacy/PharmacyEditPage.tsx",
+          "frontend/src/pages/resident-profile/insurance/InsuranceAddPage.tsx",
+          "frontend/src/pages/resident-profile/insurance/InsuranceEditPage.tsx",
+          "frontend/src/pages/resident-profile/physicians/PhysicianAddPage.tsx",
+          "frontend/src/pages/resident-profile/physicians/PhysicianEditPage.tsx"
         ]
       }
     ]
   },
   "changedFiles": [
+    "backend/main.mo",
+    "backend/migration.mo",
     "build-request.json",
+    "caffeine.lock.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/index.css",
+    "frontend/src/App.tsx",
+    "frontend/src/backend.d.ts",
+    "frontend/src/backend.ts",
+    "frontend/src/components/resident-profile/sections/InsuranceInformationSection.tsx",
+    "frontend/src/components/resident-profile/sections/PharmacyInformationSection.tsx",
+    "frontend/src/components/resident-profile/sections/PhysicianInformationSection.tsx",
+    "frontend/src/components/resident-profile/sections/ResponsiblePersonsSection.tsx",
+    "frontend/src/components/residents/ResidentProfilePrintReport.tsx",
+    "frontend/src/components/residents/modals/AddNewResidentModal.tsx",
+    "frontend/src/components/residents/modals/EditResidentInformationModal.tsx",
+    "frontend/src/config.ts",
+    "frontend/src/declarations/backend.did.d.ts",
+    "frontend/src/declarations/backend.did.js",
+    "frontend/src/hooks/useQueries.ts",
     "frontend/src/pages/ResidentProfilePage.tsx",
+    "frontend/src/pages/resident-profile/insurance/InsuranceAddPage.tsx",
+    "frontend/src/pages/resident-profile/insurance/InsuranceEditPage.tsx",
+    "frontend/src/pages/resident-profile/pharmacy/PharmacyAddPage.tsx",
+    "frontend/src/pages/resident-profile/pharmacy/PharmacyEditPage.tsx",
+    "frontend/src/pages/resident-profile/physicians/PhysicianAddPage.tsx",
+    "frontend/src/pages/resident-profile/physicians/PhysicianEditPage.tsx",
+    "frontend/src/pages/resident-profile/responsible-persons/ResponsiblePersonAddPage.tsx",
+    "frontend/src/pages/resident-profile/responsible-persons/ResponsiblePersonEditPage.tsx",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

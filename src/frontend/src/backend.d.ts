@@ -14,22 +14,23 @@ export interface UserProfile {
     relatedResidentIds: Array<bigint>;
 }
 export interface PharmacyInfo {
+    id: bigint;
     fax: string;
     name: string;
     address: string;
     phone: string;
 }
+export type MedicationId = bigint;
 export interface Resident {
     id: ResidentId;
     bed: string;
     dob: string;
     status: ResidentStatus;
-    insuranceInfo?: InsuranceInfo;
+    insuranceInfos: Array<InsuranceInfo>;
     admissionDate: string;
     marRecords: Array<MARRecord>;
     adlRecords: Array<ADLRecord>;
     roomNumber: string;
-    pharmacyInfo?: PharmacyInfo;
     medications: Array<Medication>;
     dailyVitals: Array<DailyVitals>;
     responsibleContacts: Array<ResponsibleContact>;
@@ -39,6 +40,7 @@ export interface Resident {
     lastName: string;
     roomType: string;
     medicareNumber?: string;
+    pharmacyInfos: Array<PharmacyInfo>;
     firstName: string;
 }
 export interface Physician {
@@ -49,7 +51,7 @@ export interface Physician {
 }
 export interface MARRecord {
     id: bigint;
-    medicationId: bigint;
+    medicationId: MedicationId;
     notes: string;
     timestamp: bigint;
     administrationTime: string;
@@ -108,7 +110,7 @@ export interface DailyVitals {
 }
 export type ResidentId = bigint;
 export interface Medication {
-    id: bigint;
+    id: MedicationId;
     dosage: string;
     prescribingPhysicianId?: bigint;
     name: string;
@@ -120,6 +122,7 @@ export interface Medication {
     dosageQuantity: string;
 }
 export interface InsuranceInfo {
+    id: bigint;
     groupNumber: string;
     provider: string;
     medicaidNumber?: string;
@@ -147,25 +150,32 @@ export enum UserType {
 export interface backendInterface {
     addADLRecord(residentId: ResidentId, date: string, activity: string, assistanceLevel: string, staffNotes: string): Promise<bigint>;
     addDailyVitals(residentId: ResidentId, temperature: number, temperatureUnit: string, bloodPressureSystolic: bigint, bloodPressureDiastolic: bigint, pulseRate: bigint, respiratoryRate: bigint, oxygenSaturation: bigint, bloodGlucose: bigint | null, measurementDate: string, measurementTime: string, notes: string): Promise<bigint>;
-    addMARRecord(residentId: ResidentId, medicationId: bigint, administrationTime: string, administeredBy: string, notes: string): Promise<bigint>;
-    addMedicationToResident(residentId: ResidentId, medicationData: Medication): Promise<bigint>;
-    addPhysicianToResident(residentId: ResidentId, name: string, specialty: string, contactInfo: string): Promise<bigint>;
+    addInsuranceInfo(residentId: ResidentId, insurance: InsuranceInfo): Promise<bigint>;
+    addMARRecord(residentId: ResidentId, medicationId: MedicationId, administrationTime: string, administeredBy: string, notes: string): Promise<bigint>;
+    addMedication(residentId: ResidentId, medication: Medication): Promise<MedicationId>;
+    addPharmacyInfo(residentId: ResidentId, pharmacy: PharmacyInfo): Promise<bigint>;
+    addPhysician(residentId: ResidentId, physician: Physician): Promise<bigint>;
     addResident(residentData: Resident): Promise<ResidentId>;
-    addResponsibleContact(residentId: ResidentId, name: string, relationship: string, phone: string, email: string, isPrimary: boolean): Promise<bigint>;
+    addResponsibleContact(residentId: ResidentId, contact: ResponsibleContact): Promise<bigint>;
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
+    deleteInsuranceInfo(residentId: ResidentId, insuranceId: bigint): Promise<void>;
+    deletePharmacyInfo(residentId: ResidentId, pharmacyId: bigint): Promise<void>;
+    deletePhysician(residentId: ResidentId, physicianId: bigint): Promise<void>;
     deleteResident(residentId: ResidentId): Promise<void>;
-    dischargeResident(residentId: ResidentId): Promise<void>;
-    discontinueMedication(residentId: ResidentId, medicationId: bigint): Promise<void>;
+    deleteResponsibleContact(residentId: ResidentId, contactId: bigint): Promise<void>;
+    discontinueMedication(residentId: ResidentId, medicationId: MedicationId): Promise<void>;
     getADLRecords(residentId: ResidentId): Promise<Array<ADLRecord>>;
     getAllResidents(): Promise<Array<Resident>>;
     getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
     getCodeStatus(residentId: ResidentId): Promise<CodeStatus | null>;
     getCodeStatusHistory(residentId: ResidentId): Promise<Array<CodeStatusChangeRecord>>;
-    getDailyVitals(residentId: ResidentId): Promise<Array<DailyVitals>>;
     getHealthStatus(): Promise<HealthStatus>;
+    getInsuranceInfo(residentId: ResidentId, insuranceId: bigint): Promise<InsuranceInfo | null>;
     getMARRecords(residentId: ResidentId): Promise<Array<MARRecord>>;
-    getMedications(residentId: ResidentId): Promise<Array<Medication>>;
+    getMedication(residentId: ResidentId, medicationId: MedicationId): Promise<Medication | null>;
+    getPharmacyInfo(residentId: ResidentId, pharmacyId: bigint): Promise<PharmacyInfo | null>;
+    getPhysician(residentId: ResidentId, physicianId: bigint): Promise<Physician | null>;
     getResident(residentId: ResidentId): Promise<Resident | null>;
     getResidentStats(): Promise<{
         activeResidents: bigint;
@@ -173,16 +183,16 @@ export interface backendInterface {
         totalResidents: bigint;
     }>;
     getResidentsByFilter(roomNumber: string | null, status: ResidentStatus | null): Promise<Array<Resident>>;
-    getResponsibleContacts(residentId: ResidentId): Promise<Array<ResponsibleContact>>;
+    getResponsibleContact(residentId: ResidentId, contactId: bigint): Promise<ResponsibleContact | null>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
     isCallerAdmin(): Promise<boolean>;
-    reactivateMedication(residentId: ResidentId, medicationId: bigint): Promise<void>;
+    reactivateMedication(residentId: ResidentId, medicationId: MedicationId): Promise<void>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
     updateCodeStatus(residentId: ResidentId, newCodeStatus: CodeStatus, notes: string): Promise<void>;
-    updateInsuranceInfo(residentId: ResidentId, insuranceInfo: InsuranceInfo): Promise<void>;
-    updateMedication(residentId: ResidentId, medicationId: bigint, updatedMedication: Medication): Promise<void>;
-    updatePharmacyInfo(residentId: ResidentId, pharmacyInfo: PharmacyInfo): Promise<void>;
-    updatePhysician(residentId: ResidentId, physicianId: bigint, name: string, specialty: string, contactInfo: string): Promise<void>;
+    updateInsuranceInfo(residentId: ResidentId, insuranceId: bigint, updatedInsurance: InsuranceInfo): Promise<void>;
+    updateMedication(residentId: ResidentId, medicationId: MedicationId, updatedMedication: Medication): Promise<void>;
+    updatePharmacyInfo(residentId: ResidentId, pharmacyId: bigint, updatedPharmacy: PharmacyInfo): Promise<void>;
+    updatePhysician(residentId: ResidentId, physicianId: bigint, updatedPhysician: Physician): Promise<void>;
     updateResident(residentId: ResidentId, updatedData: Resident): Promise<void>;
-    updateResponsibleContact(residentId: ResidentId, contactId: bigint, name: string, relationship: string, phone: string, email: string, isPrimary: boolean): Promise<void>;
+    updateResponsibleContact(residentId: ResidentId, contactId: bigint, updatedContact: ResponsibleContact): Promise<void>;
 }

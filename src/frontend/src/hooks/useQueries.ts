@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useResilientActor } from './useResilientActor';
 import { useInternetIdentity } from './useInternetIdentity';
-import type { UserProfile, Resident, ResidentId, Medication, MARRecord, ADLRecord, DailyVitals, PharmacyInfo, InsuranceInfo, ResidentStatus } from '../backend';
+import type { UserProfile, Resident, ResidentId, Medication, MARRecord, ADLRecord, DailyVitals, PharmacyInfo, InsuranceInfo, ResidentStatus, ResponsibleContact, Physician } from '../backend';
 import { toast } from 'sonner';
 import { canListAllResidents } from '../lib/auth/helpers';
 
@@ -27,10 +27,10 @@ export function useGetCallerUserProfile() {
       }
     },
     enabled: !!actor && !actorFetching && !!identity,
-    retry: 2, // Retry twice on failure
+    retry: 2,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 3000),
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    gcTime: 10 * 60 * 1000, // 10 minutes
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
   });
 
   return {
@@ -99,14 +99,15 @@ export function useGetAllResidents() {
 }
 
 export function useGetAccessibleResidents() {
-  const { actor, isFetching } = useResilientActor();
-  const { data: userProfile } = useGetCallerUserProfile();
-  const { data: isAdmin = false } = useIsCallerAdmin();
+  const { actor, isFetching: actorFetching } = useResilientActor();
+  const { identity } = useInternetIdentity();
+  const { data: userProfile, isFetched: profileFetched, isLoading: profileLoading } = useGetCallerUserProfile();
+  const { data: isAdmin = false, isFetched: adminFetched, isLoading: adminLoading } = useIsCallerAdmin();
 
   const canListAll = canListAllResidents(userProfile, isAdmin);
 
-  return useQuery<Resident[]>({
-    queryKey: ['accessibleResidents', userProfile?.relatedResidentIds.map(id => id.toString())],
+  const query = useQuery<Resident[]>({
+    queryKey: ['accessibleResidents', isAdmin, userProfile?.relatedResidentIds.map(id => id.toString())],
     queryFn: async () => {
       if (!actor) throw new Error('Actor not available');
       
@@ -130,8 +131,14 @@ export function useGetAccessibleResidents() {
 
       return residents.filter((r): r is Resident => r !== null);
     },
-    enabled: !!actor && !isFetching && !!userProfile,
+    enabled: !!actor && !actorFetching && !!identity && profileFetched && adminFetched,
   });
+
+  return {
+    ...query,
+    isLoading: actorFetching || profileLoading || adminLoading || query.isLoading,
+    isFetched: !!actor && !actorFetching && profileFetched && adminFetched && query.isFetched,
+  };
 }
 
 export function useGetResident(residentId: ResidentId | undefined) {
@@ -189,27 +196,6 @@ export function useUpdateResident() {
   });
 }
 
-export function useDischargeResident() {
-  const { actor } = useResilientActor();
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (residentId: ResidentId) => {
-      if (!actor) throw new Error('Actor not available');
-      return actor.dischargeResident(residentId);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['residents'] });
-      queryClient.invalidateQueries({ queryKey: ['accessibleResidents'] });
-      queryClient.invalidateQueries({ queryKey: ['residentStats'] });
-      toast.success('Resident discharged successfully');
-    },
-    onError: (error: Error) => {
-      toast.error(error.message || 'Failed to discharge resident');
-    },
-  });
-}
-
 export function useDeleteResident() {
   const { actor } = useResilientActor();
   const queryClient = useQueryClient();
@@ -238,7 +224,8 @@ export function useGetMedications(residentId: ResidentId | undefined) {
     queryKey: ['medications', residentId?.toString()],
     queryFn: async () => {
       if (!actor || !residentId) throw new Error('Actor or resident ID not available');
-      return actor.getMedications(residentId);
+      const resident = await actor.getResident(residentId);
+      return resident?.medications || [];
     },
     enabled: !!actor && !isFetching && !!residentId,
   });
@@ -251,7 +238,7 @@ export function useAddMedication() {
   return useMutation({
     mutationFn: async ({ residentId, medicationData }: { residentId: ResidentId; medicationData: Medication }) => {
       if (!actor) throw new Error('Actor not available');
-      return actor.addMedicationToResident(residentId, medicationData);
+      return actor.addMedication(residentId, medicationData);
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['medications', variables.residentId.toString()] });
@@ -417,9 +404,67 @@ export function useGetDailyVitals(residentId: ResidentId | undefined) {
     queryKey: ['dailyVitals', residentId?.toString()],
     queryFn: async () => {
       if (!actor || !residentId) throw new Error('Actor or resident ID not available');
-      return actor.getDailyVitals(residentId);
+      const resident = await actor.getResident(residentId);
+      return resident?.dailyVitals || [];
     },
     enabled: !!actor && !isFetching && !!residentId,
+  });
+}
+
+export function useAddResponsibleContact() {
+  const { actor } = useResilientActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ residentId, contact }: { residentId: ResidentId; contact: ResponsibleContact }) => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.addResponsibleContact(residentId, contact);
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['resident', variables.residentId.toString()] });
+      toast.success('Responsible person added successfully');
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || 'Failed to add responsible person');
+    },
+  });
+}
+
+export function useUpdateResponsibleContact() {
+  const { actor } = useResilientActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ residentId, contactId, updatedContact }: { residentId: ResidentId; contactId: bigint; updatedContact: ResponsibleContact }) => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.updateResponsibleContact(residentId, contactId, updatedContact);
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['resident', variables.residentId.toString()] });
+      toast.success('Responsible person updated successfully');
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || 'Failed to update responsible person');
+    },
+  });
+}
+
+export function useAddPharmacyInfo() {
+  const { actor } = useResilientActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ residentId, pharmacy }: { residentId: ResidentId; pharmacy: PharmacyInfo }) => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.addPharmacyInfo(residentId, pharmacy);
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['resident', variables.residentId.toString()] });
+      toast.success('Pharmacy added successfully');
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || 'Failed to add pharmacy');
+    },
   });
 }
 
@@ -428,16 +473,35 @@ export function useUpdatePharmacyInfo() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ residentId, pharmacyInfo }: { residentId: ResidentId; pharmacyInfo: PharmacyInfo }) => {
+    mutationFn: async ({ residentId, pharmacyId, updatedPharmacy }: { residentId: ResidentId; pharmacyId: bigint; updatedPharmacy: PharmacyInfo }) => {
       if (!actor) throw new Error('Actor not available');
-      return actor.updatePharmacyInfo(residentId, pharmacyInfo);
+      return actor.updatePharmacyInfo(residentId, pharmacyId, updatedPharmacy);
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['resident', variables.residentId.toString()] });
-      toast.success('Pharmacy information updated successfully');
+      toast.success('Pharmacy updated successfully');
     },
     onError: (error: Error) => {
-      toast.error(error.message || 'Failed to update pharmacy information');
+      toast.error(error.message || 'Failed to update pharmacy');
+    },
+  });
+}
+
+export function useAddInsuranceInfo() {
+  const { actor } = useResilientActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ residentId, insurance }: { residentId: ResidentId; insurance: InsuranceInfo }) => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.addInsuranceInfo(residentId, insurance);
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['resident', variables.residentId.toString()] });
+      toast.success('Insurance added successfully');
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || 'Failed to add insurance');
     },
   });
 }
@@ -447,16 +511,16 @@ export function useUpdateInsuranceInfo() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ residentId, insuranceInfo }: { residentId: ResidentId; insuranceInfo: InsuranceInfo }) => {
+    mutationFn: async ({ residentId, insuranceId, updatedInsurance }: { residentId: ResidentId; insuranceId: bigint; updatedInsurance: InsuranceInfo }) => {
       if (!actor) throw new Error('Actor not available');
-      return actor.updateInsuranceInfo(residentId, insuranceInfo);
+      return actor.updateInsuranceInfo(residentId, insuranceId, updatedInsurance);
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['resident', variables.residentId.toString()] });
-      toast.success('Insurance information updated successfully');
+      toast.success('Insurance updated successfully');
     },
     onError: (error: Error) => {
-      toast.error(error.message || 'Failed to update insurance information');
+      toast.error(error.message || 'Failed to update insurance');
     },
   });
 }
@@ -466,9 +530,9 @@ export function useAddPhysician() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ residentId, name, specialty, contactInfo }: { residentId: ResidentId; name: string; specialty: string; contactInfo: string }) => {
+    mutationFn: async ({ residentId, physician }: { residentId: ResidentId; physician: Physician }) => {
       if (!actor) throw new Error('Actor not available');
-      return actor.addPhysicianToResident(residentId, name, specialty, contactInfo);
+      return actor.addPhysician(residentId, physician);
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['resident', variables.residentId.toString()] });
@@ -485,9 +549,9 @@ export function useUpdatePhysician() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ residentId, physicianId, name, specialty, contactInfo }: { residentId: ResidentId; physicianId: bigint; name: string; specialty: string; contactInfo: string }) => {
+    mutationFn: async ({ residentId, physicianId, updatedPhysician }: { residentId: ResidentId; physicianId: bigint; updatedPhysician: Physician }) => {
       if (!actor) throw new Error('Actor not available');
-      return actor.updatePhysician(residentId, physicianId, name, specialty, contactInfo);
+      return actor.updatePhysician(residentId, physicianId, updatedPhysician);
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['resident', variables.residentId.toString()] });
@@ -496,58 +560,5 @@ export function useUpdatePhysician() {
     onError: (error: Error) => {
       toast.error(error.message || 'Failed to update physician');
     },
-  });
-}
-
-export function useAddResponsibleContact() {
-  const { actor } = useResilientActor();
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async ({ residentId, name, relationship, phone, email, isPrimary }: { residentId: ResidentId; name: string; relationship: string; phone: string; email: string; isPrimary: boolean }) => {
-      if (!actor) throw new Error('Actor not available');
-      return actor.addResponsibleContact(residentId, name, relationship, phone, email, isPrimary);
-    },
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['resident', variables.residentId.toString()] });
-      queryClient.invalidateQueries({ queryKey: ['responsibleContacts', variables.residentId.toString()] });
-      toast.success('Contact added successfully');
-    },
-    onError: (error: Error) => {
-      toast.error(error.message || 'Failed to add contact');
-    },
-  });
-}
-
-export function useUpdateResponsibleContact() {
-  const { actor } = useResilientActor();
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async ({ residentId, contactId, name, relationship, phone, email, isPrimary }: { residentId: ResidentId; contactId: bigint; name: string; relationship: string; phone: string; email: string; isPrimary: boolean }) => {
-      if (!actor) throw new Error('Actor not available');
-      return actor.updateResponsibleContact(residentId, contactId, name, relationship, phone, email, isPrimary);
-    },
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['resident', variables.residentId.toString()] });
-      queryClient.invalidateQueries({ queryKey: ['responsibleContacts', variables.residentId.toString()] });
-      toast.success('Contact updated successfully');
-    },
-    onError: (error: Error) => {
-      toast.error(error.message || 'Failed to update contact');
-    },
-  });
-}
-
-export function useGetResponsibleContacts(residentId: ResidentId | undefined) {
-  const { actor, isFetching } = useResilientActor();
-
-  return useQuery({
-    queryKey: ['responsibleContacts', residentId?.toString()],
-    queryFn: async () => {
-      if (!actor || !residentId) throw new Error('Actor or resident ID not available');
-      return actor.getResponsibleContacts(residentId);
-    },
-    enabled: !!actor && !isFetching && !!residentId,
   });
 }

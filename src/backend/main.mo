@@ -1,21 +1,32 @@
 import Map "mo:core/Map";
-import Runtime "mo:core/Runtime";
-import Principal "mo:core/Principal";
+import Nat "mo:core/Nat";
 import Text "mo:core/Text";
+import Array "mo:core/Array";
 import Time "mo:core/Time";
-import Iter "mo:core/Iter";
-
+import Principal "mo:core/Principal";
+import Runtime "mo:core/Runtime";
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
+import Migration "migration";
 
-
-// Specify migration function for upgrades
-
+(with migration = Migration.run)
 actor {
   let accessControlState = AccessControl.initState();
   include MixinAuthorization(accessControlState);
 
-  // User Profile Types
+  type ResidentId = Nat;
+  type MedicationId = Nat;
+
+  public type HealthStatus = {
+    #ok : Text;
+    #error : Text;
+    #maintenance : Text;
+  };
+
+  public query func getHealthStatus() : async HealthStatus {
+    #ok("Backend healthy - version 2024-06-13");
+  };
+
   public type UserType = {
     #staff;
     #resident;
@@ -31,14 +42,12 @@ actor {
 
   let userProfiles = Map.empty<Principal, UserProfile>();
 
-  public type HealthStatus = {
-    #ok : Text;
-    #error : Text;
-    #maintenance : Text;
-  };
+  public shared ({ caller }) func saveCallerUserProfile(profile : UserProfile) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only authenticated users can save profiles");
+    };
 
-  public query func getHealthStatus() : async HealthStatus {
-    #ok("Backend healthy - build 2024-06-12");
+    userProfiles.add(caller, profile);
   };
 
   public query ({ caller }) func getCallerUserProfile() : async ?UserProfile {
@@ -60,15 +69,6 @@ actor {
     userProfiles.get(user);
   };
 
-  public shared ({ caller }) func saveCallerUserProfile(profile : UserProfile) : async () {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only authenticated users can save profiles");
-    };
-
-    userProfiles.add(caller, profile);
-  };
-
-  public type ResidentId = Nat;
   public type ResidentStatus = { #active; #discharged };
   public type CodeStatus = { #fullCode; #dnr };
 
@@ -80,6 +80,7 @@ actor {
   };
 
   public type PharmacyInfo = {
+    id : Nat;
     name : Text;
     address : Text;
     phone : Text;
@@ -87,6 +88,7 @@ actor {
   };
 
   public type InsuranceInfo = {
+    id : Nat;
     provider : Text;
     policyNumber : Text;
     groupNumber : Text;
@@ -104,7 +106,7 @@ actor {
   };
 
   public type Medication = {
-    id : Nat;
+    id : MedicationId;
     name : Text;
     dosage : Text;
     dosageQuantity : Text;
@@ -118,7 +120,7 @@ actor {
 
   public type MARRecord = {
     id : Nat;
-    medicationId : Nat;
+    medicationId : MedicationId;
     administrationTime : Text;
     administeredBy : Text;
     notes : Text;
@@ -175,8 +177,8 @@ actor {
     medicaidNumber : ?Text;
     medicareNumber : ?Text;
     physicians : [Physician];
-    pharmacyInfo : ?PharmacyInfo;
-    insuranceInfo : ?InsuranceInfo;
+    pharmacyInfos : [PharmacyInfo];
+    insuranceInfos : [InsuranceInfo];
     responsibleContacts : [ResponsibleContact];
     medications : [Medication];
     marRecords : [MARRecord];
@@ -184,11 +186,8 @@ actor {
     dailyVitals : [DailyVitals];
   };
 
-  let residents = Map.empty<ResidentId, Resident>();
-  var nextResidentId = 1;
-  var nextPhysicianId = 1;
-  var nextMedicationId = 1;
-  var nextContactId = 1;
+  var residents = Map.empty<ResidentId, Resident>();
+  var nextId = 0;
   var nextMARId = 1;
   var nextADLId = 1;
   var nextVitalsId = 1;
@@ -223,22 +222,34 @@ actor {
     };
   };
 
-  // Resident CRUD Operations
   public shared ({ caller }) func addResident(residentData : Resident) : async ResidentId {
     if (not isStaffOrAdmin(caller)) {
       Runtime.trap("Unauthorized: Only admins and staff can add residents");
     };
 
-    let residentId = nextResidentId;
-    nextResidentId += 1;
-
-    let newResident : Resident = {
-      residentData with
-      id = residentId;
-    };
-
+    let residentId = getNextId();
+    let newResident : Resident = { residentData with id = residentId };
     residents.add(residentId, newResident);
     residentId;
+  };
+
+  func getNextId() : Nat {
+    let id = nextId;
+    nextId += 1;
+    id;
+  };
+
+  public shared ({ caller }) func updateResident(residentId : ResidentId, updatedData : Resident) : async () {
+    if (not isStaffOrAdmin(caller)) {
+      Runtime.trap("Unauthorized: Only admins and staff can update residents");
+    };
+
+    switch (residents.get(residentId)) {
+      case (null) { Runtime.trap("Resident not found") };
+      case (?_) {
+        residents.add(residentId, updatedData);
+      };
+    };
   };
 
   public query ({ caller }) func getResident(residentId : ResidentId) : async ?Resident {
@@ -265,19 +276,6 @@ actor {
     residents.values().toArray();
   };
 
-  public shared ({ caller }) func updateResident(residentId : ResidentId, updatedData : Resident) : async () {
-    if (not isStaffOrAdmin(caller)) {
-      Runtime.trap("Unauthorized: Only admins and staff can update residents");
-    };
-
-    switch (residents.get(residentId)) {
-      case (null) { Runtime.trap("Resident not found") };
-      case (?_) {
-        residents.add(residentId, updatedData);
-      };
-    };
-  };
-
   public shared ({ caller }) func deleteResident(residentId : ResidentId) : async () {
     if (not AccessControl.isAdmin(accessControlState, caller)) {
       Runtime.trap("Unauthorized: Only admins can delete residents");
@@ -286,139 +284,24 @@ actor {
     residents.remove(residentId);
   };
 
-  public shared ({ caller }) func dischargeResident(residentId : ResidentId) : async () {
-    if (not isStaffOrAdmin(caller)) {
-      Runtime.trap("Unauthorized: Only admins and staff can discharge residents");
-    };
-
-    switch (residents.get(residentId)) {
-      case (null) { Runtime.trap("Resident not found") };
-      case (?resident) {
-        let updatedResident = { resident with status = #discharged };
-        residents.add(residentId, updatedResident);
-      };
-    };
-  };
-
-  public query ({ caller }) func getResidentsByFilter(roomNumber : ?Text, status : ?ResidentStatus) : async [Resident] {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Authentication required");
-    };
-
-    if (not isStaffOrAdmin(caller)) {
-      Runtime.trap("Unauthorized: Only staff and admins can filter residents");
-    };
-
-    let filtered = residents.values().toArray().filter(
-      func(resident) {
-        let roomMatch = switch (roomNumber) {
-          case (null) { true };
-          case (?room) { resident.roomNumber == room };
-        };
-        let statusMatch = switch (status) {
-          case (null) { true };
-          case (?s) { resident.status == s };
-        };
-        roomMatch and statusMatch;
-      }
-    );
-
-    filtered;
-  };
-
-  public query ({ caller }) func getResidentStats() : async { totalResidents : Nat; activeResidents : Nat; dischargedResidents : Nat } {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Authentication required");
-    };
-
-    if (not isStaffOrAdmin(caller)) {
-      Runtime.trap("Unauthorized: Only staff and admins can view statistics");
-    };
-
-    var total = 0;
-    var active = 0;
-    var discharged = 0;
-
-    for (resident in residents.values()) {
-      total += 1;
-      switch (resident.status) {
-        case (#active) { active += 1 };
-        case (#discharged) { discharged += 1 };
-      };
-    };
-
-    { totalResidents = total; activeResidents = active; dischargedResidents = discharged };
-  };
-
-  public shared ({ caller }) func updateCodeStatus(residentId : ResidentId, newCodeStatus : CodeStatus, notes : Text) : async () {
-    if (not AccessControl.isAdmin(accessControlState, caller)) {
-      Runtime.trap("Unauthorized: Only admins can update Code Status");
-    };
-
-    switch (residents.get(residentId)) {
-      case (null) { Runtime.trap("Resident not found") };
-      case (?resident) {
-        let previousStatus = resident.codeStatus;
-
-        if (previousStatus != newCodeStatus) {
-          let callerName = switch (userProfiles.get(caller)) {
-            case (null) { caller.toText() };
-            case (?profile) { profile.name };
-          };
-
-          let changeId = nextCodeStatusChangeId;
-          nextCodeStatusChangeId += 1;
-
-          let changeRecord : CodeStatusChangeRecord = {
-            id = changeId;
-            residentId;
-            previousStatus;
-            newStatus = newCodeStatus;
-            changedBy = caller;
-            changedByName = callerName;
-            timestamp = Time.now();
-            notes;
-          };
-
-          codeStatusChanges.add(changeId, changeRecord);
-
-          let updatedResident = { resident with codeStatus = newCodeStatus };
-          residents.add(residentId, updatedResident);
-        };
-      };
-    };
-  };
-
-  public query ({ caller }) func getCodeStatus(residentId : ResidentId) : async ?CodeStatus {
+  public query ({ caller }) func getPhysician(residentId : ResidentId, physicianId : Nat) : async ?Physician {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Authentication required");
     };
 
     if (not canAccessResident(caller, residentId)) {
-      Runtime.trap("Unauthorized: Cannot access this resident's Code Status");
+      Runtime.trap("Unauthorized: Cannot access this resident's information");
     };
 
     switch (residents.get(residentId)) {
       case (null) { null };
-      case (?resident) { ?resident.codeStatus };
+      case (?resident) {
+        resident.physicians.find(func(p) { p.id == physicianId });
+      };
     };
   };
 
-  public query ({ caller }) func getCodeStatusHistory(residentId : ResidentId) : async [CodeStatusChangeRecord] {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Authentication required");
-    };
-
-    if (not canAccessResident(caller, residentId)) {
-      Runtime.trap("Unauthorized: Cannot access this resident's Code Status history");
-    };
-
-    codeStatusChanges.values().toArray().filter(
-      func(record) { record.residentId == residentId }
-    );
-  };
-
-  public shared ({ caller }) func addPhysicianToResident(residentId : ResidentId, name : Text, specialty : Text, contactInfo : Text) : async Nat {
+  public shared ({ caller }) func addPhysician(residentId : ResidentId, physician : Physician) : async Nat {
     if (not isStaffOrAdmin(caller)) {
       Runtime.trap("Unauthorized: Only admins and staff can add physicians");
     };
@@ -426,26 +309,19 @@ actor {
     switch (residents.get(residentId)) {
       case (null) { Runtime.trap("Resident not found") };
       case (?resident) {
-        let physicianId = nextPhysicianId;
-        nextPhysicianId += 1;
-
-        let physician : Physician = {
-          id = physicianId;
-          name;
-          specialty;
-          contactInfo;
-        };
-
-        let updatedPhysicians = resident.physicians.concat([physician]);
-        let updatedResident = { resident with physicians = updatedPhysicians };
-
-        residents.add(residentId, updatedResident);
-        physicianId;
+        let newId = getNextId();
+        let newPhysician = { physician with id = newId };
+        let updatedPhysicians = resident.physicians.concat([newPhysician]);
+        residents.add(
+          residentId,
+          { resident with physicians = updatedPhysicians },
+        );
+        newId;
       };
     };
   };
 
-  public shared ({ caller }) func updatePhysician(residentId : ResidentId, physicianId : Nat, name : Text, specialty : Text, contactInfo : Text) : async () {
+  public shared ({ caller }) func updatePhysician(residentId : ResidentId, physicianId : Nat, updatedPhysician : Physician) : async () {
     if (not isStaffOrAdmin(caller)) {
       Runtime.trap("Unauthorized: Only admins and staff can update physicians");
     };
@@ -453,23 +329,287 @@ actor {
     switch (residents.get(residentId)) {
       case (null) { Runtime.trap("Resident not found") };
       case (?resident) {
-        let updatedPhysicians = resident.physicians.map(
-          func(phys) {
-            if (phys.id == physicianId) {
-              { id = physicianId; name; specialty; contactInfo };
-            } else {
-              phys;
-            };
+        let patchedPhysicians = resident.physicians.map(
+          func(p) {
+            if (p.id == physicianId) { updatedPhysician } else { p };
           }
         );
-
-        let updatedResident = { resident with physicians = updatedPhysicians };
-        residents.add(residentId, updatedResident);
+        residents.add(
+          residentId,
+          { resident with physicians = patchedPhysicians },
+        );
       };
     };
   };
 
-  public shared ({ caller }) func addMedicationToResident(residentId : ResidentId, medicationData : Medication) : async Nat {
+  public shared ({ caller }) func deletePhysician(residentId : ResidentId, physicianId : Nat) : async () {
+    if (not isStaffOrAdmin(caller)) {
+      Runtime.trap("Unauthorized: Only admins and staff can delete physicians");
+    };
+
+    switch (residents.get(residentId)) {
+      case (null) { Runtime.trap("Resident not found") };
+      case (?resident) {
+        let filteredPhysicians = resident.physicians.filter(
+          func(p) { p.id != physicianId }
+        );
+        residents.add(
+          residentId,
+          { resident with physicians = filteredPhysicians },
+        );
+      };
+    };
+  };
+
+  public query ({ caller }) func getPharmacyInfo(residentId : ResidentId, pharmacyId : Nat) : async ?PharmacyInfo {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Authentication required");
+    };
+
+    if (not canAccessResident(caller, residentId)) {
+      Runtime.trap("Unauthorized: Cannot access this resident's information");
+    };
+
+    switch (residents.get(residentId)) {
+      case (null) { null };
+      case (?resident) {
+        resident.pharmacyInfos.find(func(p) { p.id == pharmacyId });
+      };
+    };
+  };
+
+  public shared ({ caller }) func addPharmacyInfo(residentId : ResidentId, pharmacy : PharmacyInfo) : async Nat {
+    if (not isStaffOrAdmin(caller)) {
+      Runtime.trap("Unauthorized: Only admins and staff can add pharmacy info");
+    };
+
+    switch (residents.get(residentId)) {
+      case (null) { Runtime.trap("Resident not found") };
+      case (?resident) {
+        let newId = getNextId();
+        let newPharmacy = { pharmacy with id = newId };
+        let updatedPharmacies = resident.pharmacyInfos.concat([newPharmacy]);
+        residents.add(
+          residentId,
+          { resident with pharmacyInfos = updatedPharmacies },
+        );
+        newId;
+      };
+    };
+  };
+
+  public shared ({ caller }) func updatePharmacyInfo(residentId : ResidentId, pharmacyId : Nat, updatedPharmacy : PharmacyInfo) : async () {
+    if (not isStaffOrAdmin(caller)) {
+      Runtime.trap("Unauthorized: Only admins and staff can update pharmacy info");
+    };
+
+    switch (residents.get(residentId)) {
+      case (null) { Runtime.trap("Resident not found") };
+      case (?resident) {
+        let patchedPharmacies = resident.pharmacyInfos.map(
+          func(p) {
+            if (p.id == pharmacyId) { updatedPharmacy } else { p };
+          }
+        );
+        residents.add(
+          residentId,
+          { resident with pharmacyInfos = patchedPharmacies },
+        );
+      };
+    };
+  };
+
+  public shared ({ caller }) func deletePharmacyInfo(residentId : ResidentId, pharmacyId : Nat) : async () {
+    if (not isStaffOrAdmin(caller)) {
+      Runtime.trap("Unauthorized: Only admins and staff can delete pharmacy info");
+    };
+
+    switch (residents.get(residentId)) {
+      case (null) { Runtime.trap("Resident not found") };
+      case (?resident) {
+        let filteredPharmacies = resident.pharmacyInfos.filter(
+          func(p) { p.id != pharmacyId }
+        );
+        residents.add(
+          residentId,
+          { resident with pharmacyInfos = filteredPharmacies },
+        );
+      };
+    };
+  };
+
+  public query ({ caller }) func getInsuranceInfo(residentId : ResidentId, insuranceId : Nat) : async ?InsuranceInfo {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Authentication required");
+    };
+
+    if (not canAccessResident(caller, residentId)) {
+      Runtime.trap("Unauthorized: Cannot access this resident's information");
+    };
+
+    switch (residents.get(residentId)) {
+      case (null) { null };
+      case (?resident) {
+        resident.insuranceInfos.find(func(i) { i.id == insuranceId });
+      };
+    };
+  };
+
+  public shared ({ caller }) func addInsuranceInfo(residentId : ResidentId, insurance : InsuranceInfo) : async Nat {
+    if (not isStaffOrAdmin(caller)) {
+      Runtime.trap("Unauthorized: Only admins and staff can add insurance info");
+    };
+
+    switch (residents.get(residentId)) {
+      case (null) { Runtime.trap("Resident not found") };
+      case (?resident) {
+        let newId = getNextId();
+        let newInsurance = { insurance with id = newId };
+        let updatedInsurances = resident.insuranceInfos.concat([newInsurance]);
+        residents.add(
+          residentId,
+          { resident with insuranceInfos = updatedInsurances },
+        );
+        newId;
+      };
+    };
+  };
+
+  public shared ({ caller }) func updateInsuranceInfo(residentId : ResidentId, insuranceId : Nat, updatedInsurance : InsuranceInfo) : async () {
+    if (not isStaffOrAdmin(caller)) {
+      Runtime.trap("Unauthorized: Only admins and staff can update insurance info");
+    };
+
+    switch (residents.get(residentId)) {
+      case (null) { Runtime.trap("Resident not found") };
+      case (?resident) {
+        let patchedInsurances = resident.insuranceInfos.map(
+          func(i) {
+            if (i.id == insuranceId) { updatedInsurance } else { i };
+          }
+        );
+        residents.add(
+          residentId,
+          { resident with insuranceInfos = patchedInsurances },
+        );
+      };
+    };
+  };
+
+  public shared ({ caller }) func deleteInsuranceInfo(residentId : ResidentId, insuranceId : Nat) : async () {
+    if (not isStaffOrAdmin(caller)) {
+      Runtime.trap("Unauthorized: Only admins and staff can delete insurance info");
+    };
+
+    switch (residents.get(residentId)) {
+      case (null) { Runtime.trap("Resident not found") };
+      case (?resident) {
+        let filteredInsurances = resident.insuranceInfos.filter(
+          func(i) { i.id != insuranceId }
+        );
+        residents.add(
+          residentId,
+          { resident with insuranceInfos = filteredInsurances },
+        );
+      };
+    };
+  };
+
+  public query ({ caller }) func getResponsibleContact(residentId : ResidentId, contactId : Nat) : async ?ResponsibleContact {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Authentication required");
+    };
+
+    if (not canAccessResident(caller, residentId)) {
+      Runtime.trap("Unauthorized: Cannot access this resident's information");
+    };
+
+    switch (residents.get(residentId)) {
+      case (null) { null };
+      case (?resident) {
+        resident.responsibleContacts.find(func(c) { c.id == contactId });
+      };
+    };
+  };
+
+  public shared ({ caller }) func addResponsibleContact(residentId : ResidentId, contact : ResponsibleContact) : async Nat {
+    if (not isStaffOrAdmin(caller)) {
+      Runtime.trap("Unauthorized: Only admins and staff can add contacts");
+    };
+
+    switch (residents.get(residentId)) {
+      case (null) { Runtime.trap("Resident not found") };
+      case (?resident) {
+        let newId = getNextId();
+        let newContact = { contact with id = newId };
+        let updatedContacts = resident.responsibleContacts.concat([newContact]);
+        residents.add(
+          residentId,
+          { resident with responsibleContacts = updatedContacts },
+        );
+        newId;
+      };
+    };
+  };
+
+  public shared ({ caller }) func updateResponsibleContact(residentId : ResidentId, contactId : Nat, updatedContact : ResponsibleContact) : async () {
+    if (not isStaffOrAdmin(caller)) {
+      Runtime.trap("Unauthorized: Only admins and staff can update contacts");
+    };
+
+    switch (residents.get(residentId)) {
+      case (null) { Runtime.trap("Resident not found") };
+      case (?resident) {
+        let patchedContacts = resident.responsibleContacts.map(
+          func(c) {
+            if (c.id == contactId) { updatedContact } else { c };
+          }
+        );
+        residents.add(
+          residentId,
+          { resident with responsibleContacts = patchedContacts },
+        );
+      };
+    };
+  };
+
+  public shared ({ caller }) func deleteResponsibleContact(residentId : ResidentId, contactId : Nat) : async () {
+    if (not isStaffOrAdmin(caller)) {
+      Runtime.trap("Unauthorized: Only admins and staff can delete contacts");
+    };
+
+    switch (residents.get(residentId)) {
+      case (null) { Runtime.trap("Resident not found") };
+      case (?resident) {
+        let filteredContacts = resident.responsibleContacts.filter(
+          func(c) { c.id != contactId }
+        );
+        residents.add(
+          residentId,
+          { resident with responsibleContacts = filteredContacts },
+        );
+      };
+    };
+  };
+
+  public query ({ caller }) func getMedication(residentId : ResidentId, medicationId : MedicationId) : async ?Medication {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Authentication required");
+    };
+
+    if (not canAccessResident(caller, residentId)) {
+      Runtime.trap("Unauthorized: Cannot access this resident's information");
+    };
+
+    switch (residents.get(residentId)) {
+      case (null) { null };
+      case (?resident) {
+        resident.medications.find(func(m) { m.id == medicationId });
+      };
+    };
+  };
+
+  public shared ({ caller }) func addMedication(residentId : ResidentId, medication : Medication) : async MedicationId {
     if (not isStaffOrAdmin(caller)) {
       Runtime.trap("Unauthorized: Only admins and staff can add medications");
     };
@@ -481,24 +621,19 @@ actor {
     switch (residents.get(residentId)) {
       case (null) { Runtime.trap("Resident not found") };
       case (?resident) {
-        let medicationId = nextMedicationId;
-        nextMedicationId += 1;
-
-        let newMedication : Medication = {
-          medicationData with
-          id = medicationId;
-        };
-
+        let newId = getNextId();
+        let newMedication = { medication with id = newId };
         let updatedMedications = resident.medications.concat([newMedication]);
-        let updatedResident = { resident with medications = updatedMedications };
-
-        residents.add(residentId, updatedResident);
-        medicationId;
+        residents.add(
+          residentId,
+          { resident with medications = updatedMedications },
+        );
+        newId;
       };
     };
   };
 
-  public shared ({ caller }) func updateMedication(residentId : ResidentId, medicationId : Nat, updatedMedication : Medication) : async () {
+  public shared ({ caller }) func updateMedication(residentId : ResidentId, medicationId : MedicationId, updatedMedication : Medication) : async () {
     if (not isStaffOrAdmin(caller)) {
       Runtime.trap("Unauthorized: Only admins and staff can update medications");
     };
@@ -510,19 +645,20 @@ actor {
     switch (residents.get(residentId)) {
       case (null) { Runtime.trap("Resident not found") };
       case (?resident) {
-        let updatedMedications = resident.medications.map(
-          func(med) {
-            if (med.id == medicationId) { updatedMedication } else { med };
+        let patchedMedications = resident.medications.map(
+          func(m) {
+            if (m.id == medicationId) { updatedMedication } else { m };
           }
         );
-
-        let updatedResident = { resident with medications = updatedMedications };
-        residents.add(residentId, updatedResident);
+        residents.add(
+          residentId,
+          { resident with medications = patchedMedications },
+        );
       };
     };
   };
 
-  public shared ({ caller }) func discontinueMedication(residentId : ResidentId, medicationId : Nat) : async () {
+  public shared ({ caller }) func discontinueMedication(residentId : ResidentId, medicationId : MedicationId) : async () {
     if (not isStaffOrAdmin(caller)) {
       Runtime.trap("Unauthorized: Only admins and staff can discontinue medications");
     };
@@ -535,22 +671,19 @@ actor {
       case (null) { Runtime.trap("Resident not found") };
       case (?resident) {
         let updatedMedications = resident.medications.map(
-          func(med) {
-            if (med.id == medicationId) {
-              { med with isActive = false };
-            } else {
-              med;
-            };
+          func(m) {
+            if (m.id == medicationId) { { m with isActive = false } } else { m };
           }
         );
-
-        let updatedResident = { resident with medications = updatedMedications };
-        residents.add(residentId, updatedResident);
+        residents.add(
+          residentId,
+          { resident with medications = updatedMedications },
+        );
       };
     };
   };
 
-  public shared ({ caller }) func reactivateMedication(residentId : ResidentId, medicationId : Nat) : async () {
+  public shared ({ caller }) func reactivateMedication(residentId : ResidentId, medicationId : MedicationId) : async () {
     if (not isStaffOrAdmin(caller)) {
       Runtime.trap("Unauthorized: Only admins and staff can reactivate medications");
     };
@@ -563,37 +696,19 @@ actor {
       case (null) { Runtime.trap("Resident not found") };
       case (?resident) {
         let updatedMedications = resident.medications.map(
-          func(med) {
-            if (med.id == medicationId) {
-              { med with isActive = true };
-            } else {
-              med;
-            };
+          func(m) {
+            if (m.id == medicationId) { { m with isActive = true } } else { m };
           }
         );
-
-        let updatedResident = { resident with medications = updatedMedications };
-        residents.add(residentId, updatedResident);
+        residents.add(
+          residentId,
+          { resident with medications = updatedMedications },
+        );
       };
     };
   };
 
-  public query ({ caller }) func getMedications(residentId : ResidentId) : async [Medication] {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Authentication required");
-    };
-
-    if (not canAccessResident(caller, residentId)) {
-      Runtime.trap("Unauthorized: Cannot access this resident's medications");
-    };
-
-    switch (residents.get(residentId)) {
-      case (null) { [] };
-      case (?resident) { resident.medications };
-    };
-  };
-
-  public shared ({ caller }) func addMARRecord(residentId : ResidentId, medicationId : Nat, administrationTime : Text, administeredBy : Text, notes : Text) : async Nat {
+  public shared ({ caller }) func addMARRecord(residentId : ResidentId, medicationId : MedicationId, administrationTime : Text, administeredBy : Text, notes : Text) : async Nat {
     if (not isStaffOrAdmin(caller)) {
       Runtime.trap("Unauthorized: Only admins and staff can add MAR records");
     };
@@ -742,145 +857,121 @@ actor {
     };
   };
 
-  public query ({ caller }) func getDailyVitals(residentId : ResidentId) : async [DailyVitals] {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Authentication required");
-    };
-
-    if (not canAccessResident(caller, residentId)) {
-      Runtime.trap("Unauthorized: Cannot access this resident's vitals");
-    };
-
-    switch (residents.get(residentId)) {
-      case (null) { [] };
-      case (?resident) { resident.dailyVitals };
-    };
-  };
-
-  public shared ({ caller }) func updatePharmacyInfo(residentId : ResidentId, pharmacyInfo : PharmacyInfo) : async () {
-    if (not isStaffOrAdmin(caller)) {
-      Runtime.trap("Unauthorized: Only admins and staff can update pharmacy information");
-    };
-
-    if (not canAccessResident(caller, residentId)) {
-      Runtime.trap("Unauthorized: Cannot access this resident");
+  public shared ({ caller }) func updateCodeStatus(residentId : ResidentId, newCodeStatus : CodeStatus, notes : Text) : async () {
+    if (not AccessControl.isAdmin(accessControlState, caller)) {
+      Runtime.trap("Unauthorized: Only admins can update Code Status");
     };
 
     switch (residents.get(residentId)) {
       case (null) { Runtime.trap("Resident not found") };
       case (?resident) {
-        let updatedResident = { resident with pharmacyInfo = ?pharmacyInfo };
-        residents.add(residentId, updatedResident);
-      };
-    };
-  };
+        let previousStatus = resident.codeStatus;
 
-  public shared ({ caller }) func updateInsuranceInfo(residentId : ResidentId, insuranceInfo : InsuranceInfo) : async () {
-    if (not isStaffOrAdmin(caller)) {
-      Runtime.trap("Unauthorized: Only admins and staff can update insurance information");
-    };
+        if (previousStatus != newCodeStatus) {
+          let callerName = switch (userProfiles.get(caller)) {
+            case (null) { caller.toText() };
+            case (?profile) { profile.name };
+          };
 
-    if (not canAccessResident(caller, residentId)) {
-      Runtime.trap("Unauthorized: Cannot access this resident");
-    };
+          let changeId = nextCodeStatusChangeId;
+          nextCodeStatusChangeId += 1;
 
-    switch (residents.get(residentId)) {
-      case (null) { Runtime.trap("Resident not found") };
-      case (?resident) {
-        let updatedResident = { resident with insuranceInfo = ?insuranceInfo };
-        residents.add(residentId, updatedResident);
-      };
-    };
-  };
+          let changeRecord : CodeStatusChangeRecord = {
+            id = changeId;
+            residentId;
+            previousStatus;
+            newStatus = newCodeStatus;
+            changedBy = caller;
+            changedByName = callerName;
+            timestamp = Time.now();
+            notes;
+          };
 
-  public shared ({ caller }) func addResponsibleContact(
-    residentId : ResidentId,
-    name : Text,
-    relationship : Text,
-    phone : Text,
-    email : Text,
-    isPrimary : Bool,
-  ) : async Nat {
-    if (not isStaffOrAdmin(caller)) {
-      Runtime.trap("Unauthorized: Only admins and staff can add responsible contacts");
-    };
+          codeStatusChanges.add(changeId, changeRecord);
 
-    if (not canAccessResident(caller, residentId)) {
-      Runtime.trap("Unauthorized: Cannot access this resident");
-    };
-
-    switch (residents.get(residentId)) {
-      case (null) { Runtime.trap("Resident not found") };
-      case (?resident) {
-        let contactId = nextContactId;
-        nextContactId += 1;
-
-        let newContact : ResponsibleContact = {
-          id = contactId;
-          name;
-          relationship;
-          phone;
-          email;
-          isPrimary;
+          let updatedResident = { resident with codeStatus = newCodeStatus };
+          residents.add(residentId, updatedResident);
         };
-
-        let updatedContacts = resident.responsibleContacts.concat([newContact]);
-        let updatedResident = { resident with responsibleContacts = updatedContacts };
-
-        residents.add(residentId, updatedResident);
-        contactId;
       };
     };
   };
 
-  public shared ({ caller }) func updateResponsibleContact(
-    residentId : ResidentId,
-    contactId : Nat,
-    name : Text,
-    relationship : Text,
-    phone : Text,
-    email : Text,
-    isPrimary : Bool,
-  ) : async () {
-    if (not isStaffOrAdmin(caller)) {
-      Runtime.trap("Unauthorized: Only admins and staff can update responsible contacts");
-    };
-
-    if (not canAccessResident(caller, residentId)) {
-      Runtime.trap("Unauthorized: Cannot access this resident");
-    };
-
-    switch (residents.get(residentId)) {
-      case (null) { Runtime.trap("Resident not found") };
-      case (?resident) {
-        let updatedContacts = resident.responsibleContacts.map(
-          func(contact) {
-            if (contact.id == contactId) {
-              { id = contactId; name; relationship; phone; email; isPrimary };
-            } else {
-              contact;
-            };
-          }
-        );
-
-        let updatedResident = { resident with responsibleContacts = updatedContacts };
-        residents.add(residentId, updatedResident);
-      };
-    };
-  };
-
-  public query ({ caller }) func getResponsibleContacts(residentId : ResidentId) : async [ResponsibleContact] {
+  public query ({ caller }) func getCodeStatus(residentId : ResidentId) : async ?CodeStatus {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Authentication required");
     };
 
     if (not canAccessResident(caller, residentId)) {
-      Runtime.trap("Unauthorized: Cannot access this resident's contacts");
+      Runtime.trap("Unauthorized: Cannot access this resident's Code Status");
     };
 
     switch (residents.get(residentId)) {
-      case (null) { [] };
-      case (?resident) { resident.responsibleContacts };
+      case (null) { null };
+      case (?resident) { ?resident.codeStatus };
     };
+  };
+
+  public query ({ caller }) func getCodeStatusHistory(residentId : ResidentId) : async [CodeStatusChangeRecord] {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Authentication required");
+    };
+
+    if (not canAccessResident(caller, residentId)) {
+      Runtime.trap("Unauthorized: Cannot access this resident's Code Status history");
+    };
+
+    codeStatusChanges.values().toArray().filter(
+      func(record) { record.residentId == residentId }
+    );
+  };
+
+  public query ({ caller }) func getResidentsByFilter(roomNumber : ?Text, status : ?ResidentStatus) : async [Resident] {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Authentication required");
+    };
+
+    if (not isStaffOrAdmin(caller)) {
+      Runtime.trap("Unauthorized: Only staff and admins can filter residents");
+    };
+
+    let filtered = residents.values().toArray().filter(
+      func(resident) {
+        let roomMatch = switch (roomNumber) {
+          case (null) { true };
+          case (?room) { resident.roomNumber == room };
+        };
+        let statusMatch = switch (status) {
+          case (null) { true };
+          case (?s) { resident.status == s };
+        };
+        roomMatch and statusMatch;
+      }
+    );
+
+    filtered;
+  };
+
+  public query ({ caller }) func getResidentStats() : async { totalResidents : Nat; activeResidents : Nat; dischargedResidents : Nat } {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Authentication required");
+    };
+
+    if (not isStaffOrAdmin(caller)) {
+      Runtime.trap("Unauthorized: Only staff and admins can view statistics");
+    };
+
+    var total = 0;
+    var active = 0;
+    var discharged = 0;
+
+    for (resident in residents.values()) {
+      total += 1;
+      switch (resident.status) {
+        case (#active) { active += 1 };
+        case (#discharged) { discharged += 1 };
+      };
+    };
+
+    { totalResidents = total; activeResidents = active; dischargedResidents = discharged };
   };
 };

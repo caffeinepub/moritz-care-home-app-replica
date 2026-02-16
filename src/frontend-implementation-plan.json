@@ -1,23 +1,243 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Resident Profile switch thumb color update (ON white, OFF green)",
+  "title": "Resident Profile sidebar sections with multi-entry add/edit screens (Responsible Persons, Pharmacy, Insurance, Physician)",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Adjust the “Show Physician Signature Fields” switch so only its thumb changes to white when ON and green when OFF, without modifying label styling or other switches, and without editing shadcn/ui files.",
+      "summary": "Add a left sidebar inside Resident Profile with 4 dedicated sections that switch content while keeping the same resident context.",
       "acceptanceCriteria": [
-        "On the Resident Profile page, the “Show Physician Signature Fields” switch thumb is green when unchecked/off.",
-        "On the Resident Profile page, the “Show Physician Signature Fields” switch thumb is white when checked/on.",
-        "The switch track/background behavior is not changed beyond what is necessary to set the thumb color.",
-        "The “Show Physician Signature Fields” label text color and styling do not change between on/off states.",
-        "Implementation does not require editing any files under frontend/src/components/ui (compose via className and/or global CSS selectors instead)."
+        "Resident Profile UI includes a visible sidebar/navigation area.",
+        "Sidebar includes four new items: Responsible Persons, Pharmacy Information, Insurance Information, Physician Information.",
+        "Selecting a sidebar item switches the main Resident Profile content to the selected section without leaving the resident context (residentId remains the same)."
       ],
       "file_operations": [
         {
           "path": "frontend/src/pages/ResidentProfilePage.tsx",
           "operation": "modify",
-          "description": "Update the Switch usage for id=\"physician-signature\" to style only the internal thumb via Switch className (e.g., using Tailwind arbitrary selectors targeting the immediate child/thumb element with state-based variants) so the thumb is green when unchecked and white when checked, while keeping the existing label classes unchanged and avoiding any changes that would affect other Switch instances."
+          "description": "Refactor the Resident Profile layout to include a left sidebar navigation and a main content panel that conditionally renders the four new sections without navigating away from the current residentId. Use shadcn-ui layout primitives (e.g., Card/Button) where appropriate; verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/resident-profile/ResidentProfileSidebar.tsx",
+          "operation": "create",
+          "description": "Create a reusable left sidebar component that renders the four required section items and exposes a controlled selected-state API (or URL-driven selection) for the ResidentProfilePage. Use shadcn-ui Button (or equivalent) for consistent interactions; verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/resident-profile/sections/index.ts",
+          "operation": "create",
+          "description": "Create a barrel export for the new Resident Profile section components so ResidentProfilePage can import and wire them cleanly (prevents orphaned components)."
+        }
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "summary": "Provide multi-entry Responsible Persons list plus dedicated add/edit screens with solid white form background.",
+      "acceptanceCriteria": [
+        "Responsible Persons section shows a list/table of entries for the resident.",
+        "User can create a new Responsible Person via a dedicated add screen with a solid white background.",
+        "User can edit an existing Responsible Person via a dedicated edit screen with a solid white background.",
+        "Backend persists multiple Responsible Persons per resident and returns them in getResident.",
+        "Fields stored and displayed match: name, relationship, phone, fax."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/resident-profile/sections/ResponsiblePersonsSection.tsx",
+          "operation": "create",
+          "description": "Implement the Responsible Persons section UI to display the resident's ResponsibleContact list in a table/list view and provide navigation actions to the add/edit screens. Use shadcn-ui Table/Card/Button components for consistent styling; verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/pages/resident-profile/responsible-persons/ResponsiblePersonAddPage.tsx",
+          "operation": "create",
+          "description": "Create a dedicated Responsible Person add screen with a solid white form background that collects Name, Relationship, Phone Number, Fax Number, submits via a mutation, and navigates back to the Resident Profile with the Responsible Persons section selected. Use shadcn-ui Form inputs (Input/Label/Button) and Card for layout; verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/pages/resident-profile/responsible-persons/ResponsiblePersonEditPage.tsx",
+          "operation": "create",
+          "description": "Create a dedicated Responsible Person edit screen with a solid white form background that loads the selected entry (from resident data or a fetch-by-id capability), allows editing Name/Relationship/Phone/Fax, saves, and returns to the Responsible Persons section. Use shadcn-ui components for form consistency; verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/hooks/useQueries.ts",
+          "operation": "modify",
+          "description": "Add/update React Query mutations (and any needed queries) for adding and updating Responsible Contacts using the current backend actor capabilities (addResponsibleContact, updateResponsibleContact, and optionally getResponsibleContact). Ensure successful saves invalidate the resident query so the list refreshes when returning to the section."
+        },
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Register and wire new routes for Responsible Person add/edit screens under the resident context (includes residentId and contactId params) so they are navigable from ResidentProfilePage. Keep user-facing text in English. Use the existing TanStack Router setup; verify the component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "summary": "Provide multi-entry Pharmacy Information list plus dedicated add/edit screens with solid white form background.",
+      "acceptanceCriteria": [
+        "Pharmacy Information section shows a list/table of pharmacy entries for the resident.",
+        "User can add a pharmacy entry via a dedicated add screen with a solid white background.",
+        "User can edit an existing pharmacy entry via a dedicated edit screen with a solid white background.",
+        "Backend persists multiple pharmacy entries per resident and returns them in getResident.",
+        "Fields stored and displayed match: pharmacy name, address, phone, fax."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/resident-profile/sections/PharmacyInformationSection.tsx",
+          "operation": "create",
+          "description": "Implement the Pharmacy Information section UI to display resident.pharmacyInfos as a list/table, with actions to navigate to add/edit screens for a specific entry (by stable entry id). Use shadcn-ui components for consistent presentation; verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/pages/resident-profile/pharmacy/PharmacyAddPage.tsx",
+          "operation": "create",
+          "description": "Create a dedicated Pharmacy add screen with a solid white form background to capture Pharmacy Name, Address, Phone Number, Fax Number, submit via mutation, and navigate back to the Pharmacy Information section. Use shadcn-ui Input/Label/Button components; verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/pages/resident-profile/pharmacy/PharmacyEditPage.tsx",
+          "operation": "create",
+          "description": "Create a dedicated Pharmacy edit screen with a solid white form background that edits a specific pharmacy entry selected by pharmacyId, saves, and returns to the Pharmacy Information section with refreshed data. Use shadcn-ui components; verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/hooks/useQueries.ts",
+          "operation": "modify",
+          "description": "Add/update React Query mutations/queries to support multi-entry pharmacy management using backend capabilities (addPharmacyInfo, updatePharmacyInfo with pharmacyId, and optionally getPharmacyInfo). Ensure resident data is invalidated/refetched after add/edit."
+        },
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Register and wire new routes for Pharmacy add/edit screens under the resident context (includes residentId and pharmacyId params) using the existing TanStack Router configuration; verify the component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "summary": "Provide multi-entry Insurance Information list plus dedicated add/edit screens with solid white form background.",
+      "acceptanceCriteria": [
+        "Insurance Information section shows a list/table of insurance entries for the resident.",
+        "User can add an insurance entry via a dedicated add screen with a solid white background.",
+        "User can edit an existing insurance entry via a dedicated edit screen with a solid white background.",
+        "Backend persists multiple insurance entries per resident and returns them in getResident.",
+        "Fields stored and displayed match: insurance name, policy number, medicare ID number, medicaid ID number."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/resident-profile/sections/InsuranceInformationSection.tsx",
+          "operation": "create",
+          "description": "Implement the Insurance Information section UI to display resident.insuranceInfos as a list/table, with actions to navigate to add/edit screens for a specific entry (by stable entry id). Use shadcn-ui components for consistent layout; verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/pages/resident-profile/insurance/InsuranceAddPage.tsx",
+          "operation": "create",
+          "description": "Create a dedicated Insurance add screen with a solid white form background to capture Insurance Name, Policy Number, Medicare ID Number, Medicaid ID Number, submit via mutation, and navigate back to the Insurance Information section. Use shadcn-ui components; verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/pages/resident-profile/insurance/InsuranceEditPage.tsx",
+          "operation": "create",
+          "description": "Create a dedicated Insurance edit screen with a solid white form background that edits a specific insurance entry selected by insuranceId, saves, and returns to the Insurance Information section with refreshed data. Use shadcn-ui components; verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/hooks/useQueries.ts",
+          "operation": "modify",
+          "description": "Add/update React Query mutations/queries for multi-entry insurance management using backend capabilities (addInsuranceInfo, updateInsuranceInfo with insuranceId, and optionally getInsuranceInfo). Ensure resident query invalidation/refetch after add/edit."
+        },
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Register and wire new routes for Insurance add/edit screens under the resident context (includes residentId and insuranceId params) using the existing TanStack Router configuration; verify the component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "summary": "Add Physician Information sidebar section with multi-entry add/edit screens using existing physician data shape.",
+      "acceptanceCriteria": [
+        "Physician Information section is accessible via the Resident Profile sidebar.",
+        "User can add a physician via a dedicated add screen with a solid white background.",
+        "User can edit a physician via a dedicated edit screen with a solid white background.",
+        "After saving, returning to the Physician Information section shows the updated list from getResident."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/resident-profile/sections/PhysicianInformationSection.tsx",
+          "operation": "create",
+          "description": "Implement the Physician Information section UI to display resident.physicians (name, specialty, contact info) and provide actions to navigate to add/edit screens for a specific physician (by id). Use shadcn-ui Card/Button/Table where appropriate; verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/pages/resident-profile/physicians/PhysicianAddPage.tsx",
+          "operation": "create",
+          "description": "Create a dedicated Physician add screen with a solid white form background using the backend-supported physician shape (name, specialty, contact info), submit via mutation, and return to the Physician Information section. Use shadcn-ui form components; verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/pages/resident-profile/physicians/PhysicianEditPage.tsx",
+          "operation": "create",
+          "description": "Create a dedicated Physician edit screen with a solid white form background that edits a specific physician selected by physicianId, saves, and returns to the Physician Information section with refreshed resident data. Use shadcn-ui components; verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/hooks/useQueries.ts",
+          "operation": "modify",
+          "description": "Add/update React Query mutations/queries for physician management using backend capabilities (addPhysician, updatePhysician with physicianId, and optionally getPhysician). Ensure resident query invalidation/refetch after add/edit so the section list reflects changes."
+        },
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Register and wire new routes for Physician add/edit screens under the resident context (includes residentId and physicianId params) using the existing TanStack Router setup; verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/pages/ResidentProfilePage.tsx",
+          "operation": "modify",
+          "description": "Wire the PhysicianInformationSection into the sidebar-selected content region and ensure selection/navigations keep residentId stable while switching sections. Use shadcn-ui components for consistent UI; verify the component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-8",
+      "summary": "Apply consistent styling for new sidebar and add/edit screens, ensuring solid white form backgrounds and no new blue/purple primary theme.",
+      "acceptanceCriteria": [
+        "Add/edit screens use a solid white background across the full form area.",
+        "New sidebar navigation and section layouts look consistent and intentional (typography, spacing, component usage).",
+        "No use of blue/purple as the primary theme colors unless already present in the app theme."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/index.css",
+          "operation": "modify",
+          "description": "Add minimal global styling helpers (or Tailwind layer utilities) to support the new Resident Profile sidebar layout and enforce a solid white surface for add/edit form screens (including in dark mode), while staying consistent with existing Tailwind theme variables."
+        },
+        {
+          "path": "frontend/src/pages/resident-profile/responsible-persons/ResponsiblePersonAddPage.tsx",
+          "operation": "modify",
+          "description": "Ensure the add screen uses a solid white background across the full form area and consistent spacing/typography via existing Tailwind + shadcn-ui components; verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/pages/resident-profile/responsible-persons/ResponsiblePersonEditPage.tsx",
+          "operation": "modify",
+          "description": "Ensure the edit screen uses a solid white background across the full form area and consistent spacing/typography via existing Tailwind + shadcn-ui components; verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/pages/resident-profile/pharmacy/PharmacyAddPage.tsx",
+          "operation": "modify",
+          "description": "Ensure the add screen uses a solid white background across the full form area and consistent styling; verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/pages/resident-profile/pharmacy/PharmacyEditPage.tsx",
+          "operation": "modify",
+          "description": "Ensure the edit screen uses a solid white background across the full form area and consistent styling; verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/pages/resident-profile/insurance/InsuranceAddPage.tsx",
+          "operation": "modify",
+          "description": "Ensure the add screen uses a solid white background across the full form area and consistent styling; verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/pages/resident-profile/insurance/InsuranceEditPage.tsx",
+          "operation": "modify",
+          "description": "Ensure the edit screen uses a solid white background across the full form area and consistent styling; verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/pages/resident-profile/physicians/PhysicianAddPage.tsx",
+          "operation": "modify",
+          "description": "Ensure the add screen uses a solid white background across the full form area and consistent styling; verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/pages/resident-profile/physicians/PhysicianEditPage.tsx",
+          "operation": "modify",
+          "description": "Ensure the edit screen uses a solid white background across the full form area and consistent styling; verify the component's usage instructions before implementing."
         }
       ]
     }

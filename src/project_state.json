@@ -1,16 +1,59 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "New project",
-  "architectural_notes": [],
+  "summary": "Resident Profile will be expanded with new sidebar tabs/sections for Responsible Persons, Pharmacy Information, Insurance Information, and Physician Information, each supporting multiple entries and managed via separate add/edit screens.",
+  "architectural_notes": [
+    "New Resident Profile sections should be accessible as separate sidebar tabs/sections, using separate add/edit screens with a solid white background.",
+    "Each new Resident Profile section (Responsible Persons, Pharmacy, Insurance, Physician) must support multiple entries per resident."
+  ],
   "known_issues": [],
   "isFixRequest": false,
   "existing_features": [
     {
-      "id": "feature-update-the-existing-toggle-switch-labeled-show-physician-signature-fields-on-the-resident-profile-page-so-that-only-the-switch-knob-thumb-changes-color-white-when-on-checked-and-green-when-off-unchecked-do-not-change-the-label-text-colors",
-      "title": "Update the existing toggle switch labeled “Show Physician Signature Fields” on the Resident Profile page so that only the switch knob (thumb) changes color: white when ON/checked and green when OFF/unchecked. Do not change the label/text colors.",
+      "id": "feature-update-the-resident-profile-page-to-include-a-left-sidebar-navigation-with-dedicated-sections-tabs-for-responsible-persons-pharmacy-information-insurance-information-and-physician-information-accessible-from-within-the-resident-s-profile-view",
+      "title": "Update the Resident Profile page to include a left sidebar/navigation with dedicated sections (tabs) for: Responsible Persons, Pharmacy Information, Insurance Information, and Physician Information, accessible from within the resident’s profile view.",
       "reqIds": [
         "REQ-1"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-separate-add-and-edit-screens-solid-white-background-for-managing-multiple-responsible-persons-entries-per-resident-with-fields-name-relationship-phone-number-fax-number",
+      "title": "Implement separate add and edit screens (solid white background) for managing multiple Responsible Persons entries per resident with fields: Name, Relationship, Phone Number, Fax Number.",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-separate-add-and-edit-screens-solid-white-background-for-managing-multiple-pharmacy-information-entries-per-resident-with-fields-pharmacy-name-address-phone-number-fax-number",
+      "title": "Implement separate add and edit screens (solid white background) for managing multiple Pharmacy Information entries per resident with fields: Pharmacy Name, Address, Phone Number, Fax Number.",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-separate-add-and-edit-screens-solid-white-background-for-managing-multiple-insurance-information-entries-per-resident-with-fields-insurance-name-policy-number-medicare-id-number-medicaid-id-number",
+      "title": "Implement separate add and edit screens (solid white background) for managing multiple Insurance Information entries per resident with fields: Insurance Name, Policy Number, Medicare ID Number, Medicaid ID Number.",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-physician-information-sidebar-section-that-allows-adding-and-editing-multiple-physician-entries-for-a-resident-via-separate-add-edit-screens-solid-white-background-using-the-existing-physician-data-shape-currently-supported-by-the-backend-name-specialty-contact-info-unless-additional-fields-are-explicitly-specified-later",
+      "title": "Add a Physician Information sidebar section that allows adding and editing multiple physician entries for a resident via separate add/edit screens (solid white background), using the existing physician data shape currently supported by the backend (name, specialty, contact info) unless additional fields are explicitly specified later.",
+      "reqIds": [
+        "REQ-5"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-apply-a-coherent-visual-theme-to-the-new-resident-profile-sidebar-sections-and-add-edit-screens-keeping-forms-on-a-solid-white-background-as-requested-and-ensuring-styling-is-consistent-with-the-rest-of-the-app-tailwind-existing-ui-components",
+      "title": "Apply a coherent visual theme to the new Resident Profile sidebar sections and add/edit screens, keeping forms on a solid white background as requested, and ensuring styling is consistent with the rest of the app (Tailwind + existing UI components).",
+      "reqIds": [
+        "REQ-8"
       ],
       "version": 1
     }
@@ -18,12 +61,46 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Update 'Show Physician Signature Fields' toggle styling so the knob is white when ON and green when OFF (no label/text color changes)",
+      "summary": "Add 'Responsible Persons' tab in Resident Profile sidebar with separate add/edit screens; store multiple entries with fields: Name, Relationship, Phone Number, Fax Number.",
       "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Add 'Pharmacy Information' tab in Resident Profile sidebar with separate add/edit screens; store multiple entries with fields: Pharmacy Name, Address, Phone Number, Fax Number.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Add 'Insurance Information' tab in Resident Profile sidebar with separate add/edit screens; store multiple entries with fields: Insurance Name, Policy Number, Medicare ID Number, Medicaid ID Number.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-4",
+      "summary": "Add 'Physician Information' tab in Resident Profile sidebar with separate add/edit screens; store multiple entries (fields TBD).",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-10",
+      "summary": "Update the backend resident data model and APIs to support multiple entries for Pharmacy Information and Insurance Information (currently single optional records), and ensure IDs are available to reliably edit specific entries.",
+      "reqIds": [
+        "REQ-6"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-11",
+      "summary": "Implement an upgrade-safe state migration so existing production data is preserved when changing from single-record pharmacy/insurance storage to multi-entry storage, and when extending Responsible Contacts/Persons fields.",
+      "reqIds": [
+        "REQ-7"
+      ],
       "status": "pending"
     }
   ],
-  "projectName": "Update “Show Physician Signature Fields” switch knob colors (ON white, OFF green)",
+  "projectName": "Resident Profiles",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

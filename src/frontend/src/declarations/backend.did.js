@@ -9,8 +9,17 @@
 import { IDL } from '@icp-sdk/core/candid';
 
 export const ResidentId = IDL.Nat;
-export const Medication = IDL.Record({
+export const InsuranceInfo = IDL.Record({
   'id' : IDL.Nat,
+  'groupNumber' : IDL.Text,
+  'provider' : IDL.Text,
+  'medicaidNumber' : IDL.Opt(IDL.Text),
+  'policyNumber' : IDL.Text,
+  'medicareNumber' : IDL.Opt(IDL.Text),
+});
+export const MedicationId = IDL.Nat;
+export const Medication = IDL.Record({
+  'id' : MedicationId,
   'dosage' : IDL.Text,
   'prescribingPhysicianId' : IDL.Opt(IDL.Nat),
   'name' : IDL.Text,
@@ -21,20 +30,26 @@ export const Medication = IDL.Record({
   'isPRN' : IDL.Bool,
   'dosageQuantity' : IDL.Text,
 });
+export const PharmacyInfo = IDL.Record({
+  'id' : IDL.Nat,
+  'fax' : IDL.Text,
+  'name' : IDL.Text,
+  'address' : IDL.Text,
+  'phone' : IDL.Text,
+});
+export const Physician = IDL.Record({
+  'id' : IDL.Nat,
+  'contactInfo' : IDL.Text,
+  'name' : IDL.Text,
+  'specialty' : IDL.Text,
+});
 export const ResidentStatus = IDL.Variant({
   'active' : IDL.Null,
   'discharged' : IDL.Null,
 });
-export const InsuranceInfo = IDL.Record({
-  'groupNumber' : IDL.Text,
-  'provider' : IDL.Text,
-  'medicaidNumber' : IDL.Opt(IDL.Text),
-  'policyNumber' : IDL.Text,
-  'medicareNumber' : IDL.Opt(IDL.Text),
-});
 export const MARRecord = IDL.Record({
   'id' : IDL.Nat,
-  'medicationId' : IDL.Nat,
+  'medicationId' : MedicationId,
   'notes' : IDL.Text,
   'timestamp' : IDL.Int,
   'administrationTime' : IDL.Text,
@@ -47,12 +62,6 @@ export const ADLRecord = IDL.Record({
   'date' : IDL.Text,
   'timestamp' : IDL.Int,
   'activity' : IDL.Text,
-});
-export const PharmacyInfo = IDL.Record({
-  'fax' : IDL.Text,
-  'name' : IDL.Text,
-  'address' : IDL.Text,
-  'phone' : IDL.Text,
 });
 export const DailyVitals = IDL.Record({
   'id' : IDL.Nat,
@@ -77,12 +86,6 @@ export const ResponsibleContact = IDL.Record({
   'isPrimary' : IDL.Bool,
   'phone' : IDL.Text,
 });
-export const Physician = IDL.Record({
-  'id' : IDL.Nat,
-  'contactInfo' : IDL.Text,
-  'name' : IDL.Text,
-  'specialty' : IDL.Text,
-});
 export const CodeStatus = IDL.Variant({
   'dnr' : IDL.Null,
   'fullCode' : IDL.Null,
@@ -92,12 +95,11 @@ export const Resident = IDL.Record({
   'bed' : IDL.Text,
   'dob' : IDL.Text,
   'status' : ResidentStatus,
-  'insuranceInfo' : IDL.Opt(InsuranceInfo),
+  'insuranceInfos' : IDL.Vec(InsuranceInfo),
   'admissionDate' : IDL.Text,
   'marRecords' : IDL.Vec(MARRecord),
   'adlRecords' : IDL.Vec(ADLRecord),
   'roomNumber' : IDL.Text,
-  'pharmacyInfo' : IDL.Opt(PharmacyInfo),
   'medications' : IDL.Vec(Medication),
   'dailyVitals' : IDL.Vec(DailyVitals),
   'responsibleContacts' : IDL.Vec(ResponsibleContact),
@@ -107,6 +109,7 @@ export const Resident = IDL.Record({
   'lastName' : IDL.Text,
   'roomType' : IDL.Text,
   'medicareNumber' : IDL.Opt(IDL.Text),
+  'pharmacyInfos' : IDL.Vec(PharmacyInfo),
   'firstName' : IDL.Text,
 });
 export const UserRole = IDL.Variant({
@@ -166,27 +169,28 @@ export const idlService = IDL.Service({
       [IDL.Nat],
       [],
     ),
+  'addInsuranceInfo' : IDL.Func([ResidentId, InsuranceInfo], [IDL.Nat], []),
   'addMARRecord' : IDL.Func(
-      [ResidentId, IDL.Nat, IDL.Text, IDL.Text, IDL.Text],
+      [ResidentId, MedicationId, IDL.Text, IDL.Text, IDL.Text],
       [IDL.Nat],
       [],
     ),
-  'addMedicationToResident' : IDL.Func([ResidentId, Medication], [IDL.Nat], []),
-  'addPhysicianToResident' : IDL.Func(
-      [ResidentId, IDL.Text, IDL.Text, IDL.Text],
-      [IDL.Nat],
-      [],
-    ),
+  'addMedication' : IDL.Func([ResidentId, Medication], [MedicationId], []),
+  'addPharmacyInfo' : IDL.Func([ResidentId, PharmacyInfo], [IDL.Nat], []),
+  'addPhysician' : IDL.Func([ResidentId, Physician], [IDL.Nat], []),
   'addResident' : IDL.Func([Resident], [ResidentId], []),
   'addResponsibleContact' : IDL.Func(
-      [ResidentId, IDL.Text, IDL.Text, IDL.Text, IDL.Text, IDL.Bool],
+      [ResidentId, ResponsibleContact],
       [IDL.Nat],
       [],
     ),
   'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
+  'deleteInsuranceInfo' : IDL.Func([ResidentId, IDL.Nat], [], []),
+  'deletePharmacyInfo' : IDL.Func([ResidentId, IDL.Nat], [], []),
+  'deletePhysician' : IDL.Func([ResidentId, IDL.Nat], [], []),
   'deleteResident' : IDL.Func([ResidentId], [], []),
-  'dischargeResident' : IDL.Func([ResidentId], [], []),
-  'discontinueMedication' : IDL.Func([ResidentId, IDL.Nat], [], []),
+  'deleteResponsibleContact' : IDL.Func([ResidentId, IDL.Nat], [], []),
+  'discontinueMedication' : IDL.Func([ResidentId, MedicationId], [], []),
   'getADLRecords' : IDL.Func([ResidentId], [IDL.Vec(ADLRecord)], ['query']),
   'getAllResidents' : IDL.Func([], [IDL.Vec(Resident)], ['query']),
   'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
@@ -197,10 +201,28 @@ export const idlService = IDL.Service({
       [IDL.Vec(CodeStatusChangeRecord)],
       ['query'],
     ),
-  'getDailyVitals' : IDL.Func([ResidentId], [IDL.Vec(DailyVitals)], ['query']),
   'getHealthStatus' : IDL.Func([], [HealthStatus], ['query']),
+  'getInsuranceInfo' : IDL.Func(
+      [ResidentId, IDL.Nat],
+      [IDL.Opt(InsuranceInfo)],
+      ['query'],
+    ),
   'getMARRecords' : IDL.Func([ResidentId], [IDL.Vec(MARRecord)], ['query']),
-  'getMedications' : IDL.Func([ResidentId], [IDL.Vec(Medication)], ['query']),
+  'getMedication' : IDL.Func(
+      [ResidentId, MedicationId],
+      [IDL.Opt(Medication)],
+      ['query'],
+    ),
+  'getPharmacyInfo' : IDL.Func(
+      [ResidentId, IDL.Nat],
+      [IDL.Opt(PharmacyInfo)],
+      ['query'],
+    ),
+  'getPhysician' : IDL.Func(
+      [ResidentId, IDL.Nat],
+      [IDL.Opt(Physician)],
+      ['query'],
+    ),
   'getResident' : IDL.Func([ResidentId], [IDL.Opt(Resident)], ['query']),
   'getResidentStats' : IDL.Func(
       [],
@@ -218,9 +240,9 @@ export const idlService = IDL.Service({
       [IDL.Vec(Resident)],
       ['query'],
     ),
-  'getResponsibleContacts' : IDL.Func(
-      [ResidentId],
-      [IDL.Vec(ResponsibleContact)],
+  'getResponsibleContact' : IDL.Func(
+      [ResidentId, IDL.Nat],
+      [IDL.Opt(ResponsibleContact)],
       ['query'],
     ),
   'getUserProfile' : IDL.Func(
@@ -229,20 +251,20 @@ export const idlService = IDL.Service({
       ['query'],
     ),
   'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
-  'reactivateMedication' : IDL.Func([ResidentId, IDL.Nat], [], []),
+  'reactivateMedication' : IDL.Func([ResidentId, MedicationId], [], []),
   'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
   'updateCodeStatus' : IDL.Func([ResidentId, CodeStatus, IDL.Text], [], []),
-  'updateInsuranceInfo' : IDL.Func([ResidentId, InsuranceInfo], [], []),
-  'updateMedication' : IDL.Func([ResidentId, IDL.Nat, Medication], [], []),
-  'updatePharmacyInfo' : IDL.Func([ResidentId, PharmacyInfo], [], []),
-  'updatePhysician' : IDL.Func(
-      [ResidentId, IDL.Nat, IDL.Text, IDL.Text, IDL.Text],
+  'updateInsuranceInfo' : IDL.Func(
+      [ResidentId, IDL.Nat, InsuranceInfo],
       [],
       [],
     ),
+  'updateMedication' : IDL.Func([ResidentId, MedicationId, Medication], [], []),
+  'updatePharmacyInfo' : IDL.Func([ResidentId, IDL.Nat, PharmacyInfo], [], []),
+  'updatePhysician' : IDL.Func([ResidentId, IDL.Nat, Physician], [], []),
   'updateResident' : IDL.Func([ResidentId, Resident], [], []),
   'updateResponsibleContact' : IDL.Func(
-      [ResidentId, IDL.Nat, IDL.Text, IDL.Text, IDL.Text, IDL.Text, IDL.Bool],
+      [ResidentId, IDL.Nat, ResponsibleContact],
       [],
       [],
     ),
@@ -252,8 +274,17 @@ export const idlInitArgs = [];
 
 export const idlFactory = ({ IDL }) => {
   const ResidentId = IDL.Nat;
-  const Medication = IDL.Record({
+  const InsuranceInfo = IDL.Record({
     'id' : IDL.Nat,
+    'groupNumber' : IDL.Text,
+    'provider' : IDL.Text,
+    'medicaidNumber' : IDL.Opt(IDL.Text),
+    'policyNumber' : IDL.Text,
+    'medicareNumber' : IDL.Opt(IDL.Text),
+  });
+  const MedicationId = IDL.Nat;
+  const Medication = IDL.Record({
+    'id' : MedicationId,
     'dosage' : IDL.Text,
     'prescribingPhysicianId' : IDL.Opt(IDL.Nat),
     'name' : IDL.Text,
@@ -264,20 +295,26 @@ export const idlFactory = ({ IDL }) => {
     'isPRN' : IDL.Bool,
     'dosageQuantity' : IDL.Text,
   });
+  const PharmacyInfo = IDL.Record({
+    'id' : IDL.Nat,
+    'fax' : IDL.Text,
+    'name' : IDL.Text,
+    'address' : IDL.Text,
+    'phone' : IDL.Text,
+  });
+  const Physician = IDL.Record({
+    'id' : IDL.Nat,
+    'contactInfo' : IDL.Text,
+    'name' : IDL.Text,
+    'specialty' : IDL.Text,
+  });
   const ResidentStatus = IDL.Variant({
     'active' : IDL.Null,
     'discharged' : IDL.Null,
   });
-  const InsuranceInfo = IDL.Record({
-    'groupNumber' : IDL.Text,
-    'provider' : IDL.Text,
-    'medicaidNumber' : IDL.Opt(IDL.Text),
-    'policyNumber' : IDL.Text,
-    'medicareNumber' : IDL.Opt(IDL.Text),
-  });
   const MARRecord = IDL.Record({
     'id' : IDL.Nat,
-    'medicationId' : IDL.Nat,
+    'medicationId' : MedicationId,
     'notes' : IDL.Text,
     'timestamp' : IDL.Int,
     'administrationTime' : IDL.Text,
@@ -290,12 +327,6 @@ export const idlFactory = ({ IDL }) => {
     'date' : IDL.Text,
     'timestamp' : IDL.Int,
     'activity' : IDL.Text,
-  });
-  const PharmacyInfo = IDL.Record({
-    'fax' : IDL.Text,
-    'name' : IDL.Text,
-    'address' : IDL.Text,
-    'phone' : IDL.Text,
   });
   const DailyVitals = IDL.Record({
     'id' : IDL.Nat,
@@ -320,24 +351,17 @@ export const idlFactory = ({ IDL }) => {
     'isPrimary' : IDL.Bool,
     'phone' : IDL.Text,
   });
-  const Physician = IDL.Record({
-    'id' : IDL.Nat,
-    'contactInfo' : IDL.Text,
-    'name' : IDL.Text,
-    'specialty' : IDL.Text,
-  });
   const CodeStatus = IDL.Variant({ 'dnr' : IDL.Null, 'fullCode' : IDL.Null });
   const Resident = IDL.Record({
     'id' : ResidentId,
     'bed' : IDL.Text,
     'dob' : IDL.Text,
     'status' : ResidentStatus,
-    'insuranceInfo' : IDL.Opt(InsuranceInfo),
+    'insuranceInfos' : IDL.Vec(InsuranceInfo),
     'admissionDate' : IDL.Text,
     'marRecords' : IDL.Vec(MARRecord),
     'adlRecords' : IDL.Vec(ADLRecord),
     'roomNumber' : IDL.Text,
-    'pharmacyInfo' : IDL.Opt(PharmacyInfo),
     'medications' : IDL.Vec(Medication),
     'dailyVitals' : IDL.Vec(DailyVitals),
     'responsibleContacts' : IDL.Vec(ResponsibleContact),
@@ -347,6 +371,7 @@ export const idlFactory = ({ IDL }) => {
     'lastName' : IDL.Text,
     'roomType' : IDL.Text,
     'medicareNumber' : IDL.Opt(IDL.Text),
+    'pharmacyInfos' : IDL.Vec(PharmacyInfo),
     'firstName' : IDL.Text,
   });
   const UserRole = IDL.Variant({
@@ -406,31 +431,28 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Nat],
         [],
       ),
+    'addInsuranceInfo' : IDL.Func([ResidentId, InsuranceInfo], [IDL.Nat], []),
     'addMARRecord' : IDL.Func(
-        [ResidentId, IDL.Nat, IDL.Text, IDL.Text, IDL.Text],
+        [ResidentId, MedicationId, IDL.Text, IDL.Text, IDL.Text],
         [IDL.Nat],
         [],
       ),
-    'addMedicationToResident' : IDL.Func(
-        [ResidentId, Medication],
-        [IDL.Nat],
-        [],
-      ),
-    'addPhysicianToResident' : IDL.Func(
-        [ResidentId, IDL.Text, IDL.Text, IDL.Text],
-        [IDL.Nat],
-        [],
-      ),
+    'addMedication' : IDL.Func([ResidentId, Medication], [MedicationId], []),
+    'addPharmacyInfo' : IDL.Func([ResidentId, PharmacyInfo], [IDL.Nat], []),
+    'addPhysician' : IDL.Func([ResidentId, Physician], [IDL.Nat], []),
     'addResident' : IDL.Func([Resident], [ResidentId], []),
     'addResponsibleContact' : IDL.Func(
-        [ResidentId, IDL.Text, IDL.Text, IDL.Text, IDL.Text, IDL.Bool],
+        [ResidentId, ResponsibleContact],
         [IDL.Nat],
         [],
       ),
     'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
+    'deleteInsuranceInfo' : IDL.Func([ResidentId, IDL.Nat], [], []),
+    'deletePharmacyInfo' : IDL.Func([ResidentId, IDL.Nat], [], []),
+    'deletePhysician' : IDL.Func([ResidentId, IDL.Nat], [], []),
     'deleteResident' : IDL.Func([ResidentId], [], []),
-    'dischargeResident' : IDL.Func([ResidentId], [], []),
-    'discontinueMedication' : IDL.Func([ResidentId, IDL.Nat], [], []),
+    'deleteResponsibleContact' : IDL.Func([ResidentId, IDL.Nat], [], []),
+    'discontinueMedication' : IDL.Func([ResidentId, MedicationId], [], []),
     'getADLRecords' : IDL.Func([ResidentId], [IDL.Vec(ADLRecord)], ['query']),
     'getAllResidents' : IDL.Func([], [IDL.Vec(Resident)], ['query']),
     'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
@@ -441,14 +463,28 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Vec(CodeStatusChangeRecord)],
         ['query'],
       ),
-    'getDailyVitals' : IDL.Func(
-        [ResidentId],
-        [IDL.Vec(DailyVitals)],
+    'getHealthStatus' : IDL.Func([], [HealthStatus], ['query']),
+    'getInsuranceInfo' : IDL.Func(
+        [ResidentId, IDL.Nat],
+        [IDL.Opt(InsuranceInfo)],
         ['query'],
       ),
-    'getHealthStatus' : IDL.Func([], [HealthStatus], ['query']),
     'getMARRecords' : IDL.Func([ResidentId], [IDL.Vec(MARRecord)], ['query']),
-    'getMedications' : IDL.Func([ResidentId], [IDL.Vec(Medication)], ['query']),
+    'getMedication' : IDL.Func(
+        [ResidentId, MedicationId],
+        [IDL.Opt(Medication)],
+        ['query'],
+      ),
+    'getPharmacyInfo' : IDL.Func(
+        [ResidentId, IDL.Nat],
+        [IDL.Opt(PharmacyInfo)],
+        ['query'],
+      ),
+    'getPhysician' : IDL.Func(
+        [ResidentId, IDL.Nat],
+        [IDL.Opt(Physician)],
+        ['query'],
+      ),
     'getResident' : IDL.Func([ResidentId], [IDL.Opt(Resident)], ['query']),
     'getResidentStats' : IDL.Func(
         [],
@@ -466,9 +502,9 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Vec(Resident)],
         ['query'],
       ),
-    'getResponsibleContacts' : IDL.Func(
-        [ResidentId],
-        [IDL.Vec(ResponsibleContact)],
+    'getResponsibleContact' : IDL.Func(
+        [ResidentId, IDL.Nat],
+        [IDL.Opt(ResponsibleContact)],
         ['query'],
       ),
     'getUserProfile' : IDL.Func(
@@ -477,20 +513,28 @@ export const idlFactory = ({ IDL }) => {
         ['query'],
       ),
     'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
-    'reactivateMedication' : IDL.Func([ResidentId, IDL.Nat], [], []),
+    'reactivateMedication' : IDL.Func([ResidentId, MedicationId], [], []),
     'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
     'updateCodeStatus' : IDL.Func([ResidentId, CodeStatus, IDL.Text], [], []),
-    'updateInsuranceInfo' : IDL.Func([ResidentId, InsuranceInfo], [], []),
-    'updateMedication' : IDL.Func([ResidentId, IDL.Nat, Medication], [], []),
-    'updatePharmacyInfo' : IDL.Func([ResidentId, PharmacyInfo], [], []),
-    'updatePhysician' : IDL.Func(
-        [ResidentId, IDL.Nat, IDL.Text, IDL.Text, IDL.Text],
+    'updateInsuranceInfo' : IDL.Func(
+        [ResidentId, IDL.Nat, InsuranceInfo],
         [],
         [],
       ),
+    'updateMedication' : IDL.Func(
+        [ResidentId, MedicationId, Medication],
+        [],
+        [],
+      ),
+    'updatePharmacyInfo' : IDL.Func(
+        [ResidentId, IDL.Nat, PharmacyInfo],
+        [],
+        [],
+      ),
+    'updatePhysician' : IDL.Func([ResidentId, IDL.Nat, Physician], [], []),
     'updateResident' : IDL.Func([ResidentId, Resident], [], []),
     'updateResponsibleContact' : IDL.Func(
-        [ResidentId, IDL.Nat, IDL.Text, IDL.Text, IDL.Text, IDL.Text, IDL.Bool],
+        [ResidentId, IDL.Nat, ResponsibleContact],
         [],
         [],
       ),

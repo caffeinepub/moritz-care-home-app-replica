@@ -92,14 +92,18 @@ export default function ResidentProfilePrintReport({ resident, showPhysicianSign
 
         <div className="print-section">
           <h2 className="print-section-title">Pharmacy Information</h2>
-          {!resident.pharmacyInfo ? (
+          {resident.pharmacyInfos.length === 0 ? (
             <p className="text-gray-600 text-sm">No pharmacy information</p>
           ) : (
-            <div className="space-y-1">
-              <p className="font-medium">{resident.pharmacyInfo.name}</p>
-              <p className="text-sm text-gray-600">{resident.pharmacyInfo.address}</p>
-              <p className="text-sm text-gray-600">Phone: {resident.pharmacyInfo.phone}</p>
-              <p className="text-sm text-gray-600">Fax: {resident.pharmacyInfo.fax}</p>
+            <div className="space-y-3">
+              {resident.pharmacyInfos.map((pharmacy) => (
+                <div key={pharmacy.id.toString()} className="border-b pb-2">
+                  <p className="font-medium">{pharmacy.name}</p>
+                  <p className="text-sm text-gray-600">{pharmacy.address}</p>
+                  <p className="text-sm text-gray-600">Phone: {pharmacy.phone}</p>
+                  <p className="text-sm text-gray-600">Fax: {pharmacy.fax}</p>
+                </div>
+              ))}
             </div>
           )}
         </div>
@@ -127,22 +131,34 @@ export default function ResidentProfilePrintReport({ resident, showPhysicianSign
 
         <div className="print-section">
           <h2 className="print-section-title">Insurance Information</h2>
-          {!resident.insuranceInfo ? (
+          {resident.insuranceInfos.length === 0 ? (
             <p className="text-gray-600 text-sm">No insurance information</p>
           ) : (
-            <div className="space-y-2">
-              <div>
-                <p className="text-sm text-gray-600">Provider</p>
-                <p className="font-medium">{resident.insuranceInfo.provider}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-600">Policy Number</p>
-                <p className="font-medium">{resident.insuranceInfo.policyNumber}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-600">Group Number</p>
-                <p className="font-medium">{resident.insuranceInfo.groupNumber}</p>
-              </div>
+            <div className="space-y-3">
+              {resident.insuranceInfos.map((insurance) => (
+                <div key={insurance.id.toString()} className="border-b pb-2">
+                  <div>
+                    <p className="text-sm text-gray-600">Provider</p>
+                    <p className="font-medium">{insurance.provider}</p>
+                  </div>
+                  <div className="mt-2">
+                    <p className="text-sm text-gray-600">Policy Number</p>
+                    <p className="font-medium">{insurance.policyNumber}</p>
+                  </div>
+                  {insurance.medicareNumber && (
+                    <div className="mt-2">
+                      <p className="text-sm text-gray-600">Medicare Number</p>
+                      <p className="font-medium">{insurance.medicareNumber}</p>
+                    </div>
+                  )}
+                  {insurance.medicaidNumber && (
+                    <div className="mt-2">
+                      <p className="text-sm text-gray-600">Medicaid Number</p>
+                      <p className="font-medium">{insurance.medicaidNumber}</p>
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
           )}
         </div>
