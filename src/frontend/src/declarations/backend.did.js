@@ -117,6 +117,17 @@ export const UserRole = IDL.Variant({
   'user' : IDL.Null,
   'guest' : IDL.Null,
 });
+export const BackgroundMode = IDL.Variant({
+  'solidBlack' : IDL.Null,
+  'solidWhite' : IDL.Null,
+});
+export const DisplayPreferences = IDL.Record({
+  'showPrintProfileButton' : IDL.Bool,
+  'residentProfileEditorBackgroundMode' : BackgroundMode,
+});
+export const AppSettings = IDL.Record({
+  'displayPreferences' : DisplayPreferences,
+});
 export const UserType = IDL.Variant({
   'familyMember' : IDL.Null,
   'staff' : IDL.Null,
@@ -125,7 +136,6 @@ export const UserType = IDL.Variant({
 export const UserProfile = IDL.Record({
   'userType' : UserType,
   'name' : IDL.Text,
-  'showResidentProfileReport' : IDL.Bool,
   'relatedResidentIds' : IDL.Vec(IDL.Nat),
 });
 export const CodeStatusChangeRecord = IDL.Record({
@@ -193,6 +203,7 @@ export const idlService = IDL.Service({
   'discontinueMedication' : IDL.Func([ResidentId, MedicationId], [], []),
   'getADLRecords' : IDL.Func([ResidentId], [IDL.Vec(ADLRecord)], ['query']),
   'getAllResidents' : IDL.Func([], [IDL.Vec(Resident)], ['query']),
+  'getAppSettings' : IDL.Func([], [AppSettings], ['query']),
   'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
   'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
   'getCodeStatus' : IDL.Func([ResidentId], [IDL.Opt(CodeStatus)], ['query']),
@@ -254,6 +265,7 @@ export const idlService = IDL.Service({
   'reactivateMedication' : IDL.Func([ResidentId, MedicationId], [], []),
   'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
   'updateCodeStatus' : IDL.Func([ResidentId, CodeStatus, IDL.Text], [], []),
+  'updateDisplayPreferences' : IDL.Func([DisplayPreferences], [], []),
   'updateInsuranceInfo' : IDL.Func(
       [ResidentId, IDL.Nat, InsuranceInfo],
       [],
@@ -379,6 +391,15 @@ export const idlFactory = ({ IDL }) => {
     'user' : IDL.Null,
     'guest' : IDL.Null,
   });
+  const BackgroundMode = IDL.Variant({
+    'solidBlack' : IDL.Null,
+    'solidWhite' : IDL.Null,
+  });
+  const DisplayPreferences = IDL.Record({
+    'showPrintProfileButton' : IDL.Bool,
+    'residentProfileEditorBackgroundMode' : BackgroundMode,
+  });
+  const AppSettings = IDL.Record({ 'displayPreferences' : DisplayPreferences });
   const UserType = IDL.Variant({
     'familyMember' : IDL.Null,
     'staff' : IDL.Null,
@@ -387,7 +408,6 @@ export const idlFactory = ({ IDL }) => {
   const UserProfile = IDL.Record({
     'userType' : UserType,
     'name' : IDL.Text,
-    'showResidentProfileReport' : IDL.Bool,
     'relatedResidentIds' : IDL.Vec(IDL.Nat),
   });
   const CodeStatusChangeRecord = IDL.Record({
@@ -455,6 +475,7 @@ export const idlFactory = ({ IDL }) => {
     'discontinueMedication' : IDL.Func([ResidentId, MedicationId], [], []),
     'getADLRecords' : IDL.Func([ResidentId], [IDL.Vec(ADLRecord)], ['query']),
     'getAllResidents' : IDL.Func([], [IDL.Vec(Resident)], ['query']),
+    'getAppSettings' : IDL.Func([], [AppSettings], ['query']),
     'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
     'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
     'getCodeStatus' : IDL.Func([ResidentId], [IDL.Opt(CodeStatus)], ['query']),
@@ -516,6 +537,7 @@ export const idlFactory = ({ IDL }) => {
     'reactivateMedication' : IDL.Func([ResidentId, MedicationId], [], []),
     'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
     'updateCodeStatus' : IDL.Func([ResidentId, CodeStatus, IDL.Text], [], []),
+    'updateDisplayPreferences' : IDL.Func([DisplayPreferences], [], []),
     'updateInsuranceInfo' : IDL.Func(
         [ResidentId, IDL.Nat, InsuranceInfo],
         [],

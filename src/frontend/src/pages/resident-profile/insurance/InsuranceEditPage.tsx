@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { ArrowLeft } from 'lucide-react';
 import { useGetResident, useUpdateInsuranceInfo } from '../../../hooks/useQueries';
 import type { InsuranceInfo } from '../../../backend';
+import ResidentProfileEditorSurface from '../../../components/resident-profile/ResidentProfileEditorSurface';
 
 export default function InsuranceEditPage() {
   const { residentId, insuranceId } = useParams({ from: '/resident/$residentId/insurance/$insuranceId/edit' });
@@ -65,14 +66,14 @@ export default function InsuranceEditPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <ResidentProfileEditorSurface className="min-h-screen">
       <div className="container mx-auto px-4 py-8">
         <Button variant="ghost" onClick={() => navigate({ to: `/resident/${residentId}` })} className="mb-6">
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back to Resident Profile
         </Button>
 
-        <Card className="max-w-2xl mx-auto bg-white">
+        <Card className="max-w-2xl mx-auto">
           <CardHeader>
             <CardTitle>Edit Insurance</CardTitle>
           </CardHeader>
@@ -128,6 +129,6 @@ export default function InsuranceEditPage() {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </ResidentProfileEditorSurface>
   );
 }

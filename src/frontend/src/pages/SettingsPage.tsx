@@ -4,33 +4,35 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArrowLeft, Save } from 'lucide-react';
-import { useGetCallerUserProfile, useSaveCallerUserProfile } from '../hooks/useQueries';
-import { UserProfile } from '../backend';
+import { useGetAppSettings, useUpdateDisplayPreferences } from '../hooks/useQueries';
+import { useInternetIdentity } from '../hooks/useInternetIdentity';
+import { DisplayPreferences, BackgroundMode } from '../backend';
 
 export default function SettingsPage() {
   const navigate = useNavigate();
-  const { data: userProfile, isLoading, isFetched } = useGetCallerUserProfile();
-  const saveProfile = useSaveCallerUserProfile();
+  const { identity } = useInternetIdentity();
+  const { data: appSettings, isLoading, isFetched } = useGetAppSettings();
+  const updatePreferences = useUpdateDisplayPreferences();
 
-  const [showResidentProfileReport, setShowResidentProfileReport] = useState(true);
+  const [showPrintProfileButton, setShowPrintProfileButton] = useState(true);
+  const [editorBackgroundMode, setEditorBackgroundMode] = useState<BackgroundMode>(BackgroundMode.solidWhite);
 
   useEffect(() => {
-    if (userProfile) {
-      setShowResidentProfileReport(userProfile.showResidentProfileReport ?? true);
+    if (appSettings) {
+      setShowPrintProfileButton(appSettings.displayPreferences.showPrintProfileButton);
+      setEditorBackgroundMode(appSettings.displayPreferences.residentProfileEditorBackgroundMode);
     }
-  }, [userProfile]);
+  }, [appSettings]);
 
-  const handleSave = async () => {
-    if (!userProfile) return;
-
-    const updatedProfile: UserProfile = {
-      ...userProfile,
-      showResidentProfileReport,
-    };
-
-    await saveProfile.mutateAsync(updatedProfile);
-  };
+  if (!identity) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <p className="text-muted-foreground">Please log in to access settings</p>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (
@@ -40,7 +42,7 @@ export default function SettingsPage() {
     );
   }
 
-  if (!userProfile && isFetched) {
+  if (!appSettings && isFetched) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <p className="text-muted-foreground">Unable to load settings</p>
@@ -48,7 +50,21 @@ export default function SettingsPage() {
     );
   }
 
-  const hasChanges = userProfile && showResidentProfileReport !== (userProfile.showResidentProfileReport ?? true);
+  const hasChanges = appSettings && (
+    showPrintProfileButton !== appSettings.displayPreferences.showPrintProfileButton ||
+    editorBackgroundMode !== appSettings.displayPreferences.residentProfileEditorBackgroundMode
+  );
+
+  const handleSave = async () => {
+    if (!appSettings) return;
+
+    const updatedPreferences: DisplayPreferences = {
+      showPrintProfileButton,
+      residentProfileEditorBackgroundMode: editorBackgroundMode,
+    };
+
+    await updatePreferences.mutateAsync(updatedPreferences);
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -85,18 +101,41 @@ export default function SettingsPage() {
                 </div>
                 <Switch
                   id="show-report"
-                  checked={showResidentProfileReport}
-                  onCheckedChange={setShowResidentProfileReport}
+                  checked={showPrintProfileButton}
+                  onCheckedChange={setShowPrintProfileButton}
                 />
+              </div>
+
+              <div className="space-y-3">
+                <div className="space-y-0.5">
+                  <Label htmlFor="editor-background" className="text-base font-medium">
+                    Resident Profile Editor Background
+                  </Label>
+                  <p className="text-sm text-muted-foreground">
+                    Choose the background color for resident profile editing screens
+                  </p>
+                </div>
+                <Select
+                  value={editorBackgroundMode}
+                  onValueChange={(value) => setEditorBackgroundMode(value as BackgroundMode)}
+                >
+                  <SelectTrigger id="editor-background" className="w-full max-w-xs">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={BackgroundMode.solidWhite}>Solid White</SelectItem>
+                    <SelectItem value={BackgroundMode.solidBlack}>Solid Black</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </CardContent>
           </Card>
 
           {hasChanges && (
             <div className="flex justify-end">
-              <Button onClick={handleSave} disabled={saveProfile.isPending}>
+              <Button onClick={handleSave} disabled={updatePreferences.isPending}>
                 <Save className="w-4 h-4 mr-2" />
-                {saveProfile.isPending ? 'Saving...' : 'Save Changes'}
+                {updatePreferences.isPending ? 'Saving...' : 'Save Changes'}
               </Button>
             </div>
           )}

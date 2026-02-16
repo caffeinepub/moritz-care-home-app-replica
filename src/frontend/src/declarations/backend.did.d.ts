@@ -18,6 +18,9 @@ export interface ADLRecord {
   'timestamp' : bigint,
   'activity' : string,
 }
+export interface AppSettings { 'displayPreferences' : DisplayPreferences }
+export type BackgroundMode = { 'solidBlack' : null } |
+  { 'solidWhite' : null };
 export type CodeStatus = { 'dnr' : null } |
   { 'fullCode' : null };
 export interface CodeStatusChangeRecord {
@@ -44,6 +47,10 @@ export interface DailyVitals {
   'bloodPressureDiastolic' : bigint,
   'measurementTime' : string,
   'bloodPressureSystolic' : bigint,
+}
+export interface DisplayPreferences {
+  'showPrintProfileButton' : boolean,
+  'residentProfileEditorBackgroundMode' : BackgroundMode,
 }
 export type HealthStatus = { 'ok' : string } |
   { 'error' : string } |
@@ -126,7 +133,6 @@ export interface ResponsibleContact {
 export interface UserProfile {
   'userType' : UserType,
   'name' : string,
-  'showResidentProfileReport' : boolean,
   'relatedResidentIds' : Array<bigint>,
 }
 export type UserRole = { 'admin' : null } |
@@ -180,6 +186,7 @@ export interface _SERVICE {
   'discontinueMedication' : ActorMethod<[ResidentId, MedicationId], undefined>,
   'getADLRecords' : ActorMethod<[ResidentId], Array<ADLRecord>>,
   'getAllResidents' : ActorMethod<[], Array<Resident>>,
+  'getAppSettings' : ActorMethod<[], AppSettings>,
   'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
   'getCallerUserRole' : ActorMethod<[], UserRole>,
   'getCodeStatus' : ActorMethod<[ResidentId], [] | [CodeStatus]>,
@@ -215,6 +222,7 @@ export interface _SERVICE {
   'reactivateMedication' : ActorMethod<[ResidentId, MedicationId], undefined>,
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
   'updateCodeStatus' : ActorMethod<[ResidentId, CodeStatus, string], undefined>,
+  'updateDisplayPreferences' : ActorMethod<[DisplayPreferences], undefined>,
   'updateInsuranceInfo' : ActorMethod<
     [ResidentId, bigint, InsuranceInfo],
     undefined

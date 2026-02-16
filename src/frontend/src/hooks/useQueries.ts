@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useResilientActor } from './useResilientActor';
 import { useInternetIdentity } from './useInternetIdentity';
-import type { UserProfile, Resident, ResidentId, Medication, MARRecord, ADLRecord, DailyVitals, PharmacyInfo, InsuranceInfo, ResidentStatus, ResponsibleContact, Physician } from '../backend';
+import type { UserProfile, Resident, ResidentId, Medication, MARRecord, ADLRecord, DailyVitals, PharmacyInfo, InsuranceInfo, ResidentStatus, ResponsibleContact, Physician, AppSettings, DisplayPreferences } from '../backend';
 import { toast } from 'sonner';
 import { canListAllResidents } from '../lib/auth/helpers';
 
@@ -68,6 +68,39 @@ export function useSaveCallerUserProfile() {
     },
     onError: (error: Error) => {
       toast.error(error.message || 'Failed to save profile');
+    },
+  });
+}
+
+export function useGetAppSettings() {
+  const { actor, isFetching } = useResilientActor();
+  const { identity } = useInternetIdentity();
+
+  return useQuery<AppSettings>({
+    queryKey: ['appSettings'],
+    queryFn: async () => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.getAppSettings();
+    },
+    enabled: !!actor && !isFetching && !!identity,
+  });
+}
+
+export function useUpdateDisplayPreferences() {
+  const { actor } = useResilientActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (preferences: DisplayPreferences) => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.updateDisplayPreferences(preferences);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['appSettings'] });
+      toast.success('Display preferences updated successfully');
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || 'Failed to update display preferences');
     },
   });
 }

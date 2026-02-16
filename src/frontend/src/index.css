@@ -4,59 +4,58 @@
 
 @layer base {
   :root {
-    /* Healthcare-themed OKLCH color palette */
-    --background: oklch(98% 0.01 220);
-    --foreground: oklch(20% 0.02 220);
+    --background: oklch(98% 0.01 240);
+    --foreground: oklch(20% 0.02 240);
     --card: oklch(100% 0 0);
-    --card-foreground: oklch(20% 0.02 220);
+    --card-foreground: oklch(20% 0.02 240);
     --popover: oklch(100% 0 0);
-    --popover-foreground: oklch(20% 0.02 220);
-    --primary: oklch(55% 0.15 220);
-    --primary-foreground: oklch(98% 0.01 220);
-    --secondary: oklch(65% 0.12 180);
-    --secondary-foreground: oklch(98% 0.01 180);
-    --muted: oklch(95% 0.01 220);
-    --muted-foreground: oklch(50% 0.02 220);
-    --accent: oklch(70% 0.14 180);
-    --accent-foreground: oklch(20% 0.02 180);
-    --destructive: oklch(55% 0.20 25);
-    --destructive-foreground: oklch(98% 0.01 25);
-    --border: oklch(88% 0.02 220);
-    --input: oklch(88% 0.02 220);
-    --ring: oklch(55% 0.15 220);
+    --popover-foreground: oklch(20% 0.02 240);
+    --primary: oklch(45% 0.18 240);
+    --primary-foreground: oklch(98% 0.01 240);
+    --secondary: oklch(92% 0.02 240);
+    --secondary-foreground: oklch(20% 0.02 240);
+    --muted: oklch(92% 0.02 240);
+    --muted-foreground: oklch(50% 0.02 240);
+    --accent: oklch(92% 0.02 240);
+    --accent-foreground: oklch(20% 0.02 240);
+    --destructive: oklch(55% 0.22 25);
+    --destructive-foreground: oklch(98% 0.01 240);
+    --border: oklch(88% 0.02 240);
+    --input: oklch(88% 0.02 240);
+    --ring: oklch(45% 0.18 240);
     --radius: 0.5rem;
-    --chart-1: oklch(60% 0.15 220);
-    --chart-2: oklch(65% 0.12 180);
-    --chart-3: oklch(70% 0.14 160);
-    --chart-4: oklch(75% 0.10 140);
-    --chart-5: oklch(80% 0.08 120);
+    --chart-1: oklch(60% 0.18 240);
+    --chart-2: oklch(70% 0.15 180);
+    --chart-3: oklch(65% 0.16 120);
+    --chart-4: oklch(75% 0.12 60);
+    --chart-5: oklch(68% 0.14 300);
   }
 
   .dark {
-    --background: oklch(18% 0.02 220);
-    --foreground: oklch(95% 0.01 220);
-    --card: oklch(20% 0.02 220);
-    --card-foreground: oklch(95% 0.01 220);
-    --popover: oklch(20% 0.02 220);
-    --popover-foreground: oklch(95% 0.01 220);
-    --primary: oklch(65% 0.15 220);
-    --primary-foreground: oklch(18% 0.02 220);
-    --secondary: oklch(55% 0.12 180);
-    --secondary-foreground: oklch(95% 0.01 180);
-    --muted: oklch(25% 0.02 220);
-    --muted-foreground: oklch(70% 0.02 220);
-    --accent: oklch(60% 0.14 180);
-    --accent-foreground: oklch(95% 0.01 180);
-    --destructive: oklch(55% 0.20 25);
-    --destructive-foreground: oklch(95% 0.01 25);
-    --border: oklch(30% 0.02 220);
-    --input: oklch(30% 0.02 220);
-    --ring: oklch(65% 0.15 220);
-    --chart-1: oklch(60% 0.15 220);
-    --chart-2: oklch(65% 0.12 180);
-    --chart-3: oklch(70% 0.14 160);
-    --chart-4: oklch(75% 0.10 140);
-    --chart-5: oklch(80% 0.08 120);
+    --background: oklch(20% 0.02 240);
+    --foreground: oklch(98% 0.01 240);
+    --card: oklch(22% 0.02 240);
+    --card-foreground: oklch(98% 0.01 240);
+    --popover: oklch(22% 0.02 240);
+    --popover-foreground: oklch(98% 0.01 240);
+    --primary: oklch(65% 0.18 240);
+    --primary-foreground: oklch(20% 0.02 240);
+    --secondary: oklch(28% 0.02 240);
+    --secondary-foreground: oklch(98% 0.01 240);
+    --muted: oklch(28% 0.02 240);
+    --muted-foreground: oklch(70% 0.02 240);
+    --accent: oklch(28% 0.02 240);
+    --accent-foreground: oklch(98% 0.01 240);
+    --destructive: oklch(55% 0.22 25);
+    --destructive-foreground: oklch(98% 0.01 240);
+    --border: oklch(28% 0.02 240);
+    --input: oklch(28% 0.02 240);
+    --ring: oklch(65% 0.18 240);
+    --chart-1: oklch(60% 0.18 240);
+    --chart-2: oklch(70% 0.15 180);
+    --chart-3: oklch(65% 0.16 120);
+    --chart-4: oklch(75% 0.12 60);
+    --chart-5: oklch(68% 0.14 300);
   }
 }
 
@@ -69,236 +68,215 @@
   }
 }
 
-@layer utilities {
-  /* Solid white dialog panel - no transparency */
-  .dialog-solid-white {
-    background: white !important;
-    background-color: white !important;
-    opacity: 1 !important;
-  }
+/* Resident Profile Editor Background Modes */
+.resident-profile-editor-white {
+  background: oklch(100% 0 0);
+  color: oklch(10% 0 0);
 }
 
-/* Custom styling for physician signature switch thumb */
-.physician-signature-switch[data-state="unchecked"] > span[data-state="unchecked"] {
-  background-color: oklch(65% 0.15 150) !important;
+.resident-profile-editor-white label,
+.resident-profile-editor-white h1,
+.resident-profile-editor-white h2,
+.resident-profile-editor-white h3,
+.resident-profile-editor-white p,
+.resident-profile-editor-white span {
+  color: oklch(10% 0 0);
 }
 
-.physician-signature-switch[data-state="checked"] > span[data-state="checked"] {
-  background-color: white !important;
+.resident-profile-editor-white input,
+.resident-profile-editor-white textarea,
+.resident-profile-editor-white select {
+  background: oklch(100% 0 0);
+  color: oklch(10% 0 0);
+  border-color: oklch(70% 0 0);
 }
 
-/* Global enforcement: all dialogs, popovers, dropdowns, and select menus must be solid white */
-[data-radix-dialog-content],
-[data-radix-popover-content],
-[data-radix-dropdown-menu-content],
-[data-radix-select-content],
-[data-radix-context-menu-content],
-[data-radix-menubar-content],
-[data-radix-hover-card-content],
-[data-radix-alert-dialog-content] {
-  background: white !important;
-  background-color: white !important;
+.resident-profile-editor-white input::placeholder,
+.resident-profile-editor-white textarea::placeholder {
+  color: oklch(50% 0 0);
+}
+
+.resident-profile-editor-white [role="combobox"],
+.resident-profile-editor-white button[role="combobox"] {
+  background: oklch(100% 0 0);
+  color: oklch(10% 0 0);
+  border-color: oklch(70% 0 0);
+}
+
+.resident-profile-editor-white .card,
+.resident-profile-editor-white [data-radix-scroll-area-viewport] {
+  background: oklch(100% 0 0);
+  color: oklch(10% 0 0);
+}
+
+.resident-profile-editor-black {
+  background: oklch(10% 0 0);
+  color: oklch(98% 0 0);
+}
+
+.resident-profile-editor-black label,
+.resident-profile-editor-black h1,
+.resident-profile-editor-black h2,
+.resident-profile-editor-black h3,
+.resident-profile-editor-black p,
+.resident-profile-editor-black span {
+  color: oklch(98% 0 0);
+}
+
+.resident-profile-editor-black input,
+.resident-profile-editor-black textarea,
+.resident-profile-editor-black select {
+  background: oklch(15% 0 0);
+  color: oklch(98% 0 0);
+  border-color: oklch(40% 0 0);
+}
+
+.resident-profile-editor-black input::placeholder,
+.resident-profile-editor-black textarea::placeholder {
+  color: oklch(60% 0 0);
+}
+
+.resident-profile-editor-black [role="combobox"],
+.resident-profile-editor-black button[role="combobox"] {
+  background: oklch(15% 0 0);
+  color: oklch(98% 0 0);
+  border-color: oklch(40% 0 0);
+}
+
+.resident-profile-editor-black .card,
+.resident-profile-editor-black [data-radix-scroll-area-viewport] {
+  background: oklch(10% 0 0);
+  color: oklch(98% 0 0);
+}
+
+.resident-profile-editor-black [data-state="checked"] {
+  background: oklch(98% 0 0);
+  border-color: oklch(98% 0 0);
+}
+
+.resident-profile-editor-black [data-state="checked"] svg {
+  color: oklch(10% 0 0);
+}
+
+/* Solid white dialog background utility */
+.dialog-solid-white {
+  background: oklch(100% 0 0) !important;
+}
+
+.dialog-solid-white * {
+  color: oklch(10% 0 0);
+}
+
+.dialog-solid-white input,
+.dialog-solid-white textarea,
+.dialog-solid-white select {
+  background: oklch(100% 0 0);
+  color: oklch(10% 0 0);
+  border-color: oklch(70% 0 0);
+}
+
+.dialog-solid-white [role="combobox"] {
+  background: oklch(100% 0 0);
+  color: oklch(10% 0 0);
+  border-color: oklch(70% 0 0);
+}
+
+/* Physician signature switch styling */
+[data-physician-signature-switch] [data-state="unchecked"] {
+  background-color: oklch(60% 0.15 145);
+}
+
+[data-physician-signature-switch] [data-state="unchecked"] .switch-thumb {
+  background-color: oklch(98% 0.01 145);
+}
+
+[data-physician-signature-switch] [data-state="checked"] .switch-thumb {
+  background-color: oklch(100% 0 0);
+}
+
+/* Global enforcement: all Radix UI surfaces must be solid opaque */
+[data-radix-popper-content-wrapper],
+[data-radix-portal] [role="dialog"],
+[data-radix-portal] [role="menu"],
+[data-radix-portal] [role="listbox"],
+[data-radix-select-viewport] {
+  background: oklch(100% 0 0) !important;
   opacity: 1 !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
 }
 
-/* Dark mode: force solid backgrounds (not transparent) */
-.dark [data-radix-dialog-content],
-.dark [data-radix-popover-content],
-.dark [data-radix-dropdown-menu-content],
-.dark [data-radix-select-content],
-.dark [data-radix-context-menu-content],
-.dark [data-radix-menubar-content],
-.dark [data-radix-hover-card-content],
-.dark [data-radix-alert-dialog-content] {
-  background: oklch(20% 0.02 220) !important;
-  background-color: oklch(20% 0.02 220) !important;
-  opacity: 1 !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-}
-
-/* Print Styles */
+/* Print styles */
 @media print {
-  /* Force white background and dark text for print */
-  html,
+  @page {
+    size: letter;
+    margin: 0.5in;
+  }
+
   body {
-    background: white !important;
-    background-color: white !important;
-    background-image: none !important;
-    color: #000 !important;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
   }
 
-  /* Hide everything by default */
-  body * {
-    visibility: hidden;
-  }
-
-  /* Show only print content */
-  .print-only,
-  .print-only * {
-    visibility: visible;
+  .no-print,
+  header,
+  nav,
+  button,
+  [role="button"],
+  .print-hide {
+    display: none !important;
   }
 
   .print-only {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    background: white !important;
-    background-color: white !important;
+    display: block !important;
   }
 
-  /* Page setup */
-  @page {
-    size: letter;
-    margin: 0.75in;
-  }
-
-  /* Print page container */
-  .print-page {
-    width: 100%;
-    page-break-after: always;
-    background: white !important;
-    background-color: white !important;
-    background-image: none !important;
-  }
-
-  /* Print header with logo */
-  .print-header {
-    margin-bottom: 1.5rem;
-    padding-bottom: 1rem;
-    border-bottom: 2px solid #333;
-    background: transparent !important;
-    background-color: transparent !important;
-  }
-
-  .print-header .flex {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
-
-  .print-header img {
-    width: 3rem;
-    height: 3rem;
-    object-fit: contain;
-    print-color-adjust: exact;
-    -webkit-print-color-adjust: exact;
-  }
-
-  /* Print sections */
-  .print-section {
-    margin-bottom: 1.5rem;
-    page-break-inside: avoid;
-    background: transparent !important;
-    background-color: transparent !important;
-  }
-
-  .print-section-title {
-    font-size: 1.125rem;
-    font-weight: 700;
-    margin-bottom: 0.75rem;
-    color: #1f2937;
-    border-bottom: 1px solid #d1d5db;
-    padding-bottom: 0.25rem;
-  }
-
-  /* Medication tables */
-  .print-medication-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 0.5rem;
-    background: white !important;
-    background-color: white !important;
-  }
-
-  .print-medication-table th {
-    background-color: #f3f4f6 !important;
-    padding: 0.5rem;
-    text-align: left;
-    font-weight: 600;
-    border: 1px solid #d1d5db;
-    font-size: 0.875rem;
-    print-color-adjust: exact;
-    -webkit-print-color-adjust: exact;
-  }
-
-  .print-medication-table td {
-    padding: 0.5rem;
-    border: 1px solid #d1d5db;
-    font-size: 0.875rem;
-    background: white !important;
-    background-color: white !important;
-  }
-
-  /* Physician signature section */
-  .print-physician-signature-section {
-    margin-top: 2rem;
-    margin-bottom: 2rem;
-    page-break-inside: avoid;
-    background: transparent !important;
-    background-color: transparent !important;
-  }
-
-  .print-signature-fields {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1.5rem;
-    margin-top: 1rem;
-  }
-
-  .print-signature-field {
-    page-break-inside: avoid;
-    background: transparent !important;
-    background-color: transparent !important;
-  }
-
-  .print-signature-line {
-    border-bottom: 1px solid #000 !important;
-    height: 2rem;
-    margin-top: 0.25rem;
-    background: transparent !important;
-    background-color: transparent !important;
-    background-image: none !important;
-    box-shadow: none !important;
-  }
-
-  /* Explicitly target signature line data attributes */
-  .print-signature-line[data-signature-field] {
-    background: white !important;
-    background-color: white !important;
-    background-image: none !important;
-    box-shadow: none !important;
-  }
-
-  /* Page breaks */
   .print-page-break {
     page-break-before: always;
+    break-before: page;
   }
 
-  /* Footer */
-  .print-footer {
-    margin-top: 2rem;
-    padding-top: 1rem;
-    border-top: 1px solid #d1d5db;
-    text-align: center;
-    background: transparent !important;
-    background-color: transparent !important;
+  .print-avoid-break {
+    page-break-inside: avoid;
+    break-inside: avoid;
   }
 
-  /* Ensure colors print correctly for specific elements only */
-  .print-header img,
-  .print-medication-table th {
-    print-color-adjust: exact;
-    -webkit-print-color-adjust: exact;
-  }
-
-  /* Override any dark mode or theme styles in print */
-  .print-only *,
-  .print-only *::before,
-  .print-only *::after {
+  * {
     box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  a,
+  a:visited {
+    text-decoration: underline;
+  }
+
+  table {
+    border-collapse: collapse !important;
+  }
+
+  table,
+  th,
+  td {
+    border: 1px solid oklch(30% 0 0) !important;
+  }
+
+  th,
+  td {
+    padding: 8px !important;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    page-break-after: avoid;
+    break-after: avoid;
+  }
+
+  img {
+    max-width: 100% !important;
+    page-break-inside: avoid;
+    break-inside: avoid;
   }
 }

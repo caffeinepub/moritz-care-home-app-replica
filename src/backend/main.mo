@@ -1,8 +1,7 @@
-import Map "mo:core/Map";
 import Nat "mo:core/Nat";
-import Text "mo:core/Text";
-import Array "mo:core/Array";
 import Time "mo:core/Time";
+import Map "mo:core/Map";
+import Array "mo:core/Array";
 import Principal "mo:core/Principal";
 import Runtime "mo:core/Runtime";
 import MixinAuthorization "authorization/MixinAuthorization";
@@ -11,21 +10,25 @@ import Migration "migration";
 
 (with migration = Migration.run)
 actor {
-  let accessControlState = AccessControl.initState();
-  include MixinAuthorization(accessControlState);
-
-  type ResidentId = Nat;
-  type MedicationId = Nat;
-
   public type HealthStatus = {
     #ok : Text;
     #error : Text;
     #maintenance : Text;
   };
 
-  public query func getHealthStatus() : async HealthStatus {
+  public query ({ caller }) func getHealthStatus() : async HealthStatus {
+    // Healthcare applications should not expose system status to anonymous users
+    if (not (AccessControl.hasPermission(accessControlState, caller, #guest))) {
+      Runtime.trap("Unauthorized: Authentication required");
+    };
     #ok("Backend healthy - version 2024-06-13");
   };
+
+  let accessControlState = AccessControl.initState();
+  include MixinAuthorization(accessControlState);
+
+  type ResidentId = Nat;
+  type MedicationId = Nat;
 
   public type UserType = {
     #staff;
@@ -37,7 +40,6 @@ actor {
     name : Text;
     userType : UserType;
     relatedResidentIds : [Nat];
-    showResidentProfileReport : Bool;
   };
 
   let userProfiles = Map.empty<Principal, UserProfile>();
@@ -67,6 +69,44 @@ actor {
       Runtime.trap("Unauthorized: Can only view your own profile");
     };
     userProfiles.get(user);
+  };
+
+  // Application Settings
+  public type BackgroundMode = {
+    #solidWhite;
+    #solidBlack;
+  };
+
+  public type DisplayPreferences = {
+    showPrintProfileButton : Bool;
+    residentProfileEditorBackgroundMode : BackgroundMode;
+  };
+
+  public type AppSettings = {
+    displayPreferences : DisplayPreferences;
+  };
+
+  var appSettings : AppSettings = {
+    displayPreferences = {
+      showPrintProfileButton = true;
+      residentProfileEditorBackgroundMode = #solidWhite;
+    };
+  };
+
+  public query ({ caller }) func getAppSettings() : async AppSettings {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Authentication required");
+    };
+    appSettings;
+  };
+
+  public shared ({ caller }) func updateDisplayPreferences(preferences : DisplayPreferences) : async () {
+    if (not AccessControl.isAdmin(accessControlState, caller)) {
+      Runtime.trap("Unauthorized: Only admins can update display preferences");
+    };
+    appSettings := {
+      displayPreferences = preferences;
+    };
   };
 
   public type ResidentStatus = { #active; #discharged };

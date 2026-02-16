@@ -1,181 +1,95 @@
 {
   "kind": "build_request",
-  "title": "Add Resident Profile sidebar tabs for Responsible Persons, Pharmacy, Insurance, and Physician info with multi-entry add/edit screens",
-  "projectName": "Resident Profiles",
+  "title": "Add Settings toggle for resident profile editor solid white/black background",
+  "projectName": "Moritz Care Home",
   "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Update the Resident Profile page to include a left sidebar/navigation with dedicated sections (tabs) for: Responsible Persons, Pharmacy Information, Insurance Information, and Physician Information, accessible from within the resident’s profile view.",
-      "target": "frontend",
+      "text": "Extend backend application display preferences to include a resident profile editor background mode toggle with two options (solid white and solid black), and expose it via the existing getAppSettings and updateDisplayPreferences APIs.",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-4",
+          "msg-5"
         ],
         "quotes": [
-          "appear as its own tab/section inside the Resident Profile page’s sidebar/navigation"
+          "MAKE ALL TEXTS AND FORMS VISIBLE ON SOLID WHITE / SOLID BLACK BACKGROUND WHEN EDITING THE RESIDENT'S PROFILE",
+          "1. toggle\n2. settings\n3. yes"
         ]
       },
       "acceptanceCriteria": [
-        "Resident Profile UI includes a visible sidebar/navigation area.",
-        "Sidebar includes four new items: Responsible Persons, Pharmacy Information, Insurance Information, Physician Information.",
-        "Selecting a sidebar item switches the main Resident Profile content to the selected section without leaving the resident context (residentId remains the same)."
+        "Calling getAppSettings returns displayPreferences including the new editor background mode field.",
+        "Calling updateDisplayPreferences persists the new editor background mode value alongside showPrintProfileButton.",
+        "The backend continues to default to a sensible value (e.g., solid white) when the new preference has not been set yet."
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Implement separate add and edit screens (solid white background) for managing multiple Responsible Persons entries per resident with fields: Name, Relationship, Phone Number, Fax Number.",
-      "target": "both",
+      "text": "Update the Settings page to include a new toggle control under Display Preferences that lets the user switch the resident profile editor background between solid white and solid black, and save it using the existing Save Changes flow.",
+      "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-5"
         ],
         "quotes": [
-          "allow add/edit Responsible Contacts, Pharmacy Information, Insurance Informations and Physician's Information in the Resident's Profile",
-          "Responsible Persons - Name, Relationship, Phone Number, Fax Number",
-          "multiple entries",
-          "through separate add/edit screens (in solid white background)"
+          "1. toggle\n2. settings\n3. yes"
         ]
       },
       "acceptanceCriteria": [
-        "Responsible Persons section shows a list/table of entries for the resident.",
-        "User can create a new Responsible Person via a dedicated add screen with a solid white background.",
-        "User can edit an existing Responsible Person via a dedicated edit screen with a solid white background.",
-        "Backend persists multiple Responsible Persons per resident and returns them in getResident.",
-        "Fields stored and displayed match: name, relationship, phone, fax."
+        "Settings displays a clearly labeled control (English UI text) for the resident profile editor background with two states: solid white and solid black.",
+        "Changing the control causes the Save Changes button to appear (same behavior as existing showPrintProfileButton).",
+        "After saving, the preference is persisted and is reflected on reload (via useGetAppSettings)."
       ]
     },
     {
       "id": "REQ-3",
-      "text": "Implement separate add and edit screens (solid white background) for managing multiple Pharmacy Information entries per resident with fields: Pharmacy Name, Address, Phone Number, Fax Number.",
-      "target": "both",
+      "text": "Apply the selected solid white/solid black background mode to all resident profile editing experiences (modal and form pages), and automatically adjust text, label, input, select, and textarea styling to ensure strong contrast and readability in both modes.",
+      "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-4",
+          "msg-5"
         ],
         "quotes": [
-          "Pharmacy Information - Pharmacy Name, Address, Phone Number & Fax Number",
-          "multiple entries",
-          "through separate add/edit screens (in solid white background)"
+          "MAKE ALL TEXTS AND FORMS VISIBLE ON SOLID WHITE / SOLID BLACK BACKGROUND WHEN EDITING THE RESIDENT'S PROFILE",
+          "3. yes"
         ]
       },
       "acceptanceCriteria": [
-        "Pharmacy Information section shows a list/table of pharmacy entries for the resident.",
-        "User can add a pharmacy entry via a dedicated add screen with a solid white background.",
-        "User can edit an existing pharmacy entry via a dedicated edit screen with a solid white background.",
-        "Backend persists multiple pharmacy entries per resident and returns them in getResident.",
-        "Fields stored and displayed match: pharmacy name, address, phone, fax."
+        "When the editor background mode is set to solid white, resident profile edit screens render with a solid white background and dark, readable text; form controls remain clearly visible.",
+        "When the editor background mode is set to solid black, resident profile edit screens render with a solid black background and light, readable text; form controls remain clearly visible.",
+        "The behavior applies at minimum to the Edit Resident Information modal (frontend/src/components/residents/modals/EditResidentInformationModal.tsx) and the resident-profile add/edit pages (e.g., insurance/pharmacy/physicians/responsible persons).",
+        "The chosen mode affects editing screens only and does not unintentionally force the entire app into light/dark mode."
       ]
     },
     {
       "id": "REQ-4",
-      "text": "Implement separate add and edit screens (solid white background) for managing multiple Insurance Information entries per resident with fields: Insurance Name, Policy Number, Medicare ID Number, Medicaid ID Number.",
-      "target": "both",
-      "source": {
-        "messageIds": [
-          "msg-1"
-        ],
-        "quotes": [
-          "Insurance Information - Insurance Name, Policy Number, Medicare ID Number, Medicaid ID Number",
-          "multiple entries",
-          "through separate add/edit screens (in solid white background)"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Insurance Information section shows a list/table of insurance entries for the resident.",
-        "User can add an insurance entry via a dedicated add screen with a solid white background.",
-        "User can edit an existing insurance entry via a dedicated edit screen with a solid white background.",
-        "Backend persists multiple insurance entries per resident and returns them in getResident.",
-        "Fields stored and displayed match: insurance name, policy number, medicare ID number, medicaid ID number."
-      ]
-    },
-    {
-      "id": "REQ-5",
-      "text": "Add a Physician Information sidebar section that allows adding and editing multiple physician entries for a resident via separate add/edit screens (solid white background), using the existing physician data shape currently supported by the backend (name, specialty, contact info) unless additional fields are explicitly specified later.",
-      "target": "both",
-      "source": {
-        "messageIds": [
-          "msg-1"
-        ],
-        "quotes": [
-          "allow add/edit ... Physician's Information in the Resident's Profile",
-          "multiple entries",
-          "through separate add/edit screens (in solid white background)"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Physician Information section is accessible via the Resident Profile sidebar.",
-        "User can add a physician via a dedicated add screen with a solid white background.",
-        "User can edit a physician via a dedicated edit screen with a solid white background.",
-        "After saving, returning to the Physician Information section shows the updated list from getResident."
-      ]
-    },
-    {
-      "id": "REQ-6",
-      "text": "Update the backend resident data model and APIs to support multiple entries for Pharmacy Information and Insurance Information (currently single optional records), and ensure IDs are available to reliably edit specific entries.",
+      "text": "If the backend state schema requires upgrade handling, update the existing migration logic to ensure the new display preference field has a deterministic default after upgrade.",
       "target": "backend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-5"
         ],
         "quotes": [
-          "multiple entries"
+          "1. toggle\n2. settings\n3. yes"
         ]
       },
       "acceptanceCriteria": [
-        "Resident type supports multiple pharmacy entries and multiple insurance entries per resident.",
-        "Backend exposes functions to add and update specific pharmacy and insurance entries for a resident (using stable entry IDs).",
-        "Frontend can edit a specific entry without ambiguity (entry identifier is available in returned resident data)."
-      ]
-    },
-    {
-      "id": "REQ-7",
-      "text": "Implement an upgrade-safe state migration so existing production data is preserved when changing from single-record pharmacy/insurance storage to multi-entry storage, and when extending Responsible Contacts/Persons fields.",
-      "target": "backend",
-      "source": {
-        "messageIds": [
-          "msg-1"
-        ],
-        "quotes": [
-          "multiple entries"
-        ]
-      },
-      "acceptanceCriteria": [
-        "After canister upgrade, existing resident pharmacy information (if present) is available as a single entry in the new multi-entry pharmacy collection.",
-        "After canister upgrade, existing resident insurance information (if present) is available as a single entry in the new multi-entry insurance collection.",
-        "Existing responsible contacts/persons data does not disappear after upgrade (fields that existed previously remain preserved or are mapped forward)."
-      ]
-    },
-    {
-      "id": "REQ-8",
-      "text": "Apply a coherent visual theme to the new Resident Profile sidebar sections and add/edit screens, keeping forms on a solid white background as requested, and ensuring styling is consistent with the rest of the app (Tailwind + existing UI components).",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-1"
-        ],
-        "quotes": [
-          "through separate add/edit screens (in solid white background)"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Add/edit screens use a solid white background across the full form area.",
-        "New sidebar navigation and section layouts look consistent and intentional (typography, spacing, component usage).",
-        "No use of blue/purple as the primary theme colors unless already present in the app theme."
+        "Upgrading from the previous deployed version does not trap due to missing/new fields in DisplayPreferences.",
+        "After upgrade, getAppSettings returns a valid editor background mode value without requiring manual admin intervention."
       ]
     }
   ],
   "constraints": [
-    "Backend must remain a single Motoko actor in backend/main.mo.",
-    "Only generate/update backend/migration.mo if state schema changes require upgrade migration.",
-    "Do not edit files under frontend immutable paths (frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, frontend/src/components/ui).",
-    "Use English for all user-facing UI text."
+    "Respect the single-actor backend architecture: implement all Motoko logic in backend/main.mo (only add/update backend/migration.mo if required for upgrade safety).",
+    "Do not edit any files under frontend/src/components/ui (compose existing components instead).",
+    "Do not edit immutable frontend hook entrypoints listed in SYSTEM_CONTEXT (frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx)."
   ],
   "nonGoals": [
-    "Do not implement third-party authentication providers beyond Internet Identity.",
-    "Do not add external databases or services.",
-    "Do not add real-time/websocket functionality.",
-    "Do not redesign unrelated Resident Profile features (e.g., Medications/MAR/Vitals/ADL behavior) beyond what is necessary to integrate the sidebar navigation."
+    "Do not change print styles or the existing printable report behavior beyond what is necessary for the editor background toggle.",
+    "Do not introduce third-party theming libraries or a new global dark-mode system; only implement the requested white/black editor background behavior.",
+    "Do not add new authentication providers; keep current Internet Identity approach."
   ],
   "imageRequirements": {
     "required": [],

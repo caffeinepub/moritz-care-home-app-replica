@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { ArrowLeft } from 'lucide-react';
 import { useGetResident, useUpdatePharmacyInfo } from '../../../hooks/useQueries';
 import type { PharmacyInfo } from '../../../backend';
+import ResidentProfileEditorSurface from '../../../components/resident-profile/ResidentProfileEditorSurface';
 
 export default function PharmacyEditPage() {
   const { residentId, pharmacyId } = useParams({ from: '/resident/$residentId/pharmacy/$pharmacyId/edit' });
@@ -65,14 +66,14 @@ export default function PharmacyEditPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <ResidentProfileEditorSurface className="min-h-screen">
       <div className="container mx-auto px-4 py-8">
         <Button variant="ghost" onClick={() => navigate({ to: `/resident/${residentId}` })} className="mb-6">
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back to Resident Profile
         </Button>
 
-        <Card className="max-w-2xl mx-auto bg-white">
+        <Card className="max-w-2xl mx-auto">
           <CardHeader>
             <CardTitle>Edit Pharmacy</CardTitle>
           </CardHeader>
@@ -133,6 +134,6 @@ export default function PharmacyEditPage() {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </ResidentProfileEditorSurface>
   );
 }

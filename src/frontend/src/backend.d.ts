@@ -10,7 +10,6 @@ export type Option<T> = Some<T> | None;
 export interface UserProfile {
     userType: UserType;
     name: string;
-    showResidentProfileReport: boolean;
     relatedResidentIds: Array<bigint>;
 }
 export interface PharmacyInfo {
@@ -93,6 +92,13 @@ export interface ResponsibleContact {
     isPrimary: boolean;
     phone: string;
 }
+export interface DisplayPreferences {
+    showPrintProfileButton: boolean;
+    residentProfileEditorBackgroundMode: BackgroundMode;
+}
+export interface AppSettings {
+    displayPreferences: DisplayPreferences;
+}
 export interface DailyVitals {
     id: bigint;
     temperatureUnit: string;
@@ -128,6 +134,10 @@ export interface InsuranceInfo {
     medicaidNumber?: string;
     policyNumber: string;
     medicareNumber?: string;
+}
+export enum BackgroundMode {
+    solidBlack = "solidBlack",
+    solidWhite = "solidWhite"
 }
 export enum CodeStatus {
     dnr = "dnr",
@@ -166,6 +176,7 @@ export interface backendInterface {
     discontinueMedication(residentId: ResidentId, medicationId: MedicationId): Promise<void>;
     getADLRecords(residentId: ResidentId): Promise<Array<ADLRecord>>;
     getAllResidents(): Promise<Array<Resident>>;
+    getAppSettings(): Promise<AppSettings>;
     getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
     getCodeStatus(residentId: ResidentId): Promise<CodeStatus | null>;
@@ -189,6 +200,7 @@ export interface backendInterface {
     reactivateMedication(residentId: ResidentId, medicationId: MedicationId): Promise<void>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
     updateCodeStatus(residentId: ResidentId, newCodeStatus: CodeStatus, notes: string): Promise<void>;
+    updateDisplayPreferences(preferences: DisplayPreferences): Promise<void>;
     updateInsuranceInfo(residentId: ResidentId, insuranceId: bigint, updatedInsurance: InsuranceInfo): Promise<void>;
     updateMedication(residentId: ResidentId, medicationId: MedicationId, updatedMedication: Medication): Promise<void>;
     updatePharmacyInfo(residentId: ResidentId, pharmacyId: bigint, updatedPharmacy: PharmacyInfo): Promise<void>;

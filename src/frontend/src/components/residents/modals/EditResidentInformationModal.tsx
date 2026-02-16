@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useUpdateResident } from '../../../hooks/useQueries';
 import { Resident, ResidentStatus, CodeStatus } from '../../../backend';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { useResidentProfileEditorBackgroundMode } from '../../../hooks/useResidentProfileEditorBackgroundMode';
 
 interface EditResidentInformationModalProps {
   resident: Resident;
@@ -16,6 +17,7 @@ interface EditResidentInformationModalProps {
 
 export default function EditResidentInformationModal({ resident, onClose }: EditResidentInformationModalProps) {
   const updateResident = useUpdateResident();
+  const { className: modeClassName } = useResidentProfileEditorBackgroundMode();
 
   const [firstName, setFirstName] = useState(resident.firstName);
   const [lastName, setLastName] = useState(resident.lastName);
@@ -64,7 +66,7 @@ export default function EditResidentInformationModal({ resident, onClose }: Edit
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] dialog-solid-white">
+      <DialogContent className={`max-w-2xl max-h-[90vh] ${modeClassName}`}>
         <DialogHeader>
           <DialogTitle>Edit Resident Information</DialogTitle>
           <DialogDescription>

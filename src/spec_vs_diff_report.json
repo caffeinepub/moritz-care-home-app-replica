@@ -1,78 +1,66 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-16T21:19:02.567Z",
-  "summary": "Diff implements the new Resident Profile sidebar sections and adds add/edit pages for Responsible Persons, Pharmacy, Insurance, and Physicians, plus backend type/migration work for multi-entry pharmacy/insurance. However, the Responsible Persons feature does not match the requested fax field (it uses an email field and “Primary” flag), and several unrelated UI/feature changes were introduced (medication PRN behavior, dashboard sorting, global dialog background enforcement, etc.).",
+  "generatedAt": "2026-02-16T22:24:42.211Z",
+  "summary": "Backend displayPreferences were extended with a residentProfileEditorBackgroundMode field (white/black) and migration logic was added to default it to #solidWhite. Frontend adds a hook and CSS classes to apply the mode, and resident-profile edit pages/modals appear to be wrapped/styled accordingly. However, the diff excerpt for SettingsPage is truncated before showing the new UI control and save button wiring, so REQ-2 cannot be fully verified from the provided evidence.",
   "missing_requirements": [
     {
       "id": "REQ-2",
-      "requirement": "Responsible Persons entries must have fields: Name, Relationship, Phone Number, Fax Number (no email), and list/table and add/edit screens must store/display those fields.",
-      "reason": "Frontend Responsible Persons list and add/edit forms use `email` (labeled “Email (Fax)”) and `isPrimary` rather than a dedicated `fax` field; table column labeled “Fax” renders `contact.email`. Backend `ResponsibleContact` type also contains `email` and no `fax` field, so it cannot persist/return the required fax field as specified.",
+      "requirement": "Settings page includes a clearly labeled control under Display Preferences to switch resident profile editor background between solid white and solid black, and uses the existing Save Changes flow (button appears on change and persists on save/reload).",
+      "reason": "SettingsPage.tsx diff is truncated before the section where the new control and Save Changes UI would be rendered; while imports/state/hasChanges/handleSave indicate intent, the actual labeled toggle/select control and Save Changes button behavior are not visible in the provided diff excerpt.",
       "evidence": [
-        "frontend/src/components/resident-profile/sections/ResponsiblePersonsSection.tsx",
-        "frontend/src/pages/resident-profile/responsible-persons/ResponsiblePersonAddPage.tsx",
-        "frontend/src/pages/resident-profile/responsible-persons/ResponsiblePersonEditPage.tsx",
-        "backend/main.mo",
-        "backend/migration.mo"
+        "frontend/src/pages/SettingsPage.tsx (truncated)"
       ]
     }
   ],
   "hallucinated_features": [
     {
-      "description": "Added/used Responsible Person fields and UI not requested: `email` field, `isPrimary` flag, “Primary” badge, and “Set as Primary Contact” checkbox.",
-      "reason": "REQ-2 specifies fields Name, Relationship, Phone Number, Fax Number only; diff implements email + isPrimary and uses email as fax.",
+      "description": "Added/changed daily vitals modal behavior and styling (two-column layout, unit selector, optional glucose, dialog-solid-white class).",
+      "reason": "Not requested; BuildRequest only concerns a settings toggle for resident profile editor white/black background.",
       "evidence": [
-        "frontend/src/components/resident-profile/sections/ResponsiblePersonsSection.tsx",
-        "frontend/src/pages/resident-profile/responsible-persons/ResponsiblePersonAddPage.tsx",
-        "frontend/src/pages/resident-profile/responsible-persons/ResponsiblePersonEditPage.tsx",
-        "backend/main.mo",
-        "backend/migration.mo"
+        "frontend/src/components/vitals/modals/RecordDailyVitalsModal.tsx (mentioned in frontend-file-summaries.txt)"
       ]
     },
     {
-      "description": "Medication add/edit behavior changes (PRN checkbox affecting administration times/routes).",
-      "reason": "BuildRequest explicitly says not to redesign unrelated Resident Profile features (e.g., Medications/MAR/Vitals/ADL) beyond what is necessary for sidebar integration.",
+      "description": "App shell/sidebar/navigation redesign (collapsible sidebar, mobile hamburger, footer attribution).",
+      "reason": "Not requested; outside the editor background toggle scope.",
       "evidence": [
-        "frontend-file-summaries.txt (frontend/src/components/medications/modals/AddMedicationModal.tsx, EditMedicationModal.tsx)"
+        "frontend/src/components/layout/AppShell.tsx (mentioned in frontend-file-summaries.txt)"
       ]
     },
     {
-      "description": "Dashboard sorting/filtering behavior updates (room-number-first sorting and secondary sort controls).",
-      "reason": "Not requested by BuildRequest; unrelated to Resident Profile sidebar/add-edit flows.",
+      "description": "Dashboard page changes (stats cards, filtering, status tabs, sorting controls, loading-state handling changes).",
+      "reason": "Not requested; unrelated to settings/editor background toggle.",
       "evidence": [
-        "frontend-file-summaries.txt (frontend/src/pages/ResidentDashboardPage.tsx)"
+        "frontend/src/pages/ResidentDashboardPage.tsx (mentioned in frontend-file-summaries.txt)"
       ]
     },
     {
-      "description": "Global CSS enforcement making all Radix dialog/popover/dropdown/select surfaces render with solid opaque backgrounds; added other global styling tweaks (e.g., physician signature switch thumb).",
-      "reason": "REQ-8 only requests coherent theme for new sidebar sections and add/edit screens; global enforcement across all dialogs/overlays is broader than requested and affects unrelated UI.",
+      "description": "Medication modals changes (PRN checkbox behavior, administration routes list changes).",
+      "reason": "Not requested; unrelated feature area.",
       "evidence": [
-        "frontend-file-summaries.txt (frontend/src/index.css)"
+        "frontend/src/components/medications/modals/AddMedicationModal.tsx (mentioned in frontend-file-summaries.txt)",
+        "frontend/src/components/medications/modals/EditMedicationModal.tsx (mentioned in frontend-file-summaries.txt)"
       ]
     },
     {
-      "description": "Vitals modal layout/styling changes (solid white dialog background via dialog-solid-white class).",
-      "reason": "Unrelated to requested Resident Profile sidebar/add-edit screens; BuildRequest lists Vitals as non-goal for redesign beyond necessary integration.",
+      "description": "Tailwind configuration/theme extensions for general design.",
+      "reason": "Not requested; BuildRequest explicitly avoided introducing broader theming systems beyond the specific editor background behavior.",
       "evidence": [
-        "frontend-file-summaries.txt (frontend/src/components/vitals/modals/RecordDailyVitalsModal.tsx)"
+        "frontend/tailwind.config.js (mentioned in frontend-file-summaries.txt)"
       ]
     }
   ],
-  "confidence": 0.74,
+  "confidence": 0.66,
   "changed_files": [
     "backend/main.mo",
     "backend/migration.mo",
     "frontend-file-summaries.txt",
-    "frontend/src/App.tsx",
-    "frontend/src/components/resident-profile/sections/InsuranceInformationSection.tsx",
-    "frontend/src/components/resident-profile/sections/PharmacyInformationSection.tsx",
-    "frontend/src/components/resident-profile/sections/PhysicianInformationSection.tsx",
-    "frontend/src/components/resident-profile/sections/ResponsiblePersonsSection.tsx",
-    "frontend/src/components/residents/ResidentProfilePrintReport.tsx",
-    "frontend/src/components/residents/modals/AddNewResidentModal.tsx",
+    "frontend/src/components/resident-profile/ResidentProfileEditorSurface.tsx",
     "frontend/src/components/residents/modals/EditResidentInformationModal.tsx",
-    "frontend/src/hooks/useQueries.ts",
-    "frontend/src/pages/ResidentProfilePage.tsx",
+    "frontend/src/hooks/useResidentProfileEditorBackgroundMode.ts",
+    "frontend/src/index.css",
+    "frontend/src/pages/SettingsPage.tsx",
     "frontend/src/pages/resident-profile/insurance/InsuranceAddPage.tsx",
     "frontend/src/pages/resident-profile/insurance/InsuranceEditPage.tsx",
     "frontend/src/pages/resident-profile/pharmacy/PharmacyAddPage.tsx",

@@ -8,6 +8,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { ArrowLeft } from 'lucide-react';
 import { useAddResponsibleContact } from '../../../hooks/useQueries';
 import type { ResponsibleContact } from '../../../backend';
+import ResidentProfileEditorSurface from '../../../components/resident-profile/ResidentProfileEditorSurface';
 
 export default function ResponsiblePersonAddPage() {
   const { residentId } = useParams({ from: '/resident/$residentId/responsible-persons/add' });
@@ -43,14 +44,14 @@ export default function ResponsiblePersonAddPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <ResidentProfileEditorSurface className="min-h-screen">
       <div className="container mx-auto px-4 py-8">
         <Button variant="ghost" onClick={() => navigate({ to: `/resident/${residentId}` })} className="mb-6">
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back to Resident Profile
         </Button>
 
-        <Card className="max-w-2xl mx-auto bg-white">
+        <Card className="max-w-2xl mx-auto">
           <CardHeader>
             <CardTitle>Add Responsible Person</CardTitle>
           </CardHeader>
@@ -121,6 +122,6 @@ export default function ResponsiblePersonAddPage() {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </ResidentProfileEditorSurface>
   );
 }

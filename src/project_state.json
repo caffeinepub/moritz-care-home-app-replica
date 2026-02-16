@@ -1,59 +1,26 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Resident Profile will be expanded with new sidebar tabs/sections for Responsible Persons, Pharmacy Information, Insurance Information, and Physician Information, each supporting multiple entries and managed via separate add/edit screens.",
+  "summary": "New project",
   "architectural_notes": [
-    "New Resident Profile sections should be accessible as separate sidebar tabs/sections, using separate add/edit screens with a solid white background.",
-    "Each new Resident Profile section (Responsible Persons, Pharmacy, Insurance, Physician) must support multiple entries per resident."
+    "Implement a resident-profile editing theme mode (white/black) controlled via Settings with automatic high-contrast text and form styling."
   ],
   "known_issues": [],
   "isFixRequest": false,
   "existing_features": [
     {
-      "id": "feature-update-the-resident-profile-page-to-include-a-left-sidebar-navigation-with-dedicated-sections-tabs-for-responsible-persons-pharmacy-information-insurance-information-and-physician-information-accessible-from-within-the-resident-s-profile-view",
-      "title": "Update the Resident Profile page to include a left sidebar/navigation with dedicated sections (tabs) for: Responsible Persons, Pharmacy Information, Insurance Information, and Physician Information, accessible from within the resident’s profile view.",
-      "reqIds": [
-        "REQ-1"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-implement-separate-add-and-edit-screens-solid-white-background-for-managing-multiple-responsible-persons-entries-per-resident-with-fields-name-relationship-phone-number-fax-number",
-      "title": "Implement separate add and edit screens (solid white background) for managing multiple Responsible Persons entries per resident with fields: Name, Relationship, Phone Number, Fax Number.",
+      "id": "feature-update-the-settings-page-to-include-a-new-toggle-control-under-display-preferences-that-lets-the-user-switch-the-resident-profile-editor-background-between-solid-white-and-solid-black-and-save-it-using-the-existing-save-changes-flow",
+      "title": "Update the Settings page to include a new toggle control under Display Preferences that lets the user switch the resident profile editor background between solid white and solid black, and save it using the existing Save Changes flow.",
       "reqIds": [
         "REQ-2"
       ],
       "version": 1
     },
     {
-      "id": "feature-implement-separate-add-and-edit-screens-solid-white-background-for-managing-multiple-pharmacy-information-entries-per-resident-with-fields-pharmacy-name-address-phone-number-fax-number",
-      "title": "Implement separate add and edit screens (solid white background) for managing multiple Pharmacy Information entries per resident with fields: Pharmacy Name, Address, Phone Number, Fax Number.",
+      "id": "feature-apply-the-selected-solid-white-solid-black-background-mode-to-all-resident-profile-editing-experiences-modal-and-form-pages-and-automatically-adjust-text-label-input-select-and-textarea-styling-to-ensure-strong-contrast-and-readability-in-both-modes",
+      "title": "Apply the selected solid white/solid black background mode to all resident profile editing experiences (modal and form pages), and automatically adjust text, label, input, select, and textarea styling to ensure strong contrast and readability in both modes.",
       "reqIds": [
         "REQ-3"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-implement-separate-add-and-edit-screens-solid-white-background-for-managing-multiple-insurance-information-entries-per-resident-with-fields-insurance-name-policy-number-medicare-id-number-medicaid-id-number",
-      "title": "Implement separate add and edit screens (solid white background) for managing multiple Insurance Information entries per resident with fields: Insurance Name, Policy Number, Medicare ID Number, Medicaid ID Number.",
-      "reqIds": [
-        "REQ-4"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-add-a-physician-information-sidebar-section-that-allows-adding-and-editing-multiple-physician-entries-for-a-resident-via-separate-add-edit-screens-solid-white-background-using-the-existing-physician-data-shape-currently-supported-by-the-backend-name-specialty-contact-info-unless-additional-fields-are-explicitly-specified-later",
-      "title": "Add a Physician Information sidebar section that allows adding and editing multiple physician entries for a resident via separate add/edit screens (solid white background), using the existing physician data shape currently supported by the backend (name, specialty, contact info) unless additional fields are explicitly specified later.",
-      "reqIds": [
-        "REQ-5"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-apply-a-coherent-visual-theme-to-the-new-resident-profile-sidebar-sections-and-add-edit-screens-keeping-forms-on-a-solid-white-background-as-requested-and-ensuring-styling-is-consistent-with-the-rest-of-the-app-tailwind-existing-ui-components",
-      "title": "Apply a coherent visual theme to the new Resident Profile sidebar sections and add/edit screens, keeping forms on a solid white background as requested, and ensuring styling is consistent with the rest of the app (Tailwind + existing UI components).",
-      "reqIds": [
-        "REQ-8"
       ],
       "version": 1
     }
@@ -61,46 +28,28 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Add 'Responsible Persons' tab in Resident Profile sidebar with separate add/edit screens; store multiple entries with fields: Name, Relationship, Phone Number, Fax Number.",
+      "summary": "Add Settings toggle for solid white/solid black background in resident profile editor; auto-adjust text and form styling for contrast/visibility",
       "reqIds": [],
       "status": "pending"
     },
     {
       "id": "AR-2",
-      "summary": "Add 'Pharmacy Information' tab in Resident Profile sidebar with separate add/edit screens; store multiple entries with fields: Pharmacy Name, Address, Phone Number, Fax Number.",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-3",
-      "summary": "Add 'Insurance Information' tab in Resident Profile sidebar with separate add/edit screens; store multiple entries with fields: Insurance Name, Policy Number, Medicare ID Number, Medicaid ID Number.",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-4",
-      "summary": "Add 'Physician Information' tab in Resident Profile sidebar with separate add/edit screens; store multiple entries (fields TBD).",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-10",
-      "summary": "Update the backend resident data model and APIs to support multiple entries for Pharmacy Information and Insurance Information (currently single optional records), and ensure IDs are available to reliably edit specific entries.",
+      "summary": "Extend backend application display preferences to include a resident profile editor background mode toggle with two options (solid white and solid black), and expose it via the existing getAppSettings and updateDisplayPreferences APIs.",
       "reqIds": [
-        "REQ-6"
+        "REQ-1"
       ],
       "status": "pending"
     },
     {
-      "id": "AR-11",
-      "summary": "Implement an upgrade-safe state migration so existing production data is preserved when changing from single-record pharmacy/insurance storage to multi-entry storage, and when extending Responsible Contacts/Persons fields.",
+      "id": "AR-5",
+      "summary": "If the backend state schema requires upgrade handling, update the existing migration logic to ensure the new display preference field has a deterministic default after upgrade.",
       "reqIds": [
-        "REQ-7"
+        "REQ-4"
       ],
       "status": "pending"
     }
   ],
-  "projectName": "Resident Profiles",
+  "projectName": "Moritz Care Home",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }
