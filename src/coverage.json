@@ -1,33 +1,18 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-15T18:13:32.233Z",
+  "generatedAt": "2026-02-15T23:32:39.162Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 3,
-    "implemented": 2,
+    "total": 1,
+    "implemented": 1,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Add a user setting that controls visibility of the “Resident Profile Report” feature on the Resident Profile page, exposed as a toggle in a Settings UI (user-facing label in English).",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/pages/SettingsPage.tsx",
-          "frontend/src/App.tsx",
-          "frontend/src/components/layout/AppShell.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/pages/SettingsPage.tsx",
-          "frontend/src/App.tsx",
-          "frontend/src/components/layout/AppShell.tsx"
-        ]
-      },
-      {
-        "id": "REQ-2",
-        "summary": "When the Resident Profile Report setting is OFF, hide the Resident Profile Report-related UI on the Resident Profile page, including the Print Profile action and the print-only report content (ResidentProfilePrintReport). When the setting is ON, preserve the current behavior.",
+        "summary": "Update the existing toggle switch labeled “Show Physician Signature Fields” on the Resident Profile page so that only the switch knob (thumb) changes color: white when ON/checked and green when OFF/unchecked. Do not change the label/text colors.",
         "status": "implemented",
         "plannedFiles": [
           "frontend/src/pages/ResidentProfilePage.tsx"
@@ -35,32 +20,16 @@
         "matchedFiles": [
           "frontend/src/pages/ResidentProfilePage.tsx"
         ]
-      },
-      {
-        "id": "REQ-3",
-        "summary": "Extend the backend user profile data model to store the Resident Profile Report visibility preference, and update the existing profile save/load flows to include this new preference (with a sensible default for new users).",
-        "status": "unknown",
-        "plannedFiles": [],
-        "matchedFiles": []
       }
     ]
   },
   "changedFiles": [
-    "backend/main.mo",
-    "backend/migration.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/App.tsx",
-    "frontend/src/backend.d.ts",
-    "frontend/src/backend.ts",
-    "frontend/src/components/auth/ProfileSetupModal.tsx",
-    "frontend/src/components/layout/AppShell.tsx",
-    "frontend/src/declarations/backend.did.d.ts",
-    "frontend/src/declarations/backend.did.js",
+    "frontend/src/index.css",
     "frontend/src/pages/ResidentProfilePage.tsx",
-    "frontend/src/pages/SettingsPage.tsx",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

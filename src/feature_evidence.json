@@ -2,29 +2,8 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-add-a-user-setting-that-controls-visibility-of-the-resident-profile-report-feature-on-the-resident-profile-page-exposed-as-a-toggle-in-a-settings-ui-user-facing-label-in-english",
-      "featureTitle": "Add a user setting that controls visibility of the “Resident Profile Report” feature on the Resident Profile page, exposed as a toggle in a Settings UI (user-facing label in English).",
-      "files": [
-        "frontend/src/App.tsx",
-        "frontend/src/components/layout/AppShell.tsx",
-        "frontend/src/pages/SettingsPage.tsx"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-1"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-when-the-resident-profile-report-setting-is-off-hide-the-resident-profile-report-related-ui-on-the-resident-profile-page-including-the-print-profile-action-and-the-print-only-report-content-residentprofileprintreport-when-the-setting-is-on-preserve-the-current-behavior",
-      "featureTitle": "When the Resident Profile Report setting is OFF, hide the Resident Profile Report-related UI on the Resident Profile page, including the Print Profile action and the print-only report content (ResidentProfilePrintReport). When the setting is ON, preserve the current behavior.",
+      "featureId": "feature-update-the-existing-toggle-switch-labeled-show-physician-signature-fields-on-the-resident-profile-page-so-that-only-the-switch-knob-thumb-changes-color-white-when-on-checked-and-green-when-off-unchecked-do-not-change-the-label-text-colors",
+      "featureTitle": "Update the existing toggle switch labeled “Show Physician Signature Fields” on the Resident Profile page so that only the switch knob (thumb) changes color: white when ON/checked and green when OFF/unchecked. Do not change the label/text colors.",
       "files": [
         "frontend/src/pages/ResidentProfilePage.tsx"
       ],
@@ -37,7 +16,7 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-2"
+        "REQ-1"
       ],
       "confidence": "high"
     }

@@ -1,47 +1,23 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Settings toggle to show/hide Resident Profile Report on Resident Profile page",
+  "title": "Resident Profile switch thumb color update (ON white, OFF green)",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Add a Settings UI with an English-labeled toggle to control whether the Resident Profile Report feature is visible, and persist the choice per signed-in user via the existing profile save/load flow.",
+      "summary": "Adjust the “Show Physician Signature Fields” switch so only its thumb changes to white when ON and green when OFF, without modifying label styling or other switches, and without editing shadcn/ui files.",
       "acceptanceCriteria": [
-        "There is a Settings UI reachable in the app that contains a toggle for the Resident Profile Report feature.",
-        "The toggle state is persisted per signed-in user (stored in the backend and reloaded on sign-in/reload).",
-        "User-facing text for the setting is in English."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/pages/SettingsPage.tsx",
-          "operation": "create",
-          "description": "Create a user-accessible Settings page that loads the signed-in user's profile (via existing profile query) and presents a toggle (Switch + Label) for \"Resident Profile Report\" visibility; on change, save the updated profile using the existing save profile mutation so the value persists per user. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/App.tsx",
-          "operation": "modify",
-          "description": "Register a new /settings route pointing to the SettingsPage so the Settings UI is reachable in the app (ensure route is included in the router tree)."
-        },
-        {
-          "path": "frontend/src/components/layout/AppShell.tsx",
-          "operation": "modify",
-          "description": "Add navigation to the Settings page from the authenticated app shell (e.g., a header button/link) so users can reach Settings from anywhere appropriate. Verify the component's usage instructions before implementing."
-        }
-      ]
-    },
-    {
-      "id": "REQ-2",
-      "summary": "Conditionally hide the Resident Profile Report-related UI (Print Profile action and ResidentProfilePrintReport print-only content) on the Resident Profile page when the setting is OFF, without changing other sections.",
-      "acceptanceCriteria": [
-        "With the setting OFF, the Resident Profile page does not show the “Print Profile” button and does not render the ResidentProfilePrintReport component (so printing does not include the report).",
-        "With the setting ON, the “Print Profile” button and ResidentProfilePrintReport behave as they do today.",
-        "No other Resident Profile page sections/tabs are removed or changed by this setting."
+        "On the Resident Profile page, the “Show Physician Signature Fields” switch thumb is green when unchecked/off.",
+        "On the Resident Profile page, the “Show Physician Signature Fields” switch thumb is white when checked/on.",
+        "The switch track/background behavior is not changed beyond what is necessary to set the thumb color.",
+        "The “Show Physician Signature Fields” label text color and styling do not change between on/off states.",
+        "Implementation does not require editing any files under frontend/src/components/ui (compose via className and/or global CSS selectors instead)."
       ],
       "file_operations": [
         {
           "path": "frontend/src/pages/ResidentProfilePage.tsx",
           "operation": "modify",
-          "description": "Read the current user's showResidentProfileReport preference from the loaded user profile (default to ON when missing) and use it to conditionally render (a) the \"Print Profile\" button and (b) the ResidentProfilePrintReport component; ensure all other Resident Profile content remains unchanged. Verify the component's usage instructions before implementing."
+          "description": "Update the Switch usage for id=\"physician-signature\" to style only the internal thumb via Switch className (e.g., using Tailwind arbitrary selectors targeting the immediate child/thumb element with state-based variants) so the thumb is green when unchecked and white when checked, while keeping the existing label classes unchanged and avoiding any changes that would affect other Switch instances."
         }
       ]
     }

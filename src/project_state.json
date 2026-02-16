@@ -1,26 +1,16 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Add a settings-controlled toggle to hide/show the Resident Profile Report section on a Resident’s Profile page.",
-  "architectural_notes": [
-    "Introduce a configurable settings flag controlling visibility of the 'Resident Profile Report' section on Resident Profile pages."
-  ],
+  "summary": "New project",
+  "architectural_notes": [],
   "known_issues": [],
   "isFixRequest": false,
   "existing_features": [
     {
-      "id": "feature-add-a-user-setting-that-controls-visibility-of-the-resident-profile-report-feature-on-the-resident-profile-page-exposed-as-a-toggle-in-a-settings-ui-user-facing-label-in-english",
-      "title": "Add a user setting that controls visibility of the “Resident Profile Report” feature on the Resident Profile page, exposed as a toggle in a Settings UI (user-facing label in English).",
+      "id": "feature-update-the-existing-toggle-switch-labeled-show-physician-signature-fields-on-the-resident-profile-page-so-that-only-the-switch-knob-thumb-changes-color-white-when-on-checked-and-green-when-off-unchecked-do-not-change-the-label-text-colors",
+      "title": "Update the existing toggle switch labeled “Show Physician Signature Fields” on the Resident Profile page so that only the switch knob (thumb) changes color: white when ON/checked and green when OFF/unchecked. Do not change the label/text colors.",
       "reqIds": [
         "REQ-1"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-when-the-resident-profile-report-setting-is-off-hide-the-resident-profile-report-related-ui-on-the-resident-profile-page-including-the-print-profile-action-and-the-print-only-report-content-residentprofileprintreport-when-the-setting-is-on-preserve-the-current-behavior",
-      "title": "When the Resident Profile Report setting is OFF, hide the Resident Profile Report-related UI on the Resident Profile page, including the Print Profile action and the print-only report content (ResidentProfilePrintReport). When the setting is ON, preserve the current behavior.",
-      "reqIds": [
-        "REQ-2"
       ],
       "version": 1
     }
@@ -28,20 +18,12 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Hide 'Resident Profile Report' on Resident’s Profile behind a toggle in settings",
+      "summary": "Update 'Show Physician Signature Fields' toggle styling so the knob is white when ON and green when OFF (no label/text color changes)",
       "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-4",
-      "summary": "Extend the backend user profile data model to store the Resident Profile Report visibility preference, and update the existing profile save/load flows to include this new preference (with a sensible default for new users).",
-      "reqIds": [
-        "REQ-3"
-      ],
       "status": "pending"
     }
   ],
-  "projectName": "Add settings toggle to show/hide Resident Profile Report on Resident Profile page",
+  "projectName": "Update “Show Physician Signature Fields” switch knob colors (ON white, OFF green)",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

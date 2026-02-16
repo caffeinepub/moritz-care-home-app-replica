@@ -1,11 +1,11 @@
 # Specification
 
 ## Summary
-**Goal:** Add a per-user setting to show or hide the “Resident Profile Report” feature on the Resident Profile page.
+**Goal:** Adjust the “Show Physician Signature Fields” toggle on the Resident Profile page so only the switch knob (thumb) changes color based on on/off state.
 
 **Planned changes:**
-- Add a Settings UI entry with an English-labeled toggle controlling visibility of the Resident Profile Report feature.
-- Persist the toggle state per signed-in user in the backend user profile data and load it on sign-in/reload (default ON for new users to keep current behavior).
-- Update the Resident Profile page to conditionally hide the “Print Profile” action and the print-only report content (ResidentProfilePrintReport) when the setting is OFF, without changing any other sections/tabs.
+- Update styling for the Resident Profile page’s “Show Physician Signature Fields” switch so the thumb is green when OFF/unchecked and white when ON/checked.
+- Apply the styling via `className` and/or global CSS selectors without modifying any files under `frontend/src/components/ui`.
+- Ensure the label/text styling remains unchanged between toggle states, and avoid affecting other toggles in the app.
 
-**User-visible outcome:** Users can open Settings and turn the Resident Profile Report feature on or off; when off, the Resident Profile page no longer shows “Print Profile” and printing won’t include the ResidentProfilePrintReport content.
+**User-visible outcome:** On the Resident Profile page, the “Show Physician Signature Fields” switch knob appears green when off and white when on, with no change to the label styling.

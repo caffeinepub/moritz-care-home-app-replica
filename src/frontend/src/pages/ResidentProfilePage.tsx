@@ -102,7 +102,7 @@ export default function ResidentProfilePage() {
                         id="physician-signature"
                         checked={showPhysicianSignature}
                         onCheckedChange={setShowPhysicianSignature}
-                        className="data-[state=checked]:bg-primary"
+                        className="physician-signature-switch"
                       />
                       <Label 
                         htmlFor="physician-signature" 
@@ -421,18 +421,25 @@ export default function ResidentProfilePage() {
                       <div className="space-y-4">
                         {resident.dailyVitals.map((vitals) => (
                           <div key={vitals.id.toString()} className="border rounded-lg p-4">
+                            <div className="flex items-start justify-between mb-3">
+                              <div>
+                                <p className="font-medium">
+                                  {vitals.measurementDate} at {vitals.measurementTime}
+                                </p>
+                              </div>
+                            </div>
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                               <div>
-                                <p className="text-sm text-muted-foreground">Date & Time</p>
-                                <p className="font-medium">{vitals.measurementDate} {vitals.measurementTime}</p>
-                              </div>
-                              <div>
                                 <p className="text-sm text-muted-foreground">Temperature</p>
-                                <p className="font-medium">{vitals.temperature}°{vitals.temperatureUnit}</p>
+                                <p className="font-medium">
+                                  {vitals.temperature}°{vitals.temperatureUnit}
+                                </p>
                               </div>
                               <div>
                                 <p className="text-sm text-muted-foreground">Blood Pressure</p>
-                                <p className="font-medium">{vitals.bloodPressureSystolic.toString()}/{vitals.bloodPressureDiastolic.toString()}</p>
+                                <p className="font-medium">
+                                  {vitals.bloodPressureSystolic.toString()}/{vitals.bloodPressureDiastolic.toString()}
+                                </p>
                               </div>
                               <div>
                                 <p className="text-sm text-muted-foreground">Pulse</p>
@@ -488,9 +495,13 @@ export default function ResidentProfilePage() {
                               <div>
                                 <p className="font-medium">{record.activity}</p>
                                 <p className="text-sm text-muted-foreground">Date: {record.date}</p>
-                                <p className="text-sm text-muted-foreground">Assistance Level: {record.assistanceLevel}</p>
+                                <p className="text-sm text-muted-foreground">
+                                  Assistance Level: {record.assistanceLevel}
+                                </p>
                                 {record.staffNotes && (
-                                  <p className="text-sm text-muted-foreground mt-2">Notes: {record.staffNotes}</p>
+                                  <p className="text-sm text-muted-foreground mt-2">
+                                    Notes: {record.staffNotes}
+                                  </p>
                                 )}
                               </div>
                             </div>

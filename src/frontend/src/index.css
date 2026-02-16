@@ -78,6 +78,15 @@
   }
 }
 
+/* Custom styling for physician signature switch thumb */
+.physician-signature-switch[data-state="unchecked"] > span[data-state="unchecked"] {
+  background-color: oklch(65% 0.15 150) !important;
+}
+
+.physician-signature-switch[data-state="checked"] > span[data-state="checked"] {
+  background-color: white !important;
+}
+
 /* Global enforcement: all dialogs, popovers, dropdowns, and select menus must be solid white */
 [data-radix-dialog-content],
 [data-radix-popover-content],

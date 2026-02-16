@@ -1,72 +1,37 @@
 {
   "kind": "build_request",
-  "title": "Add settings toggle to show/hide Resident Profile Report on Resident Profile page",
+  "title": "Update “Show Physician Signature Fields” switch knob colors (ON white, OFF green)",
   "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Add a user setting that controls visibility of the “Resident Profile Report” feature on the Resident Profile page, exposed as a toggle in a Settings UI (user-facing label in English).",
-      "target": "both",
-      "source": {
-        "messageIds": [
-          "msg-1"
-        ],
-        "quotes": [
-          "Hide it behind a toggle in settings"
-        ]
-      },
-      "acceptanceCriteria": [
-        "There is a Settings UI reachable in the app that contains a toggle for the Resident Profile Report feature.",
-        "The toggle state is persisted per signed-in user (stored in the backend and reloaded on sign-in/reload).",
-        "User-facing text for the setting is in English."
-      ]
-    },
-    {
-      "id": "REQ-2",
-      "text": "When the Resident Profile Report setting is OFF, hide the Resident Profile Report-related UI on the Resident Profile page, including the Print Profile action and the print-only report content (ResidentProfilePrintReport). When the setting is ON, preserve the current behavior.",
+      "text": "Update the existing toggle switch labeled “Show Physician Signature Fields” on the Resident Profile page so that only the switch knob (thumb) changes color: white when ON/checked and green when OFF/unchecked. Do not change the label/text colors.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-6"
         ],
         "quotes": [
-          "Hide it behind a toggle in settings"
+          "1. Show Physician Signature Fields\n2. the knob\n3. no"
         ]
       },
       "acceptanceCriteria": [
-        "With the setting OFF, the Resident Profile page does not show the “Print Profile” button and does not render the ResidentProfilePrintReport component (so printing does not include the report).",
-        "With the setting ON, the “Print Profile” button and ResidentProfilePrintReport behave as they do today.",
-        "No other Resident Profile page sections/tabs are removed or changed by this setting."
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "text": "Extend the backend user profile data model to store the Resident Profile Report visibility preference, and update the existing profile save/load flows to include this new preference (with a sensible default for new users).",
-      "target": "backend",
-      "source": {
-        "messageIds": [
-          "msg-1"
-        ],
-        "quotes": [
-          "Hide it behind a toggle in settings"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Backend Candid interface includes the new preference field as part of the user profile (or a dedicated user-settings structure) so it can be saved and fetched for the caller.",
-        "New users who have not set the preference yet get a default value that keeps existing behavior (i.e., the report is available unless explicitly turned off).",
-        "Existing frontend profile setup/save flows continue to work after the backend type/interface update."
+        "On the Resident Profile page, the “Show Physician Signature Fields” switch thumb is green when unchecked/off.",
+        "On the Resident Profile page, the “Show Physician Signature Fields” switch thumb is white when checked/on.",
+        "The switch track/background behavior is not changed beyond what is necessary to set the thumb color.",
+        "The “Show Physician Signature Fields” label text color and styling do not change between on/off states.",
+        "Implementation does not require editing any files under frontend/src/components/ui (compose via className and/or global CSS selectors instead)."
       ]
     }
   ],
   "constraints": [
-    "Frontend files under frontend/src/components/ui must not be edited; compose existing UI components instead.",
-    "Do not modify immutable frontend hook files listed in SYSTEM_CONTEXT (use new hooks/modules/components where needed).",
-    "Backend must remain a single Motoko actor in backend/main.mo; only add a migration file if it is strictly required for state upgrade."
+    "Do not edit any files under frontend/src/components/ui (they are read-only/immutable).",
+    "Use English for any user-facing text."
   ],
   "nonGoals": [
-    "Do not change role-based access rules or introduce new roles/permissions for viewing residents.",
-    "Do not redesign or change the content/layout of ResidentProfilePrintReport beyond conditionally hiding it based on the setting.",
-    "Do not add third-party authentication or any external storage/database."
+    "Do not change toggle label text or add new settings/toggles.",
+    "Do not change backend behavior or persistence for physician signature fields.",
+    "Do not restyle other switches/toggles elsewhere in the app."
   ],
   "imageRequirements": {
     "required": [],
