@@ -1,8 +1,8 @@
-import { Medication } from '../../backend';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Plus, RotateCcw } from 'lucide-react';
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Plus, RotateCcw } from "lucide-react";
+import type { Medication } from "../../backend";
 
 interface MedicationSectionsProps {
   medications: Medication[];
@@ -23,13 +23,13 @@ export default function MedicationSections({
   onReactivateMedication,
   physicians = [],
 }: MedicationSectionsProps) {
-  const activeMedications = medications.filter(m => m.isActive);
-  const discontinuedMedications = medications.filter(m => !m.isActive);
+  const activeMedications = medications.filter((m) => m.isActive);
+  const discontinuedMedications = medications.filter((m) => !m.isActive);
 
   const getPhysicianName = (physicianId?: bigint) => {
-    if (!physicianId) return 'Not specified';
-    const physician = physicians.find(p => p.id === physicianId);
-    return physician ? physician.name : 'Unknown';
+    if (!physicianId) return "Not specified";
+    const physician = physicians.find((p) => p.id === physicianId);
+    return physician ? physician.name : "Unknown";
   };
 
   return (
@@ -49,17 +49,25 @@ export default function MedicationSections({
         </CardHeader>
         <CardContent>
           {activeMedications.length === 0 ? (
-            <p className="text-muted-foreground text-sm">No active medications</p>
+            <p className="text-muted-foreground text-sm">
+              No active medications
+            </p>
           ) : (
             <div className="space-y-4">
               {activeMedications.map((medication) => (
-                <div key={medication.id.toString()} className="border rounded-lg p-4">
+                <div
+                  key={medication.id.toString()}
+                  className="border rounded-lg p-4"
+                >
                   <div className="flex items-start justify-between mb-2">
                     <div>
                       <div className="flex items-center gap-2 mb-1">
                         <p className="font-medium text-lg">{medication.name}</p>
                         {medication.isPRN && (
-                          <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-300">
+                          <Badge
+                            variant="outline"
+                            className="bg-amber-50 text-amber-700 border-amber-300"
+                          >
                             PRN
                           </Badge>
                         )}
@@ -90,18 +98,27 @@ export default function MedicationSections({
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
                       <p className="text-muted-foreground">Route</p>
-                      <p className="font-medium">{medication.administrationRoute}</p>
+                      <p className="font-medium">
+                        {medication.administrationRoute}
+                      </p>
                     </div>
-                    {!medication.isPRN && medication.administrationTimes.length > 0 && (
-                      <div>
-                        <p className="text-muted-foreground">Times</p>
-                        <p className="font-medium">{medication.administrationTimes.join(', ')}</p>
-                      </div>
-                    )}
+                    {!medication.isPRN &&
+                      medication.administrationTimes.length > 0 && (
+                        <div>
+                          <p className="text-muted-foreground">Times</p>
+                          <p className="font-medium">
+                            {medication.administrationTimes.join(", ")}
+                          </p>
+                        </div>
+                      )}
                     {medication.prescribingPhysicianId && (
                       <div>
-                        <p className="text-muted-foreground">Prescribing Physician</p>
-                        <p className="font-medium">{getPhysicianName(medication.prescribingPhysicianId)}</p>
+                        <p className="text-muted-foreground">
+                          Prescribing Physician
+                        </p>
+                        <p className="font-medium">
+                          {getPhysicianName(medication.prescribingPhysicianId)}
+                        </p>
                       </div>
                     )}
                   </div>
@@ -127,13 +144,21 @@ export default function MedicationSections({
           <CardContent>
             <div className="space-y-4">
               {discontinuedMedications.map((medication) => (
-                <div key={medication.id.toString()} className="border rounded-lg p-4 bg-muted/30">
+                <div
+                  key={medication.id.toString()}
+                  className="border rounded-lg p-4 bg-muted/30"
+                >
                   <div className="flex items-start justify-between mb-2">
                     <div>
                       <div className="flex items-center gap-2 mb-1">
-                        <p className="font-medium text-lg text-muted-foreground">{medication.name}</p>
+                        <p className="font-medium text-lg text-muted-foreground">
+                          {medication.name}
+                        </p>
                         {medication.isPRN && (
-                          <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-300">
+                          <Badge
+                            variant="outline"
+                            className="bg-amber-50 text-amber-700 border-amber-300"
+                          >
                             PRN
                           </Badge>
                         )}
@@ -156,25 +181,36 @@ export default function MedicationSections({
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
                       <p className="text-muted-foreground">Route</p>
-                      <p className="font-medium text-muted-foreground">{medication.administrationRoute}</p>
+                      <p className="font-medium text-muted-foreground">
+                        {medication.administrationRoute}
+                      </p>
                     </div>
-                    {!medication.isPRN && medication.administrationTimes.length > 0 && (
-                      <div>
-                        <p className="text-muted-foreground">Times</p>
-                        <p className="font-medium text-muted-foreground">{medication.administrationTimes.join(', ')}</p>
-                      </div>
-                    )}
+                    {!medication.isPRN &&
+                      medication.administrationTimes.length > 0 && (
+                        <div>
+                          <p className="text-muted-foreground">Times</p>
+                          <p className="font-medium text-muted-foreground">
+                            {medication.administrationTimes.join(", ")}
+                          </p>
+                        </div>
+                      )}
                     {medication.prescribingPhysicianId && (
                       <div>
-                        <p className="text-muted-foreground">Prescribing Physician</p>
-                        <p className="font-medium text-muted-foreground">{getPhysicianName(medication.prescribingPhysicianId)}</p>
+                        <p className="text-muted-foreground">
+                          Prescribing Physician
+                        </p>
+                        <p className="font-medium text-muted-foreground">
+                          {getPhysicianName(medication.prescribingPhysicianId)}
+                        </p>
                       </div>
                     )}
                   </div>
                   {medication.notes && (
                     <div className="mt-2">
                       <p className="text-sm text-muted-foreground">Notes</p>
-                      <p className="text-sm text-muted-foreground">{medication.notes}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {medication.notes}
+                      </p>
                     </div>
                   )}
                 </div>

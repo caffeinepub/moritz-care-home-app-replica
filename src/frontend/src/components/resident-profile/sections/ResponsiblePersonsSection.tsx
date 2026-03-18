@@ -1,16 +1,26 @@
-import { useNavigate } from '@tanstack/react-router';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Plus, Edit, Phone, Mail } from 'lucide-react';
-import type { Resident } from '../../../backend';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { useNavigate } from "@tanstack/react-router";
+import { Edit, Mail, Phone, Plus } from "lucide-react";
+import type { Resident } from "../../../backend";
 
 interface ResponsiblePersonsSectionProps {
   resident: Resident;
   canEdit: boolean;
 }
 
-export default function ResponsiblePersonsSection({ resident, canEdit }: ResponsiblePersonsSectionProps) {
+export default function ResponsiblePersonsSection({
+  resident,
+  canEdit,
+}: ResponsiblePersonsSectionProps) {
   const navigate = useNavigate();
 
   const handleAdd = () => {
@@ -18,7 +28,9 @@ export default function ResponsiblePersonsSection({ resident, canEdit }: Respons
   };
 
   const handleEdit = (contactId: bigint) => {
-    navigate({ to: `/resident/${resident.id}/responsible-persons/${contactId}/edit` });
+    navigate({
+      to: `/resident/${resident.id}/responsible-persons/${contactId}/edit`,
+    });
   };
 
   return (
@@ -36,7 +48,9 @@ export default function ResponsiblePersonsSection({ resident, canEdit }: Respons
       </CardHeader>
       <CardContent>
         {resident.responsibleContacts.length === 0 ? (
-          <p className="text-center text-muted-foreground py-8">No responsible persons listed</p>
+          <p className="text-center text-muted-foreground py-8">
+            No responsible persons listed
+          </p>
         ) : (
           <Table>
             <TableHeader>
@@ -45,7 +59,9 @@ export default function ResponsiblePersonsSection({ resident, canEdit }: Respons
                 <TableHead>Relationship</TableHead>
                 <TableHead>Phone</TableHead>
                 <TableHead>Fax</TableHead>
-                {canEdit && <TableHead className="text-right">Actions</TableHead>}
+                {canEdit && (
+                  <TableHead className="text-right">Actions</TableHead>
+                )}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -55,7 +71,9 @@ export default function ResponsiblePersonsSection({ resident, canEdit }: Respons
                     <div className="flex items-center gap-2">
                       {contact.name}
                       {contact.isPrimary && (
-                        <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded">Primary</span>
+                        <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded">
+                          Primary
+                        </span>
                       )}
                     </div>
                   </TableCell>
@@ -74,7 +92,11 @@ export default function ResponsiblePersonsSection({ resident, canEdit }: Respons
                   </TableCell>
                   {canEdit && (
                     <TableCell className="text-right">
-                      <Button variant="ghost" size="sm" onClick={() => handleEdit(contact.id)}>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleEdit(contact.id)}
+                      >
                         <Edit className="w-4 h-4" />
                       </Button>
                     </TableCell>

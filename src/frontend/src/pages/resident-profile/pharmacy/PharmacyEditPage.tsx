@@ -1,31 +1,38 @@
-import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from '@tanstack/react-router';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft } from 'lucide-react';
-import { useGetResident, useUpdatePharmacyInfo } from '../../../hooks/useQueries';
-import type { PharmacyInfo } from '../../../backend';
-import ResidentProfileEditorSurface from '../../../components/resident-profile/ResidentProfileEditorSurface';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { useNavigate, useParams } from "@tanstack/react-router";
+import { ArrowLeft } from "lucide-react";
+import { useEffect, useState } from "react";
+import type { PharmacyInfo } from "../../../backend";
+import ResidentProfileEditorSurface from "../../../components/resident-profile/ResidentProfileEditorSurface";
+import {
+  useGetResident,
+  useUpdatePharmacyInfo,
+} from "../../../hooks/useQueries";
 
 export default function PharmacyEditPage() {
-  const { residentId, pharmacyId } = useParams({ from: '/resident/$residentId/pharmacy/$pharmacyId/edit' });
+  const { residentId, pharmacyId } = useParams({
+    from: "/resident/$residentId/pharmacy/$pharmacyId/edit",
+  });
   const navigate = useNavigate();
   const { data: resident, isLoading } = useGetResident(BigInt(residentId));
   const updatePharmacy = useUpdatePharmacyInfo();
 
   const [formData, setFormData] = useState({
-    name: '',
-    address: '',
-    phone: '',
-    fax: '',
+    name: "",
+    address: "",
+    phone: "",
+    fax: "",
   });
 
   useEffect(() => {
     if (resident) {
-      const pharmacy = resident.pharmacyInfos.find((p) => p.id.toString() === pharmacyId);
+      const pharmacy = resident.pharmacyInfos.find(
+        (p) => p.id.toString() === pharmacyId,
+      );
       if (pharmacy) {
         setFormData({
           name: pharmacy.name,
@@ -68,7 +75,11 @@ export default function PharmacyEditPage() {
   return (
     <ResidentProfileEditorSurface className="min-h-screen">
       <div className="container mx-auto px-4 py-8">
-        <Button variant="ghost" onClick={() => navigate({ to: `/resident/${residentId}` })} className="mb-6">
+        <Button
+          variant="ghost"
+          onClick={() => navigate({ to: `/resident/${residentId}` })}
+          className="mb-6"
+        >
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back to Resident Profile
         </Button>
@@ -84,7 +95,9 @@ export default function PharmacyEditPage() {
                 <Input
                   id="name"
                   value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, name: e.target.value })
+                  }
                   required
                 />
               </div>
@@ -94,7 +107,9 @@ export default function PharmacyEditPage() {
                 <Textarea
                   id="address"
                   value={formData.address}
-                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, address: e.target.value })
+                  }
                   required
                   rows={3}
                 />
@@ -106,7 +121,9 @@ export default function PharmacyEditPage() {
                   id="phone"
                   type="tel"
                   value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, phone: e.target.value })
+                  }
                   required
                 />
               </div>
@@ -117,17 +134,23 @@ export default function PharmacyEditPage() {
                   id="fax"
                   type="tel"
                   value={formData.fax}
-                  onChange={(e) => setFormData({ ...formData, fax: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, fax: e.target.value })
+                  }
                   required
                 />
               </div>
 
               <div className="flex gap-3 justify-end">
-                <Button type="button" variant="outline" onClick={() => navigate({ to: `/resident/${residentId}` })}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => navigate({ to: `/resident/${residentId}` })}
+                >
                   Cancel
                 </Button>
                 <Button type="submit" disabled={updatePharmacy.isPending}>
-                  {updatePharmacy.isPending ? 'Saving...' : 'Save Changes'}
+                  {updatePharmacy.isPending ? "Saving..." : "Save Changes"}
                 </Button>
               </div>
             </form>

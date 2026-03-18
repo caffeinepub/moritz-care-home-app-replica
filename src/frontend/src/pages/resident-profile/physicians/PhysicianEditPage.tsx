@@ -1,29 +1,33 @@
-import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from '@tanstack/react-router';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { ArrowLeft } from 'lucide-react';
-import { useGetResident, useUpdatePhysician } from '../../../hooks/useQueries';
-import type { Physician } from '../../../backend';
-import ResidentProfileEditorSurface from '../../../components/resident-profile/ResidentProfileEditorSurface';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useNavigate, useParams } from "@tanstack/react-router";
+import { ArrowLeft } from "lucide-react";
+import { useEffect, useState } from "react";
+import type { Physician } from "../../../backend";
+import ResidentProfileEditorSurface from "../../../components/resident-profile/ResidentProfileEditorSurface";
+import { useGetResident, useUpdatePhysician } from "../../../hooks/useQueries";
 
 export default function PhysicianEditPage() {
-  const { residentId, physicianId } = useParams({ from: '/resident/$residentId/physicians/$physicianId/edit' });
+  const { residentId, physicianId } = useParams({
+    from: "/resident/$residentId/physicians/$physicianId/edit",
+  });
   const navigate = useNavigate();
   const { data: resident, isLoading } = useGetResident(BigInt(residentId));
   const updatePhysician = useUpdatePhysician();
 
   const [formData, setFormData] = useState({
-    name: '',
-    specialty: '',
-    contactInfo: '',
+    name: "",
+    specialty: "",
+    contactInfo: "",
   });
 
   useEffect(() => {
     if (resident) {
-      const physician = resident.physicians.find((p) => p.id.toString() === physicianId);
+      const physician = resident.physicians.find(
+        (p) => p.id.toString() === physicianId,
+      );
       if (physician) {
         setFormData({
           name: physician.name,
@@ -64,7 +68,11 @@ export default function PhysicianEditPage() {
   return (
     <ResidentProfileEditorSurface className="min-h-screen">
       <div className="container mx-auto px-4 py-8">
-        <Button variant="ghost" onClick={() => navigate({ to: `/resident/${residentId}` })} className="mb-6">
+        <Button
+          variant="ghost"
+          onClick={() => navigate({ to: `/resident/${residentId}` })}
+          className="mb-6"
+        >
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back to Resident Profile
         </Button>
@@ -80,7 +88,9 @@ export default function PhysicianEditPage() {
                 <Input
                   id="name"
                   value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, name: e.target.value })
+                  }
                   required
                 />
               </div>
@@ -90,7 +100,9 @@ export default function PhysicianEditPage() {
                 <Input
                   id="specialty"
                   value={formData.specialty}
-                  onChange={(e) => setFormData({ ...formData, specialty: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, specialty: e.target.value })
+                  }
                   required
                 />
               </div>
@@ -101,17 +113,23 @@ export default function PhysicianEditPage() {
                   id="contactInfo"
                   type="tel"
                   value={formData.contactInfo}
-                  onChange={(e) => setFormData({ ...formData, contactInfo: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, contactInfo: e.target.value })
+                  }
                   required
                 />
               </div>
 
               <div className="flex gap-3 justify-end">
-                <Button type="button" variant="outline" onClick={() => navigate({ to: `/resident/${residentId}` })}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => navigate({ to: `/resident/${residentId}` })}
+                >
                   Cancel
                 </Button>
                 <Button type="submit" disabled={updatePhysician.isPending}>
-                  {updatePhysician.isPending ? 'Saving...' : 'Save Changes'}
+                  {updatePhysician.isPending ? "Saving..." : "Save Changes"}
                 </Button>
               </div>
             </form>

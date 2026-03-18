@@ -1,4 +1,4 @@
-import { Resident, ResidentStatus } from '../backend';
+import { type Resident, ResidentStatus } from "../backend";
 
 /**
  * Numeric-aware room number comparison.
@@ -14,8 +14,8 @@ function compareRoomNumbers(a: string, b: string): number {
     return a.localeCompare(b);
   }
 
-  const aNum = parseInt(aMatch[1], 10);
-  const bNum = parseInt(bMatch[1], 10);
+  const aNum = Number.parseInt(aMatch[1], 10);
+  const bNum = Number.parseInt(bMatch[1], 10);
 
   if (aNum !== bNum) {
     return aNum - bNum;
@@ -40,7 +40,10 @@ function compareByName(a: Resident, b: Resident): number {
  */
 function compareByStatus(a: Resident, b: Resident): number {
   // Active (0) comes before Discharged (1)
-  const statusOrder = { [ResidentStatus.active]: 0, [ResidentStatus.discharged]: 1 };
+  const statusOrder = {
+    [ResidentStatus.active]: 0,
+    [ResidentStatus.discharged]: 1,
+  };
   const aOrder = statusOrder[a.status];
   const bOrder = statusOrder[b.status];
 
@@ -52,7 +55,7 @@ function compareByStatus(a: Resident, b: Resident): number {
   return compareByName(a, b);
 }
 
-export type SecondarySortOption = 'none' | 'name' | 'status';
+export type SecondarySortOption = "none" | "name" | "status";
 
 /**
  * Sort residents with room number as primary key and optional secondary sort.
@@ -60,7 +63,7 @@ export type SecondarySortOption = 'none' | 'name' | 'status';
  */
 export function sortResidents(
   residents: Resident[],
-  secondarySort: SecondarySortOption = 'none'
+  secondarySort: SecondarySortOption = "none",
 ): Resident[] {
   return [...residents].sort((a, b) => {
     // Primary sort: always by room number
@@ -69,11 +72,10 @@ export function sortResidents(
 
     // Secondary sort: only applies when room numbers are equal
     switch (secondarySort) {
-      case 'name':
+      case "name":
         return compareByName(a, b);
-      case 'status':
+      case "status":
         return compareByStatus(a, b);
-      case 'none':
       default:
         // No secondary sort, maintain original order (stable sort)
         return 0;

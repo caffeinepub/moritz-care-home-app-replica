@@ -18,7 +18,7 @@ export interface ErrorDiagnostics {
 export function normalizeError(error: unknown): ErrorDiagnostics {
   if (!error) {
     return {
-      message: 'Unknown error occurred',
+      message: "Unknown error occurred",
       raw: String(error),
     };
   }
@@ -32,10 +32,11 @@ export function normalizeError(error: unknown): ErrorDiagnostics {
     };
 
     // Extract nested cause if present
-    if ('cause' in error && error.cause) {
-      diagnostics.cause = error.cause instanceof Error 
-        ? error.cause.message 
-        : String(error.cause);
+    if ("cause" in error && error.cause) {
+      diagnostics.cause =
+        error.cause instanceof Error
+          ? error.cause.message
+          : String(error.cause);
     }
 
     // Check for agent-specific error fields
@@ -44,7 +45,7 @@ export function normalizeError(error: unknown): ErrorDiagnostics {
       diagnostics.agentError = `Reject code: ${errorObj.reject_code}`;
     }
     if (errorObj.reject_message) {
-      diagnostics.agentError = diagnostics.agentError 
+      diagnostics.agentError = diagnostics.agentError
         ? `${diagnostics.agentError}, Message: ${errorObj.reject_message}`
         : `Reject message: ${errorObj.reject_message}`;
     }
@@ -53,11 +54,11 @@ export function normalizeError(error: unknown): ErrorDiagnostics {
   }
 
   // Handle plain objects with message property
-  if (typeof error === 'object' && error !== null) {
+  if (typeof error === "object" && error !== null) {
     const errorObj = error as any;
-    
+
     const diagnostics: ErrorDiagnostics = {
-      message: errorObj.message || errorObj.error || 'Unknown error',
+      message: errorObj.message || errorObj.error || "Unknown error",
       type: errorObj.name || errorObj.type,
     };
 
@@ -72,9 +73,13 @@ export function normalizeError(error: unknown): ErrorDiagnostics {
     // Agent error fields
     if (errorObj.reject_code !== undefined || errorObj.reject_message) {
       diagnostics.agentError = [
-        errorObj.reject_code !== undefined ? `Code: ${errorObj.reject_code}` : null,
+        errorObj.reject_code !== undefined
+          ? `Code: ${errorObj.reject_code}`
+          : null,
         errorObj.reject_message ? `Message: ${errorObj.reject_message}` : null,
-      ].filter(Boolean).join(', ');
+      ]
+        .filter(Boolean)
+        .join(", ");
     }
 
     diagnostics.raw = JSON.stringify(error, null, 2);
@@ -116,5 +121,5 @@ export function formatDiagnostics(diagnostics: ErrorDiagnostics): string {
     parts.push(`\nRaw Error:\n${diagnostics.raw}`);
   }
 
-  return parts.join('\n');
+  return parts.join("\n");
 }

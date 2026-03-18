@@ -1,16 +1,26 @@
-import { useNavigate } from '@tanstack/react-router';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Plus, Edit, Phone } from 'lucide-react';
-import type { Resident } from '../../../backend';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { useNavigate } from "@tanstack/react-router";
+import { Edit, Phone, Plus } from "lucide-react";
+import type { Resident } from "../../../backend";
 
 interface PhysicianInformationSectionProps {
   resident: Resident;
   canEdit: boolean;
 }
 
-export default function PhysicianInformationSection({ resident, canEdit }: PhysicianInformationSectionProps) {
+export default function PhysicianInformationSection({
+  resident,
+  canEdit,
+}: PhysicianInformationSectionProps) {
   const navigate = useNavigate();
 
   const handleAdd = () => {
@@ -36,7 +46,9 @@ export default function PhysicianInformationSection({ resident, canEdit }: Physi
       </CardHeader>
       <CardContent>
         {resident.physicians.length === 0 ? (
-          <p className="text-center text-muted-foreground py-8">No physicians assigned</p>
+          <p className="text-center text-muted-foreground py-8">
+            No physicians assigned
+          </p>
         ) : (
           <Table>
             <TableHeader>
@@ -44,13 +56,17 @@ export default function PhysicianInformationSection({ resident, canEdit }: Physi
                 <TableHead>Name</TableHead>
                 <TableHead>Specialty</TableHead>
                 <TableHead>Contact Info</TableHead>
-                {canEdit && <TableHead className="text-right">Actions</TableHead>}
+                {canEdit && (
+                  <TableHead className="text-right">Actions</TableHead>
+                )}
               </TableRow>
             </TableHeader>
             <TableBody>
               {resident.physicians.map((physician) => (
                 <TableRow key={physician.id.toString()}>
-                  <TableCell className="font-medium">{physician.name}</TableCell>
+                  <TableCell className="font-medium">
+                    {physician.name}
+                  </TableCell>
                   <TableCell>{physician.specialty}</TableCell>
                   <TableCell>
                     <div className="flex items-center gap-1">
@@ -60,7 +76,11 @@ export default function PhysicianInformationSection({ resident, canEdit }: Physi
                   </TableCell>
                   {canEdit && (
                     <TableCell className="text-right">
-                      <Button variant="ghost" size="sm" onClick={() => handleEdit(physician.id)}>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleEdit(physician.id)}
+                      >
                         <Edit className="w-4 h-4" />
                       </Button>
                     </TableCell>

@@ -1,16 +1,26 @@
-import { useNavigate } from '@tanstack/react-router';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Plus, Edit, Phone } from 'lucide-react';
-import type { Resident } from '../../../backend';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { useNavigate } from "@tanstack/react-router";
+import { Edit, Phone, Plus } from "lucide-react";
+import type { Resident } from "../../../backend";
 
 interface PharmacyInformationSectionProps {
   resident: Resident;
   canEdit: boolean;
 }
 
-export default function PharmacyInformationSection({ resident, canEdit }: PharmacyInformationSectionProps) {
+export default function PharmacyInformationSection({
+  resident,
+  canEdit,
+}: PharmacyInformationSectionProps) {
   const navigate = useNavigate();
 
   const handleAdd = () => {
@@ -36,7 +46,9 @@ export default function PharmacyInformationSection({ resident, canEdit }: Pharma
       </CardHeader>
       <CardContent>
         {resident.pharmacyInfos.length === 0 ? (
-          <p className="text-center text-muted-foreground py-8">No pharmacy information</p>
+          <p className="text-center text-muted-foreground py-8">
+            No pharmacy information
+          </p>
         ) : (
           <Table>
             <TableHeader>
@@ -45,7 +57,9 @@ export default function PharmacyInformationSection({ resident, canEdit }: Pharma
                 <TableHead>Address</TableHead>
                 <TableHead>Phone</TableHead>
                 <TableHead>Fax</TableHead>
-                {canEdit && <TableHead className="text-right">Actions</TableHead>}
+                {canEdit && (
+                  <TableHead className="text-right">Actions</TableHead>
+                )}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -62,7 +76,11 @@ export default function PharmacyInformationSection({ resident, canEdit }: Pharma
                   <TableCell>{pharmacy.fax}</TableCell>
                   {canEdit && (
                     <TableCell className="text-right">
-                      <Button variant="ghost" size="sm" onClick={() => handleEdit(pharmacy.id)}>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleEdit(pharmacy.id)}
+                      >
                         <Edit className="w-4 h-4" />
                       </Button>
                     </TableCell>

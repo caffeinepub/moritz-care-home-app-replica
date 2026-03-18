@@ -1,11 +1,18 @@
-import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Plus } from 'lucide-react';
-import { useGetADLRecords } from '../../hooks/useQueries';
-import AddADLRecordModal from './modals/AddADLRecordModal';
-import type { ResidentId } from '../../backend';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Plus } from "lucide-react";
+import { useState } from "react";
+import type { ResidentId } from "../../backend";
+import { useGetADLRecords } from "../../hooks/useQueries";
+import AddADLRecordModal from "./modals/AddADLRecordModal";
 
 interface ADLTabProps {
   residentId: ResidentId;
@@ -25,7 +32,10 @@ export default function ADLTab({ residentId, canWrite }: ADLTabProps) {
             Activities of Daily Living
           </CardTitle>
           {canWrite && (
-            <Button onClick={() => setShowAddModal(true)} className="bg-blue-600 hover:bg-blue-700">
+            <Button
+              onClick={() => setShowAddModal(true)}
+              className="bg-blue-600 hover:bg-blue-700"
+            >
               <Plus className="w-4 h-4 mr-2" />
               Add ADL Record
             </Button>
@@ -44,12 +54,14 @@ export default function ADLTab({ residentId, canWrite }: ADLTabProps) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {adlRecords.map(record => (
+              {adlRecords.map((record) => (
                 <TableRow key={record.id.toString()}>
                   <TableCell>{record.date}</TableCell>
-                  <TableCell className="font-medium">{record.activity}</TableCell>
+                  <TableCell className="font-medium">
+                    {record.activity}
+                  </TableCell>
                   <TableCell>{record.assistanceLevel}</TableCell>
-                  <TableCell>{record.staffNotes || '-'}</TableCell>
+                  <TableCell>{record.staffNotes || "-"}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -59,7 +71,12 @@ export default function ADLTab({ residentId, canWrite }: ADLTabProps) {
         )}
       </CardContent>
 
-      {showAddModal && <AddADLRecordModal residentId={residentId} onClose={() => setShowAddModal(false)} />}
+      {showAddModal && (
+        <AddADLRecordModal
+          residentId={residentId}
+          onClose={() => setShowAddModal(false)}
+        />
+      )}
     </Card>
   );
 }

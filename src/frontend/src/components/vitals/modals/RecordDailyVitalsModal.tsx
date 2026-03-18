@@ -1,43 +1,68 @@
-import { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
-import { useAddDailyVitals } from '../../../hooks/useQueries';
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { useState } from "react";
+import { useAddDailyVitals } from "../../../hooks/useQueries";
 
 interface RecordDailyVitalsModalProps {
   residentId: bigint;
   onClose: () => void;
 }
 
-export default function RecordDailyVitalsModal({ residentId, onClose }: RecordDailyVitalsModalProps) {
+export default function RecordDailyVitalsModal({
+  residentId,
+  onClose,
+}: RecordDailyVitalsModalProps) {
   const addDailyVitals = useAddDailyVitals();
 
-  const [temperature, setTemperature] = useState('');
-  const [temperatureUnit, setTemperatureUnit] = useState('F');
-  const [bloodPressureSystolic, setBloodPressureSystolic] = useState('');
-  const [bloodPressureDiastolic, setBloodPressureDiastolic] = useState('');
-  const [pulseRate, setPulseRate] = useState('');
-  const [respiratoryRate, setRespiratoryRate] = useState('');
-  const [oxygenSaturation, setOxygenSaturation] = useState('');
-  const [bloodGlucose, setBloodGlucose] = useState('');
-  const [measurementDate, setMeasurementDate] = useState('');
-  const [measurementTime, setMeasurementTime] = useState('');
-  const [notes, setNotes] = useState('');
+  const [temperature, setTemperature] = useState("");
+  const [temperatureUnit, setTemperatureUnit] = useState("F");
+  const [bloodPressureSystolic, setBloodPressureSystolic] = useState("");
+  const [bloodPressureDiastolic, setBloodPressureDiastolic] = useState("");
+  const [pulseRate, setPulseRate] = useState("");
+  const [respiratoryRate, setRespiratoryRate] = useState("");
+  const [oxygenSaturation, setOxygenSaturation] = useState("");
+  const [bloodGlucose, setBloodGlucose] = useState("");
+  const [measurementDate, setMeasurementDate] = useState("");
+  const [measurementTime, setMeasurementTime] = useState("");
+  const [notes, setNotes] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!temperature || !bloodPressureSystolic || !bloodPressureDiastolic || !pulseRate || !respiratoryRate || !oxygenSaturation || !measurementDate || !measurementTime) {
-      alert('Please fill in all required fields');
+    if (
+      !temperature ||
+      !bloodPressureSystolic ||
+      !bloodPressureDiastolic ||
+      !pulseRate ||
+      !respiratoryRate ||
+      !oxygenSaturation ||
+      !measurementDate ||
+      !measurementTime
+    ) {
+      alert("Please fill in all required fields");
       return;
     }
 
     await addDailyVitals.mutateAsync({
       residentId,
-      temperature: parseFloat(temperature),
+      temperature: Number.parseFloat(temperature),
       temperatureUnit,
       bloodPressureSystolic: BigInt(bloodPressureSystolic),
       bloodPressureDiastolic: BigInt(bloodPressureDiastolic),
@@ -101,7 +126,10 @@ export default function RecordDailyVitalsModal({ residentId, onClose }: RecordDa
                   required
                   className="flex-1"
                 />
-                <Select value={temperatureUnit} onValueChange={setTemperatureUnit}>
+                <Select
+                  value={temperatureUnit}
+                  onValueChange={setTemperatureUnit}
+                >
                   <SelectTrigger className="w-20">
                     <SelectValue />
                   </SelectTrigger>
@@ -151,7 +179,9 @@ export default function RecordDailyVitalsModal({ residentId, onClose }: RecordDa
               />
             </div>
             <div>
-              <Label htmlFor="respiratoryRate">Respiratory Rate (breaths/min) *</Label>
+              <Label htmlFor="respiratoryRate">
+                Respiratory Rate (breaths/min) *
+              </Label>
               <Input
                 id="respiratoryRate"
                 type="number"
@@ -200,11 +230,15 @@ export default function RecordDailyVitalsModal({ residentId, onClose }: RecordDa
         </form>
 
         <DialogFooter>
-          <Button variant="outline" onClick={onClose} disabled={addDailyVitals.isPending}>
+          <Button
+            variant="outline"
+            onClick={onClose}
+            disabled={addDailyVitals.isPending}
+          >
             Cancel
           </Button>
           <Button onClick={handleSubmit} disabled={addDailyVitals.isPending}>
-            {addDailyVitals.isPending ? 'Recording...' : 'Record Vitals'}
+            {addDailyVitals.isPending ? "Recording..." : "Record Vitals"}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -1,36 +1,43 @@
-import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from '@tanstack/react-router';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { ArrowLeft } from 'lucide-react';
-import { useGetResident, useUpdateInsuranceInfo } from '../../../hooks/useQueries';
-import type { InsuranceInfo } from '../../../backend';
-import ResidentProfileEditorSurface from '../../../components/resident-profile/ResidentProfileEditorSurface';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useNavigate, useParams } from "@tanstack/react-router";
+import { ArrowLeft } from "lucide-react";
+import { useEffect, useState } from "react";
+import type { InsuranceInfo } from "../../../backend";
+import ResidentProfileEditorSurface from "../../../components/resident-profile/ResidentProfileEditorSurface";
+import {
+  useGetResident,
+  useUpdateInsuranceInfo,
+} from "../../../hooks/useQueries";
 
 export default function InsuranceEditPage() {
-  const { residentId, insuranceId } = useParams({ from: '/resident/$residentId/insurance/$insuranceId/edit' });
+  const { residentId, insuranceId } = useParams({
+    from: "/resident/$residentId/insurance/$insuranceId/edit",
+  });
   const navigate = useNavigate();
   const { data: resident, isLoading } = useGetResident(BigInt(residentId));
   const updateInsurance = useUpdateInsuranceInfo();
 
   const [formData, setFormData] = useState({
-    provider: '',
-    policyNumber: '',
-    medicareNumber: '',
-    medicaidNumber: '',
+    provider: "",
+    policyNumber: "",
+    medicareNumber: "",
+    medicaidNumber: "",
   });
 
   useEffect(() => {
     if (resident) {
-      const insurance = resident.insuranceInfos.find((i) => i.id.toString() === insuranceId);
+      const insurance = resident.insuranceInfos.find(
+        (i) => i.id.toString() === insuranceId,
+      );
       if (insurance) {
         setFormData({
           provider: insurance.provider,
           policyNumber: insurance.policyNumber,
-          medicareNumber: insurance.medicareNumber || '',
-          medicaidNumber: insurance.medicaidNumber || '',
+          medicareNumber: insurance.medicareNumber || "",
+          medicaidNumber: insurance.medicaidNumber || "",
         });
       }
     }
@@ -43,7 +50,7 @@ export default function InsuranceEditPage() {
       id: BigInt(insuranceId),
       provider: formData.provider,
       policyNumber: formData.policyNumber,
-      groupNumber: '',
+      groupNumber: "",
       medicareNumber: formData.medicareNumber || undefined,
       medicaidNumber: formData.medicaidNumber || undefined,
     };
@@ -68,7 +75,11 @@ export default function InsuranceEditPage() {
   return (
     <ResidentProfileEditorSurface className="min-h-screen">
       <div className="container mx-auto px-4 py-8">
-        <Button variant="ghost" onClick={() => navigate({ to: `/resident/${residentId}` })} className="mb-6">
+        <Button
+          variant="ghost"
+          onClick={() => navigate({ to: `/resident/${residentId}` })}
+          className="mb-6"
+        >
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back to Resident Profile
         </Button>
@@ -84,7 +95,9 @@ export default function InsuranceEditPage() {
                 <Input
                   id="provider"
                   value={formData.provider}
-                  onChange={(e) => setFormData({ ...formData, provider: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, provider: e.target.value })
+                  }
                   required
                 />
               </div>
@@ -94,7 +107,9 @@ export default function InsuranceEditPage() {
                 <Input
                   id="policyNumber"
                   value={formData.policyNumber}
-                  onChange={(e) => setFormData({ ...formData, policyNumber: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, policyNumber: e.target.value })
+                  }
                   required
                 />
               </div>
@@ -104,7 +119,9 @@ export default function InsuranceEditPage() {
                 <Input
                   id="medicareNumber"
                   value={formData.medicareNumber}
-                  onChange={(e) => setFormData({ ...formData, medicareNumber: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, medicareNumber: e.target.value })
+                  }
                 />
               </div>
 
@@ -113,16 +130,22 @@ export default function InsuranceEditPage() {
                 <Input
                   id="medicaidNumber"
                   value={formData.medicaidNumber}
-                  onChange={(e) => setFormData({ ...formData, medicaidNumber: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, medicaidNumber: e.target.value })
+                  }
                 />
               </div>
 
               <div className="flex gap-3 justify-end">
-                <Button type="button" variant="outline" onClick={() => navigate({ to: `/resident/${residentId}` })}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => navigate({ to: `/resident/${residentId}` })}
+                >
                   Cancel
                 </Button>
                 <Button type="submit" disabled={updateInsurance.isPending}>
-                  {updateInsurance.isPending ? 'Saving...' : 'Save Changes'}
+                  {updateInsurance.isPending ? "Saving..." : "Save Changes"}
                 </Button>
               </div>
             </form>

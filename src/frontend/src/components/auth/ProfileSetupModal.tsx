@@ -1,29 +1,41 @@
-import { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useSaveCallerUserProfile } from '../../hooks/useQueries';
-import { UserProfile, UserType } from '../../backend';
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useState } from "react";
+import { type UserProfile, UserType } from "../../backend";
+import { useSaveCallerUserProfile } from "../../hooks/useQueries";
 
 export default function ProfileSetupModal() {
-  const [name, setName] = useState('');
+  const [name, setName] = useState("");
   const [userType, setUserType] = useState<UserType>(UserType.staff);
-  const [relatedResidentIds, setRelatedResidentIds] = useState('');
-  
+  const [relatedResidentIds, setRelatedResidentIds] = useState("");
+
   const saveProfile = useSaveCallerUserProfile();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!name.trim()) return;
-    
+
     const relatedIds = relatedResidentIds
-      .split(',')
-      .map(id => id.trim())
-      .filter(id => id)
-      .map(id => BigInt(id));
+      .split(",")
+      .map((id) => id.trim())
+      .filter((id) => id)
+      .map((id) => BigInt(id));
 
     const profile: UserProfile = {
       name: name.trim(),
@@ -34,11 +46,15 @@ export default function ProfileSetupModal() {
     await saveProfile.mutateAsync(profile);
   };
 
-  const showRelatedResidents = userType === UserType.resident || userType === UserType.familyMember;
+  const showRelatedResidents =
+    userType === UserType.resident || userType === UserType.familyMember;
 
   return (
     <Dialog open={true}>
-      <DialogContent className="sm:max-w-md dialog-solid-white" onPointerDownOutside={(e) => e.preventDefault()}>
+      <DialogContent
+        className="sm:max-w-md dialog-solid-white"
+        onPointerDownOutside={(e) => e.preventDefault()}
+      >
         <DialogHeader>
           <DialogTitle>Welcome to Moritz Care Home</DialogTitle>
           <DialogDescription>
@@ -58,14 +74,19 @@ export default function ProfileSetupModal() {
           </div>
           <div>
             <Label htmlFor="userType">Role *</Label>
-            <Select value={userType} onValueChange={(value: UserType) => setUserType(value)}>
+            <Select
+              value={userType}
+              onValueChange={(value: UserType) => setUserType(value)}
+            >
               <SelectTrigger id="userType">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value={UserType.staff}>Staff/Caregiver</SelectItem>
                 <SelectItem value={UserType.resident}>Resident</SelectItem>
-                <SelectItem value={UserType.familyMember}>Family Member</SelectItem>
+                <SelectItem value={UserType.familyMember}>
+                  Family Member
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -83,8 +104,12 @@ export default function ProfileSetupModal() {
               </p>
             </div>
           )}
-          <Button type="submit" className="w-full" disabled={saveProfile.isPending}>
-            {saveProfile.isPending ? 'Saving...' : 'Complete Setup'}
+          <Button
+            type="submit"
+            className="w-full"
+            disabled={saveProfile.isPending}
+          >
+            {saveProfile.isPending ? "Saving..." : "Complete Setup"}
           </Button>
         </form>
       </DialogContent>

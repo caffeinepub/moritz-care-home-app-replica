@@ -1,14 +1,29 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from '@tanstack/react-router';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Save } from 'lucide-react';
-import { useGetAppSettings, useUpdateDisplayPreferences } from '../hooks/useQueries';
-import { useInternetIdentity } from '../hooks/useInternetIdentity';
-import { DisplayPreferences, BackgroundMode } from '../backend';
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { useNavigate } from "@tanstack/react-router";
+import { ArrowLeft, Save } from "lucide-react";
+import { useEffect, useState } from "react";
+import { BackgroundMode, type DisplayPreferences } from "../backend";
+import { useInternetIdentity } from "../hooks/useInternetIdentity";
+import {
+  useGetAppSettings,
+  useUpdateDisplayPreferences,
+} from "../hooks/useQueries";
 
 export default function SettingsPage() {
   const navigate = useNavigate();
@@ -17,19 +32,26 @@ export default function SettingsPage() {
   const updatePreferences = useUpdateDisplayPreferences();
 
   const [showPrintProfileButton, setShowPrintProfileButton] = useState(true);
-  const [editorBackgroundMode, setEditorBackgroundMode] = useState<BackgroundMode>(BackgroundMode.solidWhite);
+  const [editorBackgroundMode, setEditorBackgroundMode] =
+    useState<BackgroundMode>(BackgroundMode.solidWhite);
 
   useEffect(() => {
     if (appSettings) {
-      setShowPrintProfileButton(appSettings.displayPreferences.showPrintProfileButton);
-      setEditorBackgroundMode(appSettings.displayPreferences.residentProfileEditorBackgroundMode);
+      setShowPrintProfileButton(
+        appSettings.displayPreferences.showPrintProfileButton,
+      );
+      setEditorBackgroundMode(
+        appSettings.displayPreferences.residentProfileEditorBackgroundMode,
+      );
     }
   }, [appSettings]);
 
   if (!identity) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <p className="text-muted-foreground">Please log in to access settings</p>
+        <p className="text-muted-foreground">
+          Please log in to access settings
+        </p>
       </div>
     );
   }
@@ -50,10 +72,12 @@ export default function SettingsPage() {
     );
   }
 
-  const hasChanges = appSettings && (
-    showPrintProfileButton !== appSettings.displayPreferences.showPrintProfileButton ||
-    editorBackgroundMode !== appSettings.displayPreferences.residentProfileEditorBackgroundMode
-  );
+  const hasChanges =
+    appSettings &&
+    (showPrintProfileButton !==
+      appSettings.displayPreferences.showPrintProfileButton ||
+      editorBackgroundMode !==
+        appSettings.displayPreferences.residentProfileEditorBackgroundMode);
 
   const handleSave = async () => {
     if (!appSettings) return;
@@ -70,7 +94,7 @@ export default function SettingsPage() {
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-6">
-          <Button variant="ghost" onClick={() => navigate({ to: '/' })}>
+          <Button variant="ghost" onClick={() => navigate({ to: "/" })}>
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Dashboard
           </Button>
@@ -79,7 +103,9 @@ export default function SettingsPage() {
         <div className="max-w-2xl mx-auto space-y-6">
           <div>
             <h1 className="text-3xl font-bold">Settings</h1>
-            <p className="text-muted-foreground mt-2">Manage your application preferences</p>
+            <p className="text-muted-foreground mt-2">
+              Manage your application preferences
+            </p>
           </div>
 
           <Card>
@@ -92,11 +118,15 @@ export default function SettingsPage() {
             <CardContent className="space-y-6">
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <Label htmlFor="show-report" className="text-base font-medium">
+                  <Label
+                    htmlFor="show-report"
+                    className="text-base font-medium"
+                  >
                     Resident Profile Report
                   </Label>
                   <p className="text-sm text-muted-foreground">
-                    Show the print profile button and report on resident profile pages
+                    Show the print profile button and report on resident profile
+                    pages
                   </p>
                 </div>
                 <Switch
@@ -108,23 +138,36 @@ export default function SettingsPage() {
 
               <div className="space-y-3">
                 <div className="space-y-0.5">
-                  <Label htmlFor="editor-background" className="text-base font-medium">
+                  <Label
+                    htmlFor="editor-background"
+                    className="text-base font-medium"
+                  >
                     Resident Profile Editor Background
                   </Label>
                   <p className="text-sm text-muted-foreground">
-                    Choose the background color for resident profile editing screens
+                    Choose the background color for resident profile editing
+                    screens
                   </p>
                 </div>
                 <Select
                   value={editorBackgroundMode}
-                  onValueChange={(value) => setEditorBackgroundMode(value as BackgroundMode)}
+                  onValueChange={(value) =>
+                    setEditorBackgroundMode(value as BackgroundMode)
+                  }
                 >
-                  <SelectTrigger id="editor-background" className="w-full max-w-xs">
+                  <SelectTrigger
+                    id="editor-background"
+                    className="w-full max-w-xs"
+                  >
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value={BackgroundMode.solidWhite}>Solid White</SelectItem>
-                    <SelectItem value={BackgroundMode.solidBlack}>Solid Black</SelectItem>
+                    <SelectItem value={BackgroundMode.solidWhite}>
+                      Solid White
+                    </SelectItem>
+                    <SelectItem value={BackgroundMode.solidBlack}>
+                      Solid Black
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -133,9 +176,12 @@ export default function SettingsPage() {
 
           {hasChanges && (
             <div className="flex justify-end">
-              <Button onClick={handleSave} disabled={updatePreferences.isPending}>
+              <Button
+                onClick={handleSave}
+                disabled={updatePreferences.isPending}
+              >
                 <Save className="w-4 h-4 mr-2" />
-                {updatePreferences.isPending ? 'Saving...' : 'Save Changes'}
+                {updatePreferences.isPending ? "Saving..." : "Save Changes"}
               </Button>
             </div>
           )}

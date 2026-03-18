@@ -14,21 +14,21 @@ interface DateComponents {
  * Returns null if the format is invalid or the date is not valid.
  */
 function parseDateString(dateStr: string): DateComponents | null {
-  if (!dateStr || typeof dateStr !== 'string') {
+  if (!dateStr || typeof dateStr !== "string") {
     return null;
   }
 
-  const parts = dateStr.split('-');
+  const parts = dateStr.split("-");
   if (parts.length !== 3) {
     return null;
   }
 
-  const year = parseInt(parts[0], 10);
-  const month = parseInt(parts[1], 10);
-  const day = parseInt(parts[2], 10);
+  const year = Number.parseInt(parts[0], 10);
+  const month = Number.parseInt(parts[1], 10);
+  const day = Number.parseInt(parts[2], 10);
 
   // Basic validation
-  if (isNaN(year) || isNaN(month) || isNaN(day)) {
+  if (Number.isNaN(year) || Number.isNaN(month) || Number.isNaN(day)) {
     return null;
   }
 
@@ -65,14 +65,14 @@ function getTodayComponents(): DateComponents {
  * Calculate age in whole years based on DOB string (YYYY-MM-DD).
  * Uses date-only logic to avoid timezone/DST day shifting.
  * Returns null if DOB is invalid or unparseable.
- * 
+ *
  * @param dob - Date of birth in YYYY-MM-DD format
  * @param today - Optional today's date components (for testing)
  * @returns Age in years, or null if invalid
  */
 export function calculateAgeYears(
   dob: string,
-  today?: DateComponents
+  today?: DateComponents,
 ): number | null {
   const dobComponents = parseDateString(dob);
   if (!dobComponents) {
@@ -87,7 +87,8 @@ export function calculateAgeYears(
   // Adjust if birthday hasn't occurred yet this year
   const birthdayPassed =
     todayComponents.month > dobComponents.month ||
-    (todayComponents.month === dobComponents.month && todayComponents.day >= dobComponents.day);
+    (todayComponents.month === dobComponents.month &&
+      todayComponents.day >= dobComponents.day);
 
   if (!birthdayPassed) {
     age -= 1;
@@ -107,7 +108,7 @@ export function calculateAgeYears(
  */
 export function formatAge(age: number | null): string {
   if (age === null) {
-    return '—';
+    return "—";
   }
   return age.toString();
 }

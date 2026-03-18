@@ -1,32 +1,39 @@
-import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from '@tanstack/react-router';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
-import { ArrowLeft } from 'lucide-react';
-import { useGetResident, useUpdateResponsibleContact } from '../../../hooks/useQueries';
-import type { ResponsibleContact } from '../../../backend';
-import ResidentProfileEditorSurface from '../../../components/resident-profile/ResidentProfileEditorSurface';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useNavigate, useParams } from "@tanstack/react-router";
+import { ArrowLeft } from "lucide-react";
+import { useEffect, useState } from "react";
+import type { ResponsibleContact } from "../../../backend";
+import ResidentProfileEditorSurface from "../../../components/resident-profile/ResidentProfileEditorSurface";
+import {
+  useGetResident,
+  useUpdateResponsibleContact,
+} from "../../../hooks/useQueries";
 
 export default function ResponsiblePersonEditPage() {
-  const { residentId, contactId } = useParams({ from: '/resident/$residentId/responsible-persons/$contactId/edit' });
+  const { residentId, contactId } = useParams({
+    from: "/resident/$residentId/responsible-persons/$contactId/edit",
+  });
   const navigate = useNavigate();
   const { data: resident, isLoading } = useGetResident(BigInt(residentId));
   const updateContact = useUpdateResponsibleContact();
 
   const [formData, setFormData] = useState({
-    name: '',
-    relationship: '',
-    phone: '',
-    email: '',
+    name: "",
+    relationship: "",
+    phone: "",
+    email: "",
     isPrimary: false,
   });
 
   useEffect(() => {
     if (resident) {
-      const contact = resident.responsibleContacts.find((c) => c.id.toString() === contactId);
+      const contact = resident.responsibleContacts.find(
+        (c) => c.id.toString() === contactId,
+      );
       if (contact) {
         setFormData({
           name: contact.name,
@@ -71,7 +78,11 @@ export default function ResponsiblePersonEditPage() {
   return (
     <ResidentProfileEditorSurface className="min-h-screen">
       <div className="container mx-auto px-4 py-8">
-        <Button variant="ghost" onClick={() => navigate({ to: `/resident/${residentId}` })} className="mb-6">
+        <Button
+          variant="ghost"
+          onClick={() => navigate({ to: `/resident/${residentId}` })}
+          className="mb-6"
+        >
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back to Resident Profile
         </Button>
@@ -87,7 +98,9 @@ export default function ResponsiblePersonEditPage() {
                 <Input
                   id="name"
                   value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, name: e.target.value })
+                  }
                   required
                 />
               </div>
@@ -97,7 +110,9 @@ export default function ResponsiblePersonEditPage() {
                 <Input
                   id="relationship"
                   value={formData.relationship}
-                  onChange={(e) => setFormData({ ...formData, relationship: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, relationship: e.target.value })
+                  }
                   required
                 />
               </div>
@@ -108,7 +123,9 @@ export default function ResponsiblePersonEditPage() {
                   id="phone"
                   type="tel"
                   value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, phone: e.target.value })
+                  }
                   required
                 />
               </div>
@@ -119,7 +136,9 @@ export default function ResponsiblePersonEditPage() {
                   id="email"
                   type="email"
                   value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, email: e.target.value })
+                  }
                   required
                 />
               </div>
@@ -128,7 +147,9 @@ export default function ResponsiblePersonEditPage() {
                 <Checkbox
                   id="isPrimary"
                   checked={formData.isPrimary}
-                  onCheckedChange={(checked) => setFormData({ ...formData, isPrimary: checked as boolean })}
+                  onCheckedChange={(checked) =>
+                    setFormData({ ...formData, isPrimary: checked as boolean })
+                  }
                 />
                 <Label htmlFor="isPrimary" className="cursor-pointer">
                   Set as Primary Contact
@@ -136,11 +157,15 @@ export default function ResponsiblePersonEditPage() {
               </div>
 
               <div className="flex gap-3 justify-end">
-                <Button type="button" variant="outline" onClick={() => navigate({ to: `/resident/${residentId}` })}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => navigate({ to: `/resident/${residentId}` })}
+                >
                   Cancel
                 </Button>
                 <Button type="submit" disabled={updateContact.isPending}>
-                  {updateContact.isPending ? 'Saving...' : 'Save Changes'}
+                  {updateContact.isPending ? "Saving..." : "Save Changes"}
                 </Button>
               </div>
             </form>

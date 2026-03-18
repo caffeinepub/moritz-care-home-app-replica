@@ -1,11 +1,18 @@
-import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Plus } from 'lucide-react';
-import { useGetMARRecords, useGetMedications } from '../../hooks/useQueries';
-import AddMARRecordModal from './modals/AddMARRecordModal';
-import type { ResidentId } from '../../backend';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Plus } from "lucide-react";
+import { useState } from "react";
+import type { ResidentId } from "../../backend";
+import { useGetMARRecords, useGetMedications } from "../../hooks/useQueries";
+import AddMARRecordModal from "./modals/AddMARRecordModal";
 
 interface MARTabProps {
   residentId: ResidentId;
@@ -18,8 +25,8 @@ export default function MARTab({ residentId, canWrite }: MARTabProps) {
   const [showAddModal, setShowAddModal] = useState(false);
 
   const getMedicationName = (medicationId: bigint) => {
-    const medication = medications.find(m => m.id === medicationId);
-    return medication?.name || 'Unknown Medication';
+    const medication = medications.find((m) => m.id === medicationId);
+    return medication?.name || "Unknown Medication";
   };
 
   return (
@@ -31,7 +38,10 @@ export default function MARTab({ residentId, canWrite }: MARTabProps) {
             Medication Administration Records
           </CardTitle>
           {canWrite && (
-            <Button onClick={() => setShowAddModal(true)} className="bg-blue-600 hover:bg-blue-700">
+            <Button
+              onClick={() => setShowAddModal(true)}
+              className="bg-blue-600 hover:bg-blue-700"
+            >
               <Plus className="w-4 h-4 mr-2" />
               Add MAR Record
             </Button>
@@ -50,12 +60,14 @@ export default function MARTab({ residentId, canWrite }: MARTabProps) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {marRecords.map(record => (
+              {marRecords.map((record) => (
                 <TableRow key={record.id.toString()}>
-                  <TableCell className="font-medium">{getMedicationName(record.medicationId)}</TableCell>
+                  <TableCell className="font-medium">
+                    {getMedicationName(record.medicationId)}
+                  </TableCell>
                   <TableCell>{record.administrationTime}</TableCell>
                   <TableCell>{record.administeredBy}</TableCell>
-                  <TableCell>{record.notes || '-'}</TableCell>
+                  <TableCell>{record.notes || "-"}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

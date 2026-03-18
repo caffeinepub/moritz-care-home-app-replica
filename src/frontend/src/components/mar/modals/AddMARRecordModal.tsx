@@ -1,12 +1,25 @@
-import { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
-import { useAddMARRecord } from '../../../hooks/useQueries';
-import { Medication } from '../../../backend';
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { useState } from "react";
+import type { Medication } from "../../../backend";
+import { useAddMARRecord } from "../../../hooks/useQueries";
 
 interface AddMARRecordModalProps {
   residentId: bigint;
@@ -14,21 +27,25 @@ interface AddMARRecordModalProps {
   onClose: () => void;
 }
 
-export default function AddMARRecordModal({ residentId, medications, onClose }: AddMARRecordModalProps) {
+export default function AddMARRecordModal({
+  residentId,
+  medications,
+  onClose,
+}: AddMARRecordModalProps) {
   const addMARRecord = useAddMARRecord();
 
-  const activeMedications = medications.filter(m => m.isActive);
+  const activeMedications = medications.filter((m) => m.isActive);
 
-  const [medicationId, setMedicationId] = useState<string>('');
-  const [administrationTime, setAdministrationTime] = useState('');
-  const [administeredBy, setAdministeredBy] = useState('');
-  const [notes, setNotes] = useState('');
+  const [medicationId, setMedicationId] = useState<string>("");
+  const [administrationTime, setAdministrationTime] = useState("");
+  const [administeredBy, setAdministeredBy] = useState("");
+  const [notes, setNotes] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!medicationId || !administrationTime.trim() || !administeredBy.trim()) {
-      alert('Please fill in all required fields');
+      alert("Please fill in all required fields");
       return;
     }
 
@@ -62,7 +79,10 @@ export default function AddMARRecordModal({ residentId, medications, onClose }: 
               </SelectTrigger>
               <SelectContent>
                 {activeMedications.map((medication) => (
-                  <SelectItem key={medication.id.toString()} value={medication.id.toString()}>
+                  <SelectItem
+                    key={medication.id.toString()}
+                    value={medication.id.toString()}
+                  >
                     {medication.name} - {medication.dosage}
                   </SelectItem>
                 ))}
@@ -71,7 +91,9 @@ export default function AddMARRecordModal({ residentId, medications, onClose }: 
           </div>
 
           <div>
-            <Label htmlFor="administrationTime">Administration Date & Time *</Label>
+            <Label htmlFor="administrationTime">
+              Administration Date & Time *
+            </Label>
             <Input
               id="administrationTime"
               type="datetime-local"
@@ -105,11 +127,15 @@ export default function AddMARRecordModal({ residentId, medications, onClose }: 
         </form>
 
         <DialogFooter>
-          <Button variant="outline" onClick={onClose} disabled={addMARRecord.isPending}>
+          <Button
+            variant="outline"
+            onClick={onClose}
+            disabled={addMARRecord.isPending}
+          >
             Cancel
           </Button>
           <Button onClick={handleSubmit} disabled={addMARRecord.isPending}>
-            {addMARRecord.isPending ? 'Adding...' : 'Add Record'}
+            {addMARRecord.isPending ? "Adding..." : "Add Record"}
           </Button>
         </DialogFooter>
       </DialogContent>

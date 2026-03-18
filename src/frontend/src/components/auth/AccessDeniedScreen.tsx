@@ -1,13 +1,15 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { ShieldAlert } from 'lucide-react';
-import { useNavigate } from '@tanstack/react-router';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useNavigate } from "@tanstack/react-router";
+import { ShieldAlert } from "lucide-react";
 
 interface AccessDeniedScreenProps {
   message?: string;
 }
 
-export default function AccessDeniedScreen({ message }: AccessDeniedScreenProps) {
+export default function AccessDeniedScreen({
+  message,
+}: AccessDeniedScreenProps) {
   const navigate = useNavigate();
 
   return (
@@ -23,9 +25,9 @@ export default function AccessDeniedScreen({ message }: AccessDeniedScreenProps)
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-muted-foreground">
-            {message || 'You do not have permission to access this resource.'}
+            {message || "You do not have permission to access this resource."}
           </p>
-          <Button onClick={() => navigate({ to: '/' })} className="w-full">
+          <Button onClick={() => navigate({ to: "/" })} className="w-full">
             Return to Dashboard
           </Button>
         </CardContent>

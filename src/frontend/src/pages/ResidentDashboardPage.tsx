@@ -1,27 +1,46 @@
-import { useState } from 'react';
-import { useNavigate } from '@tanstack/react-router';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, Search, Users, UserCheck, UserX } from 'lucide-react';
-import { useGetAccessibleResidents, useGetResidentStats } from '../hooks/useQueries';
-import { ResidentStatus } from '../backend';
-import AddNewResidentModal from '../components/residents/modals/AddNewResidentModal';
-import CodeStatusBadge from '../components/residents/CodeStatusBadge';
-import { calculateAgeYears, formatAge } from '../utils/dateOnly';
-import { sortResidents, SecondarySortOption } from '../utils/residentSorting';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useNavigate } from "@tanstack/react-router";
+import { Plus, Search, UserCheck, UserX, Users } from "lucide-react";
+import { useState } from "react";
+import { ResidentStatus } from "../backend";
+import CodeStatusBadge from "../components/residents/CodeStatusBadge";
+import AddNewResidentModal from "../components/residents/modals/AddNewResidentModal";
+import {
+  useGetAccessibleResidents,
+  useGetResidentStats,
+} from "../hooks/useQueries";
+import { calculateAgeYears, formatAge } from "../utils/dateOnly";
+import {
+  type SecondarySortOption,
+  sortResidents,
+} from "../utils/residentSorting";
 
 export default function ResidentDashboardPage() {
   const navigate = useNavigate();
-  const { data: residents = [], isLoading, isFetched } = useGetAccessibleResidents();
+  const {
+    data: residents = [],
+    isLoading,
+    isFetched,
+  } = useGetAccessibleResidents();
   const { data: stats } = useGetResidentStats();
 
   const [showAddModal, setShowAddModal] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'all' | ResidentStatus>('all');
-  const [secondarySort, setSecondarySort] = useState<SecondarySortOption>('none');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"all" | ResidentStatus>(
+    "all",
+  );
+  const [secondarySort, setSecondarySort] =
+    useState<SecondarySortOption>("none");
 
   const filteredResidents = sortResidents(
     residents.filter((resident) => {
@@ -30,11 +49,12 @@ export default function ResidentDashboardPage() {
         resident.lastName.toLowerCase().includes(searchQuery.toLowerCase()) ||
         resident.roomNumber.includes(searchQuery);
 
-      const matchesStatus = statusFilter === 'all' || resident.status === statusFilter;
+      const matchesStatus =
+        statusFilter === "all" || resident.status === statusFilter;
 
       return matchesSearch && matchesStatus;
     }),
-    secondarySort
+    secondarySort,
   );
 
   return (
@@ -42,8 +62,12 @@ export default function ResidentDashboardPage() {
       <div className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Resident Dashboard</h1>
-            <p className="text-muted-foreground mt-1">Manage and monitor all residents</p>
+            <h1 className="text-3xl font-bold text-foreground">
+              Resident Dashboard
+            </h1>
+            <p className="text-muted-foreground mt-1">
+              Manage and monitor all residents
+            </p>
           </div>
           <Button onClick={() => setShowAddModal(true)} size="lg">
             <Plus className="w-5 h-5 mr-2" />
@@ -54,21 +78,29 @@ export default function ResidentDashboardPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Residents</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Total Residents
+              </CardTitle>
               <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats ? Number(stats.totalResidents) : 0}</div>
+              <div className="text-2xl font-bold">
+                {stats ? Number(stats.totalResidents) : 0}
+              </div>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Active Residents</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Active Residents
+              </CardTitle>
               <UserCheck className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats ? Number(stats.activeResidents) : 0}</div>
+              <div className="text-2xl font-bold">
+                {stats ? Number(stats.activeResidents) : 0}
+              </div>
             </CardContent>
           </Card>
 
@@ -78,7 +110,9 @@ export default function ResidentDashboardPage() {
               <UserX className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats ? Number(stats.dischargedResidents) : 0}</div>
+              <div className="text-2xl font-bold">
+                {stats ? Number(stats.dischargedResidents) : 0}
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -95,7 +129,12 @@ export default function ResidentDashboardPage() {
                   className="pl-10"
                 />
               </div>
-              <Select value={secondarySort} onValueChange={(value: SecondarySortOption) => setSecondarySort(value)}>
+              <Select
+                value={secondarySort}
+                onValueChange={(value: SecondarySortOption) =>
+                  setSecondarySort(value)
+                }
+              >
                 <SelectTrigger className="w-full md:w-[200px]">
                   <SelectValue placeholder="Secondary Sort" />
                 </SelectTrigger>
@@ -109,11 +148,19 @@ export default function ResidentDashboardPage() {
           </CardContent>
         </Card>
 
-        <Tabs value={statusFilter} onValueChange={(value) => setStatusFilter(value as 'all' | ResidentStatus)} className="mb-6">
+        <Tabs
+          value={statusFilter}
+          onValueChange={(value) =>
+            setStatusFilter(value as "all" | ResidentStatus)
+          }
+          className="mb-6"
+        >
           <TabsList>
             <TabsTrigger value="all">All Residents</TabsTrigger>
             <TabsTrigger value={ResidentStatus.active}>Active</TabsTrigger>
-            <TabsTrigger value={ResidentStatus.discharged}>Discharged</TabsTrigger>
+            <TabsTrigger value={ResidentStatus.discharged}>
+              Discharged
+            </TabsTrigger>
           </TabsList>
         </Tabs>
 
@@ -128,19 +175,26 @@ export default function ResidentDashboardPage() {
         ) : filteredResidents.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-muted-foreground">
-              {residents.length === 0 ? 'No residents found' : 'No residents match your filters'}
+              {residents.length === 0
+                ? "No residents found"
+                : "No residents match your filters"}
             </p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredResidents.map((resident) => {
               const age = calculateAgeYears(resident.dob);
-              
+
               return (
                 <Card
                   key={resident.id.toString()}
                   className="hover:shadow-lg transition-shadow cursor-pointer"
-                  onClick={() => navigate({ to: '/resident/$residentId', params: { residentId: resident.id.toString() } })}
+                  onClick={() =>
+                    navigate({
+                      to: "/resident/$residentId",
+                      params: { residentId: resident.id.toString() },
+                    })
+                  }
                 >
                   <CardHeader>
                     <div className="flex items-start justify-between">
@@ -148,16 +202,20 @@ export default function ResidentDashboardPage() {
                         <CardTitle className="text-xl">
                           {resident.firstName} {resident.lastName}
                         </CardTitle>
-                        <p className="text-sm text-muted-foreground mt-1">Room {resident.roomNumber} - {resident.bed}</p>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          Room {resident.roomNumber} - {resident.bed}
+                        </p>
                       </div>
                       <span
                         className={`px-2 py-1 rounded-full text-xs font-medium ${
                           resident.status === ResidentStatus.active
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-gray-100 text-gray-800'
+                            ? "bg-green-100 text-green-800"
+                            : "bg-gray-100 text-gray-800"
                         }`}
                       >
-                        {resident.status === ResidentStatus.active ? 'Active' : 'Discharged'}
+                        {resident.status === ResidentStatus.active
+                          ? "Active"
+                          : "Discharged"}
                       </span>
                     </div>
                   </CardHeader>
@@ -172,20 +230,38 @@ export default function ResidentDashboardPage() {
                         <span className="font-medium">{formatAge(age)}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">Admission:</span>
-                        <span className="font-medium">{resident.admissionDate}</span>
+                        <span className="text-muted-foreground">
+                          Admission:
+                        </span>
+                        <span className="font-medium">
+                          {resident.admissionDate}
+                        </span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="text-muted-foreground">Code Status:</span>
+                        <span className="text-muted-foreground">
+                          Code Status:
+                        </span>
                         <CodeStatusBadge codeStatus={resident.codeStatus} />
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">Physicians:</span>
-                        <span className="font-medium">{resident.physicians.length}</span>
+                        <span className="text-muted-foreground">
+                          Physicians:
+                        </span>
+                        <span className="font-medium">
+                          {resident.physicians.length}
+                        </span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">Medications:</span>
-                        <span className="font-medium">{resident.medications.filter(m => m.isActive).length} active</span>
+                        <span className="text-muted-foreground">
+                          Medications:
+                        </span>
+                        <span className="font-medium">
+                          {
+                            resident.medications.filter((m) => m.isActive)
+                              .length
+                          }{" "}
+                          active
+                        </span>
                       </div>
                     </div>
                   </CardContent>
@@ -196,7 +272,9 @@ export default function ResidentDashboardPage() {
         )}
       </div>
 
-      {showAddModal && <AddNewResidentModal onClose={() => setShowAddModal(false)} />}
+      {showAddModal && (
+        <AddNewResidentModal onClose={() => setShowAddModal(false)} />
+      )}
     </div>
   );
 }

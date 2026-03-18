@@ -1,18 +1,21 @@
 interface LogoProps {
-  variant?: 'header' | 'login' | 'icon' | 'small';
+  variant?: "header" | "login" | "icon" | "small";
   className?: string;
 }
 
-export default function Logo({ variant = 'header', className = '' }: LogoProps) {
+export default function Logo({
+  variant = "header",
+  className = "",
+}: LogoProps) {
   // Use height-only sizing to preserve aspect ratio
   const sizeClasses = {
-    header: 'h-10',
-    login: 'h-10',
-    icon: 'h-8',
-    small: 'h-10',
+    header: "h-10",
+    login: "h-10",
+    icon: "h-8",
+    small: "h-10",
   };
 
-  const logoSrc = '/assets/generated/MoritzCareHomeLOGO-1.dim_512x512.png';
+  const logoSrc = "/assets/generated/MoritzCareHomeLOGO-1.dim_512x512.png";
 
   return (
     <img

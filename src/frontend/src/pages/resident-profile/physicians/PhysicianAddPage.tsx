@@ -1,23 +1,25 @@
-import { useState } from 'react';
-import { useParams, useNavigate } from '@tanstack/react-router';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { ArrowLeft } from 'lucide-react';
-import { useAddPhysician } from '../../../hooks/useQueries';
-import type { Physician } from '../../../backend';
-import ResidentProfileEditorSurface from '../../../components/resident-profile/ResidentProfileEditorSurface';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useNavigate, useParams } from "@tanstack/react-router";
+import { ArrowLeft } from "lucide-react";
+import { useState } from "react";
+import type { Physician } from "../../../backend";
+import ResidentProfileEditorSurface from "../../../components/resident-profile/ResidentProfileEditorSurface";
+import { useAddPhysician } from "../../../hooks/useQueries";
 
 export default function PhysicianAddPage() {
-  const { residentId } = useParams({ from: '/resident/$residentId/physicians/add' });
+  const { residentId } = useParams({
+    from: "/resident/$residentId/physicians/add",
+  });
   const navigate = useNavigate();
   const addPhysician = useAddPhysician();
 
   const [formData, setFormData] = useState({
-    name: '',
-    specialty: '',
-    contactInfo: '',
+    name: "",
+    specialty: "",
+    contactInfo: "",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -41,7 +43,11 @@ export default function PhysicianAddPage() {
   return (
     <ResidentProfileEditorSurface className="min-h-screen">
       <div className="container mx-auto px-4 py-8">
-        <Button variant="ghost" onClick={() => navigate({ to: `/resident/${residentId}` })} className="mb-6">
+        <Button
+          variant="ghost"
+          onClick={() => navigate({ to: `/resident/${residentId}` })}
+          className="mb-6"
+        >
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back to Resident Profile
         </Button>
@@ -57,7 +63,9 @@ export default function PhysicianAddPage() {
                 <Input
                   id="name"
                   value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, name: e.target.value })
+                  }
                   required
                 />
               </div>
@@ -67,7 +75,9 @@ export default function PhysicianAddPage() {
                 <Input
                   id="specialty"
                   value={formData.specialty}
-                  onChange={(e) => setFormData({ ...formData, specialty: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, specialty: e.target.value })
+                  }
                   required
                 />
               </div>
@@ -78,17 +88,23 @@ export default function PhysicianAddPage() {
                   id="contactInfo"
                   type="tel"
                   value={formData.contactInfo}
-                  onChange={(e) => setFormData({ ...formData, contactInfo: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, contactInfo: e.target.value })
+                  }
                   required
                 />
               </div>
 
               <div className="flex gap-3 justify-end">
-                <Button type="button" variant="outline" onClick={() => navigate({ to: `/resident/${residentId}` })}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => navigate({ to: `/resident/${residentId}` })}
+                >
                   Cancel
                 </Button>
                 <Button type="submit" disabled={addPhysician.isPending}>
-                  {addPhysician.isPending ? 'Saving...' : 'Save'}
+                  {addPhysician.isPending ? "Saving..." : "Save"}
                 </Button>
               </div>
             </form>

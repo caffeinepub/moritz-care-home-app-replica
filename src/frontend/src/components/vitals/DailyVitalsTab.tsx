@@ -1,18 +1,28 @@
-import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Plus } from 'lucide-react';
-import { useGetDailyVitals } from '../../hooks/useQueries';
-import RecordDailyVitalsModal from './modals/RecordDailyVitalsModal';
-import type { ResidentId } from '../../backend';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Plus } from "lucide-react";
+import { useState } from "react";
+import type { ResidentId } from "../../backend";
+import { useGetDailyVitals } from "../../hooks/useQueries";
+import RecordDailyVitalsModal from "./modals/RecordDailyVitalsModal";
 
 interface DailyVitalsTabProps {
   residentId: ResidentId;
   canWrite: boolean;
 }
 
-export default function DailyVitalsTab({ residentId, canWrite }: DailyVitalsTabProps) {
+export default function DailyVitalsTab({
+  residentId,
+  canWrite,
+}: DailyVitalsTabProps) {
   const { data: vitals = [] } = useGetDailyVitals(residentId);
   const [showAddModal, setShowAddModal] = useState(false);
 
@@ -25,7 +35,10 @@ export default function DailyVitalsTab({ residentId, canWrite }: DailyVitalsTabP
             Daily Vitals
           </CardTitle>
           {canWrite && (
-            <Button onClick={() => setShowAddModal(true)} className="bg-blue-600 hover:bg-blue-700">
+            <Button
+              onClick={() => setShowAddModal(true)}
+              className="bg-blue-600 hover:bg-blue-700"
+            >
               <Plus className="w-4 h-4 mr-2" />
               Record Daily Vitals
             </Button>
@@ -47,7 +60,7 @@ export default function DailyVitalsTab({ residentId, canWrite }: DailyVitalsTabP
               </TableRow>
             </TableHeader>
             <TableBody>
-              {vitals.map(vital => (
+              {vitals.map((vital) => (
                 <TableRow key={vital.id.toString()}>
                   <TableCell>
                     {vital.measurementDate} {vital.measurementTime}
@@ -56,12 +69,19 @@ export default function DailyVitalsTab({ residentId, canWrite }: DailyVitalsTabP
                     {vital.temperature}°{vital.temperatureUnit}
                   </TableCell>
                   <TableCell>
-                    {vital.bloodPressureSystolic.toString()}/{vital.bloodPressureDiastolic.toString()}
+                    {vital.bloodPressureSystolic.toString()}/
+                    {vital.bloodPressureDiastolic.toString()}
                   </TableCell>
                   <TableCell>{vital.pulseRate.toString()} bpm</TableCell>
-                  <TableCell>{vital.respiratoryRate.toString()} breaths/min</TableCell>
+                  <TableCell>
+                    {vital.respiratoryRate.toString()} breaths/min
+                  </TableCell>
                   <TableCell>{vital.oxygenSaturation.toString()}%</TableCell>
-                  <TableCell>{vital.bloodGlucose ? `${vital.bloodGlucose.toString()} mg/dL` : '-'}</TableCell>
+                  <TableCell>
+                    {vital.bloodGlucose
+                      ? `${vital.bloodGlucose.toString()} mg/dL`
+                      : "-"}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -71,7 +91,12 @@ export default function DailyVitalsTab({ residentId, canWrite }: DailyVitalsTabP
         )}
       </CardContent>
 
-      {showAddModal && <RecordDailyVitalsModal residentId={residentId} onClose={() => setShowAddModal(false)} />}
+      {showAddModal && (
+        <RecordDailyVitalsModal
+          residentId={residentId}
+          onClose={() => setShowAddModal(false)}
+        />
+      )}
     </Card>
   );
 }

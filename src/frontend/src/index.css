@@ -4,20 +4,20 @@
 
 @layer base {
   :root {
-    --background: oklch(98% 0.01 240);
-    --foreground: oklch(20% 0.02 240);
+    --background: oklch(100% 0 0);
+    --foreground: oklch(10% 0 0);
     --card: oklch(100% 0 0);
-    --card-foreground: oklch(20% 0.02 240);
+    --card-foreground: oklch(10% 0 0);
     --popover: oklch(100% 0 0);
-    --popover-foreground: oklch(20% 0.02 240);
+    --popover-foreground: oklch(10% 0 0);
     --primary: oklch(45% 0.18 240);
     --primary-foreground: oklch(98% 0.01 240);
     --secondary: oklch(92% 0.02 240);
-    --secondary-foreground: oklch(20% 0.02 240);
+    --secondary-foreground: oklch(10% 0 0);
     --muted: oklch(92% 0.02 240);
-    --muted-foreground: oklch(50% 0.02 240);
+    --muted-foreground: oklch(40% 0.02 240);
     --accent: oklch(92% 0.02 240);
-    --accent-foreground: oklch(20% 0.02 240);
+    --accent-foreground: oklch(10% 0 0);
     --destructive: oklch(55% 0.22 25);
     --destructive-foreground: oklch(98% 0.01 240);
     --border: oklch(88% 0.02 240);
@@ -66,6 +66,56 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Enforce solid white backgrounds and black text for all Radix UI overlay surfaces */
+[data-radix-popper-content-wrapper],
+[data-radix-portal] [role="dialog"],
+[data-radix-portal] [role="menu"],
+[data-radix-portal] [role="listbox"],
+[data-radix-select-viewport],
+[data-radix-select-content],
+[data-radix-dropdown-menu-content],
+[data-radix-popover-content] {
+  background: oklch(100% 0 0) !important;
+  color: oklch(10% 0 0) !important;
+  opacity: 1 !important;
+}
+
+/* Ensure form controls inside dialogs/popovers have proper styling */
+[data-radix-portal] input,
+[data-radix-portal] textarea,
+[data-radix-portal] select,
+[data-radix-popper-content-wrapper] input,
+[data-radix-popper-content-wrapper] textarea,
+[data-radix-popper-content-wrapper] select {
+  background: oklch(100% 0 0) !important;
+  color: oklch(10% 0 0) !important;
+  border-color: oklch(70% 0 0) !important;
+}
+
+/* Ensure labels and text in dialogs/popovers are black */
+[data-radix-portal] label,
+[data-radix-portal] h1,
+[data-radix-portal] h2,
+[data-radix-portal] h3,
+[data-radix-portal] p,
+[data-radix-portal] span,
+[data-radix-popper-content-wrapper] label,
+[data-radix-popper-content-wrapper] h1,
+[data-radix-popper-content-wrapper] h2,
+[data-radix-popper-content-wrapper] h3,
+[data-radix-popper-content-wrapper] p,
+[data-radix-popper-content-wrapper] span {
+  color: oklch(10% 0 0) !important;
+}
+
+/* Ensure select trigger buttons have proper styling */
+[data-radix-portal] button[role="combobox"],
+[data-radix-popper-content-wrapper] button[role="combobox"] {
+  background: oklch(100% 0 0) !important;
+  color: oklch(10% 0 0) !important;
+  border-color: oklch(70% 0 0) !important;
 }
 
 /* Resident Profile Editor Background Modes */
@@ -158,52 +208,6 @@
   color: oklch(10% 0 0);
 }
 
-/* Solid white dialog background utility */
-.dialog-solid-white {
-  background: oklch(100% 0 0) !important;
-}
-
-.dialog-solid-white * {
-  color: oklch(10% 0 0);
-}
-
-.dialog-solid-white input,
-.dialog-solid-white textarea,
-.dialog-solid-white select {
-  background: oklch(100% 0 0);
-  color: oklch(10% 0 0);
-  border-color: oklch(70% 0 0);
-}
-
-.dialog-solid-white [role="combobox"] {
-  background: oklch(100% 0 0);
-  color: oklch(10% 0 0);
-  border-color: oklch(70% 0 0);
-}
-
-/* Physician signature switch styling */
-[data-physician-signature-switch] [data-state="unchecked"] {
-  background-color: oklch(60% 0.15 145);
-}
-
-[data-physician-signature-switch] [data-state="unchecked"] .switch-thumb {
-  background-color: oklch(98% 0.01 145);
-}
-
-[data-physician-signature-switch] [data-state="checked"] .switch-thumb {
-  background-color: oklch(100% 0 0);
-}
-
-/* Global enforcement: all Radix UI surfaces must be solid opaque */
-[data-radix-popper-content-wrapper],
-[data-radix-portal] [role="dialog"],
-[data-radix-portal] [role="menu"],
-[data-radix-portal] [role="listbox"],
-[data-radix-select-viewport] {
-  background: oklch(100% 0 0) !important;
-  opacity: 1 !important;
-}
-
 /* Print styles */
 @media print {
   @page {
@@ -214,6 +218,8 @@
   body {
     print-color-adjust: exact;
     -webkit-print-color-adjust: exact;
+    background: oklch(100% 0 0) !important;
+    color: oklch(10% 0 0) !important;
   }
 
   .no-print,
@@ -244,24 +250,95 @@
     text-shadow: none !important;
   }
 
-  a,
-  a:visited {
-    text-decoration: underline;
+  .print-page {
+    background: oklch(100% 0 0) !important;
+    color: oklch(10% 0 0) !important;
+  }
+
+  .print-header h1,
+  .print-header h2,
+  .print-header p,
+  .print-section h2,
+  .print-section p,
+  .print-section-title,
+  .print-footer p {
+    color: oklch(10% 0 0) !important;
+  }
+
+  .print-section {
+    margin-bottom: 1.5rem;
+  }
+
+  .print-section-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    color: oklch(10% 0 0) !important;
+    border-bottom: 2px solid oklch(10% 0 0);
+    padding-bottom: 0.25rem;
   }
 
   table {
     border-collapse: collapse !important;
+    width: 100%;
   }
 
   table,
   th,
   td {
-    border: 1px solid oklch(30% 0 0) !important;
+    border: 1px solid oklch(10% 0 0) !important;
   }
 
   th,
   td {
     padding: 8px !important;
+    color: oklch(10% 0 0) !important;
+  }
+
+  th {
+    background: oklch(95% 0 0) !important;
+    font-weight: 600;
+  }
+
+  .print-medication-table {
+    width: 100%;
+    margin-top: 0.5rem;
+  }
+
+  .print-medication-table th {
+    text-align: left;
+    font-weight: 600;
+    background: oklch(95% 0 0) !important;
+  }
+
+  .print-physician-signature-section {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 2px solid oklch(10% 0 0);
+  }
+
+  .print-signature-fields {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-top: 1rem;
+  }
+
+  .print-signature-field {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .print-signature-field p {
+    color: oklch(10% 0 0) !important;
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+  }
+
+  .print-signature-line {
+    border-bottom: 2px solid oklch(10% 0 0);
+    height: 2rem;
+    width: 100%;
   }
 
   h1,
@@ -272,11 +349,18 @@
   h6 {
     page-break-after: avoid;
     break-after: avoid;
+    color: oklch(10% 0 0) !important;
   }
 
   img {
     max-width: 100% !important;
     page-break-inside: avoid;
     break-inside: avoid;
+  }
+
+  a,
+  a:visited {
+    text-decoration: underline;
+    color: oklch(10% 0 0) !important;
   }
 }
