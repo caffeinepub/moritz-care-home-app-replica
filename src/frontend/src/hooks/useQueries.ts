@@ -71,6 +71,8 @@ export function useIsCallerAdmin() {
       return actor.isCallerAdmin();
     },
     enabled: !!actor && !isFetching,
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 5000),
   });
 }
 
@@ -177,25 +179,46 @@ export function useGetAccessibleResidents() {
     queryFn: async () => {
       if (!actor) throw new Error("Actor not available");
 
+      // Admin path: explicitly granted list-all permission
       if (canListAll) {
         return actor.getAllResidents();
       }
 
-      if (!userProfile || !userProfile.relatedResidentIds.length) {
-        return [];
+      // Fallback: profile is null, meaning this user has no stored profile yet.
+      // This happens after a canister redeployment where access control resets.
+      // In that case, attempt getAllResidents() so the dashboard isn't empty for
+      // the person who manages the app (they will re-appear as admin after setup).
+      if (userProfile === null || userProfile === undefined) {
+        console.log(
+          "[AccessibleResidents] No profile found — attempting getAllResidents() as fallback",
+        );
+        try {
+          return await actor.getAllResidents();
+        } catch (err) {
+          console.warn(
+            "[AccessibleResidents] getAllResidents fallback failed:",
+            err,
+          );
+          return [];
+        }
       }
 
-      const residents = await Promise.all(
-        userProfile.relatedResidentIds.map(async (id) => {
-          try {
-            return await actor.getResident(id);
-          } catch {
-            return null;
-          }
-        }),
-      );
+      // Non-admin with related resident IDs: fetch each individually
+      if (userProfile.relatedResidentIds.length > 0) {
+        const residents = await Promise.all(
+          userProfile.relatedResidentIds.map(async (id) => {
+            try {
+              return await actor.getResident(id);
+            } catch {
+              return null;
+            }
+          }),
+        );
+        return residents.filter((r): r is Resident => r !== null);
+      }
 
-      return residents.filter((r): r is Resident => r !== null);
+      // Non-admin with no related resident IDs
+      return [];
     },
     enabled:
       !!actor && !actorFetching && !!identity && profileFetched && adminFetched,
