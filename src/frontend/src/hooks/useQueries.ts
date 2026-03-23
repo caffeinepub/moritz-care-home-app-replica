@@ -12,11 +12,9 @@ import type {
   Physician,
   Resident,
   ResidentId,
-  ResidentStatus,
   ResponsibleContact,
   UserProfile,
 } from "../backend";
-import { canListAllResidents } from "../lib/auth/helpers";
 import { useInternetIdentity } from "./useInternetIdentity";
 import { useResilientActor } from "./useResilientActor";
 
@@ -157,83 +155,21 @@ export function useGetAllResidents() {
 export function useGetAccessibleResidents() {
   const { actor, isFetching: actorFetching } = useResilientActor();
   const { identity } = useInternetIdentity();
-  const {
-    data: userProfile,
-    isFetched: profileFetched,
-    isLoading: profileLoading,
-  } = useGetCallerUserProfile();
-  const {
-    data: isAdmin = false,
-    isFetched: adminFetched,
-    isLoading: adminLoading,
-  } = useIsCallerAdmin();
-
-  const canListAll = canListAllResidents(userProfile, isAdmin);
+  const { isLoading: profileLoading } = useGetCallerUserProfile();
 
   const query = useQuery<Resident[]>({
-    queryKey: [
-      "accessibleResidents",
-      isAdmin,
-      userProfile?.relatedResidentIds.map((id) => id.toString()),
-    ],
+    queryKey: ["accessibleResidents", identity?.getPrincipal().toString()],
     queryFn: async () => {
       if (!actor) throw new Error("Actor not available");
-
-      // Admin path: explicitly granted list-all permission
-      if (canListAll) {
-        return actor.getAllResidents();
-      }
-
-      // Fallback: profile is null, meaning this user has no stored profile yet.
-      // This happens after a canister redeployment where access control resets.
-      // In that case, attempt getAllResidents() so the dashboard isn't empty for
-      // the person who manages the app (they will re-appear as admin after setup).
-      if (userProfile === null || userProfile === undefined) {
-        console.log(
-          "[AccessibleResidents] No profile found — attempting getAllResidents() as fallback",
-        );
-        try {
-          return await actor.getAllResidents();
-        } catch (err) {
-          console.warn(
-            "[AccessibleResidents] getAllResidents fallback failed:",
-            err,
-          );
-          return [];
-        }
-      }
-
-      // Non-admin with related resident IDs: fetch each individually
-      if (userProfile.relatedResidentIds.length > 0) {
-        const residents = await Promise.all(
-          userProfile.relatedResidentIds.map(async (id) => {
-            try {
-              return await actor.getResident(id);
-            } catch {
-              return null;
-            }
-          }),
-        );
-        return residents.filter((r): r is Resident => r !== null);
-      }
-
-      // Non-admin with no related resident IDs
-      return [];
+      return actor.getAllResidents();
     },
-    enabled:
-      !!actor && !actorFetching && !!identity && profileFetched && adminFetched,
+    enabled: !!actor && !actorFetching && !!identity,
   });
 
   return {
     ...query,
-    isLoading:
-      actorFetching || profileLoading || adminLoading || query.isLoading,
-    isFetched:
-      !!actor &&
-      !actorFetching &&
-      profileFetched &&
-      adminFetched &&
-      query.isFetched,
+    isLoading: actorFetching || profileLoading || query.isLoading,
+    isFetched: !!actor && !actorFetching && query.isFetched,
   };
 }
 
