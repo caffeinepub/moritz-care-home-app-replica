@@ -68,33 +68,93 @@
   }
 }
 
-/* Enforce solid white backgrounds and black text for all Radix UI overlay surfaces */
+/* ===================================================================
+   SOLID WHITE ENFORCEMENT — No transparency in any pop-out UI surface
+   =================================================================== */
+
+/* All Radix portal/popper wrappers and their direct children */
+[data-radix-portal],
+[data-radix-portal] > *,
 [data-radix-popper-content-wrapper],
-[data-radix-portal] [role="dialog"],
-[data-radix-portal] [role="menu"],
-[data-radix-portal] [role="listbox"],
-[data-radix-select-viewport],
-[data-radix-select-content],
-[data-radix-dropdown-menu-content],
-[data-radix-popover-content] {
-  background: oklch(100% 0 0) !important;
-  color: oklch(10% 0 0) !important;
+[data-radix-popper-content-wrapper] > * {
+  background-color: white !important;
   opacity: 1 !important;
 }
 
-/* Ensure form controls inside dialogs/popovers have proper styling */
+/* Dialog and alert-dialog content boxes */
+[role="dialog"],
+[data-radix-dialog-content],
+[data-radix-alert-dialog-content] {
+  background-color: white !important;
+  color: black !important;
+  opacity: 1 !important;
+}
+
+/* Select, dropdown, popover, context-menu floating content */
+[role="listbox"],
+[role="menu"],
+[data-radix-select-content],
+[data-radix-select-viewport],
+[data-radix-dropdown-menu-content],
+[data-radix-popover-content],
+[data-radix-context-menu-content] {
+  background-color: white !important;
+  color: black !important;
+  opacity: 1 !important;
+}
+
+/* Specific Radix popper wrapper with extra specificity */
+[data-radix-portal] [role="dialog"],
+[data-radix-portal] [role="menu"],
+[data-radix-portal] [role="listbox"] {
+  background-color: white !important;
+  color: black !important;
+  opacity: 1 !important;
+}
+
+/* Menu items and options inside any floating layer */
+[role="option"],
+[role="menuitem"],
+[role="menuitemcheckbox"],
+[role="menuitemradio"] {
+  background-color: transparent;
+  color: black !important;
+  opacity: 1 !important;
+}
+
+[role="option"]:hover,
+[role="menuitem"]:hover,
+[role="menuitemcheckbox"]:hover,
+[role="menuitemradio"]:hover,
+[data-highlighted] {
+  background-color: #f3f4f6 !important;
+  color: black !important;
+}
+
+/* Form controls inside any floating layer */
 [data-radix-portal] input,
 [data-radix-portal] textarea,
 [data-radix-portal] select,
 [data-radix-popper-content-wrapper] input,
 [data-radix-popper-content-wrapper] textarea,
 [data-radix-popper-content-wrapper] select {
-  background: oklch(100% 0 0) !important;
-  color: oklch(10% 0 0) !important;
+  background-color: white !important;
+  color: black !important;
   border-color: oklch(70% 0 0) !important;
+  opacity: 1 !important;
 }
 
-/* Ensure labels and text in dialogs/popovers are black */
+/* Select trigger combobox buttons */
+[data-radix-portal] button[role="combobox"],
+[data-radix-popper-content-wrapper] button[role="combobox"],
+button[role="combobox"] {
+  background-color: white !important;
+  color: black !important;
+  border-color: oklch(70% 0 0) !important;
+  opacity: 1 !important;
+}
+
+/* Text nodes inside floating layers */
 [data-radix-portal] label,
 [data-radix-portal] h1,
 [data-radix-portal] h2,
@@ -107,18 +167,19 @@
 [data-radix-popper-content-wrapper] h3,
 [data-radix-popper-content-wrapper] p,
 [data-radix-popper-content-wrapper] span {
-  color: oklch(10% 0 0) !important;
+  color: black !important;
+  opacity: 1 !important;
 }
 
-/* Ensure select trigger buttons have proper styling */
-[data-radix-portal] button[role="combobox"],
-[data-radix-popper-content-wrapper] button[role="combobox"] {
-  background: oklch(100% 0 0) !important;
-  color: oklch(10% 0 0) !important;
-  border-color: oklch(70% 0 0) !important;
+/* Remove any opacity from icons inside floating layers */
+[data-radix-portal] svg,
+[data-radix-popper-content-wrapper] svg {
+  opacity: 1 !important;
 }
 
-/* Resident Profile Editor Background Modes */
+/* ===================================================================
+   Resident Profile Editor Background Modes
+   =================================================================== */
 .resident-profile-editor-white {
   background: oklch(100% 0 0);
   color: oklch(10% 0 0);
@@ -208,7 +269,9 @@
   color: oklch(10% 0 0);
 }
 
-/* Print styles */
+/* ===================================================================
+   Print styles
+   =================================================================== */
 @media print {
   @page {
     size: letter;

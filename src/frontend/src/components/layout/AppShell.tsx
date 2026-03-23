@@ -48,10 +48,11 @@ export default function AppShell() {
       {/* Sidebar - only shown when authenticated */}
       {isAuthenticated && (
         <>
-          {/* Mobile overlay */}
+          {/* Mobile overlay - solid white with border instead of transparent black */}
           {sidebarOpen && (
             <div
-              className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+              className="fixed inset-0 bg-white z-40 lg:hidden"
+              style={{ opacity: 1 }}
               onClick={() => setSidebarOpen(false)}
               onKeyDown={(e) => e.key === "Escape" && setSidebarOpen(false)}
               role="button"
@@ -63,7 +64,7 @@ export default function AppShell() {
           {/* Sidebar */}
           <aside
             className={cn(
-              "fixed lg:static inset-y-0 left-0 z-50 w-64 bg-card border-r flex flex-col transition-transform duration-300 lg:translate-x-0",
+              "fixed lg:static inset-y-0 left-0 z-50 w-64 bg-white border-r flex flex-col transition-transform duration-300 lg:translate-x-0",
               sidebarOpen ? "translate-x-0" : "-translate-x-full",
             )}
           >
@@ -113,7 +114,7 @@ export default function AppShell() {
 
       {/* Main content area */}
       <div className="flex-1 flex flex-col min-w-0">
-        <header className="border-b bg-card sticky top-0 z-30">
+        <header className="border-b bg-white sticky top-0 z-30">
           <div className="container mx-auto px-4 py-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
               {isAuthenticated && (
@@ -145,7 +146,7 @@ export default function AppShell() {
           <Outlet />
         </main>
 
-        <footer className="border-t bg-card py-6 mt-auto">
+        <footer className="border-t bg-white py-6 mt-auto">
           <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
             <p>
               © {new Date().getFullYear()} Moritz Care Home. Built with ❤️ using{" "}
